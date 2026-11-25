@@ -486,7 +486,7 @@
       // mark received when displayed
       const unseen = dls.filter(d => !d.receivedAt && d.channel === 'marsa_app' && !state.sentReceived.has(d.id)).map(d => d.id);
       if (unseen.length && document.visibilityState === 'visible') { unseen.forEach(id => state.sentReceived.add(id)); client.call('deliveryEvent', { ids: unseen, event: 'received' }).catch(() => unseen.forEach(id => state.sentReceived.delete(id))); }
-      fill('#bstatus', open.length ? open.map(d => { const w = warning(d.warningId) || {}; return '<div class="bigalert lv-' + w.severity + '"><div class="ba-head"><span class="ba-icon">!</span><div><b>' + esc(L(w.title)) + '</b><span>' + T('إنذار من مَرسى', 'MARSA alert') + ' · ' + esc(w.number) + ' · ' + lv(w.severity) + '</span></div></div><div class="ba-body"><p>' + esc(L(w.body)) + '</p><p><b>' + T('التعليمات: ', 'Instructions: ') + '</b>' + esc(L(w.action)) + '</p><p class="sm">' + T('الموقع: ', 'Area: ') + esc(L(w.zone)) + ' · ' + T('الوقت المتوقع: ', 'Expected: ') + fT(w.startAt) + ' – ' + fT(w.expiryAt) + '</p></div><button class="btn big light" data-a="ackAlert" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button></div>'; }).join('')
+      fill('#bstatus', open.length ? open.map(d => { const w = warning(d.warningId) || {}; return '<div class="bigalert lv-critical"><div class="ba-head"><span class="ba-icon">!</span><div><b>' + esc(L(w.title)) + '</b><span>' + T('إنذار من مَرسى', 'MARSA alert') + ' · ' + esc(w.number) + ' · ' + lv(w.severity) + '</span></div></div><div class="ba-body"><p>' + esc(L(w.body)) + '</p><p><b>' + T('التعليمات: ', 'Instructions: ') + '</b>' + esc(L(w.action)) + '</p><p class="sm">' + T('الموقع: ', 'Area: ') + esc(L(w.zone)) + ' · ' + T('الوقت المتوقع: ', 'Expected: ') + fT(w.startAt) + ' – ' + fT(w.expiryAt) + '</p></div><button class="btn big light" data-a="ackAlert" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button></div>'; }).join('')
         : '<div class="calmline">' + T('لا توجد إنذارات بانتظار التأكيد. ستظهر هنا أي إنذارات جديدة من مَرسى مع تنبيه صوتي.', 'No alerts awaiting confirmation. New MARSA alerts will appear here with a sound alarm.') + '</div>');
       const r = s.recs.filter(x => x.released).slice(-1)[0];
       if (r) {
@@ -515,11 +515,11 @@
     if (!w) return;
     $$('.alarm-wrap').forEach(x => x.remove());
     const el = document.createElement('div'); el.className = 'alarm-wrap';
-    el.innerHTML = '<div class="alarm lv-' + w.severity + '" role="alertdialog" aria-modal="true"><div class="al-head"><span class="al-icon">!</span><div><b>' + (test ? T('اختبار', 'TEST') : T('إنذار من مَرسى', 'MARSA ALERT')) + '</b><span>' + lv(w.severity) + ' · ' + esc(w.number) + '</span></div></div><h2>' + esc(L(w.title)) + '</h2><p>' + esc(L(w.body)) + '</p>' +
+    el.innerHTML = '<div class="alarm lv-critical" role="alertdialog" aria-modal="true"><div class="al-head"><span class="al-icon">!</span><div><b>' + (test ? T('اختبار', 'TEST') : T('إنذار من مَرسى', 'MARSA ALERT')) + '</b><span>' + T('الخطورة: ', 'Severity: ') + lv(w.severity) + ' · ' + esc(w.number) + '</span></div></div><h2>' + esc(L(w.title)) + '</h2><p>' + esc(L(w.body)) + '</p>' +
       '<div class="kv"><span>' + T('الموقع', 'Location') + '</span><b>' + esc(L(w.zone)) + '</b><span>' + T('الوقت المتوقع', 'Expected time') + '</span><b>' + fT(w.startAt) + ' – ' + fT(w.expiryAt) + '</b><span>' + T('التعليمات', 'Instructions') + '</span><b>' + esc(L(w.action)) + '</b><span>' + T('صدر', 'Issued') + '</span><b>' + fT(w.issueAt || S().now) + ' · ' + T('منصة مَرسى – ضابط الميناء', 'MARSA – Port Officer') + '</b></div>' +
       (test ? '<button class="btn big light" data-a="closeAlarm">' + T('إغلاق الاختبار', 'Close test') + '</button>' : '<label class="offname">' + T('اسم الضابط المناوب', 'Officer of the watch') + '<input id="alof" value="' + esc(T('ضابط المناوبة', 'Officer of the watch')) + '"></label><button class="btn big light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button><button class="btn ghost light sm" data-a="closeAlarm">' + T('عرض لاحقًا', 'Later') + '</button>') + '</div>';
     document.body.appendChild(el);
-    Sound.ring(); if (!test && ['high', 'critical'].includes(w.severity)) Sound.repeat();
+    Sound.ring(); if (!test) Sound.repeat();
   }
   A.testAlarm = () => { Sound.unlock(); showAlarm(null, true); };
   A.closeAlarm = () => { $$('.alarm-wrap').forEach(x => x.remove()); Sound.stopRepeat(); };
