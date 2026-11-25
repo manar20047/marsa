@@ -58,7 +58,11 @@ test('full journey: alert → approve → dispatch → ship receives → acknowl
   s.prepareDispatch(OFF, { id: al.id }); assert.equal(s.snapshot(OFF).alerts[0].status, 'ready_for_dispatch');
   const d = s.dispatchAlert(OFF, { id: al.id }); assert.ok(d.ok > 0); assert.ok(d.fail >= 1, 'vessel without channel fails');
   assert.equal(s.snapshot(OFF).alerts[0].status, 'dispatched_test');
-  const vid = targets.find(id => s.store.get('vessels', id).channel === 'bridge' && s.store.get('vessels', id).status === 'underway'), B = bridgeOf(s, vid);
+  const V = id => s.store.get('vessels', id);
+  const held = s.snapshot(OFF).deliveryRecords.filter(x => x.alertId === al.id && x.status === 'held_outside_ts');
+  assert.ok(held.length > 0 && held.every(x => !V(x.vesselId).inTerritorialSea), 'vessels outside territorial waters are held');
+  assert.ok(s.snapshot(OFF).deliveryRecords.filter(x => x.alertId === al.id && x.status === 'dispatched').every(x => V(x.vesselId).inTerritorialSea));
+  const vid = targets.find(id => V(id).channel === 'bridge' && V(id).inTerritorialSea && V(id).routeNodes.length), B = bridgeOf(s, vid);
   let bs = s.snapshot(B); assert.equal(bs.alerts.length, 1); assert.equal(bs.deliveryRecords.length, 1); assert.ok(bs.alternativeRoutes.length >= 1);
   assert.ok(!bs.vessels.some(v => v.id !== vid), 'bridge sees only its own vessel');
   s.markReceived(B, { ids: [bs.deliveryRecords[0].id] });
@@ -73,6 +77,11 @@ test('full journey: alert → approve → dispatch → ship receives → acknowl
   const actions = s.snapshot(OFF).auditLogs.map(a => a.action);
   for (const a of ['alert.create', 'alert.submit', 'alert.approve', 'route.propose', 'alert.prepare', 'alert.dispatch', 'alert.received', 'alert.ack']) assert.ok(actions.includes(a), a);
   assert.equal(s.verifyAudit(OFF).ok, true);
+  // a held vessel that enters territorial waters receives the alert
+  const h = held.find(x => V(x.vesselId).channel === 'bridge'), hv = V(h.vesselId), port = require('../shared/core.js').PORTS.find(p => p.id === 'JED');
+  s.upsertVessel(OFF, { id: hv.id, name: hv.name, type: hv.type, lat: port.p[1] + .02, lon: port.p[0] - .08, sog: 6, cog: 90, draft: hv.draft, destId: 'JED', status: 'underway', channel: 'bridge' });
+  assert.equal(s.snapshot(OFF).deliveryRecords.find(x => x.id === h.id).status, 'dispatched');
+  assert.ok(s.snapshot(OFF).auditLogs.some(a => a.action === 'alert.release'));
 });
 
 test('bridge cannot act on other vessels or officer methods', () => {
@@ -147,4 +156,19 @@ test('alerts expire after validity', () => {
   const { s, adv } = mk();
   const al = s.createAlert(OFF, { customArea: true, lat: 21.5, lon: 38.9, radiusNm: 20, targets: ['V1'], title: { ar: 'ا', en: 'a' }, body: { ar: 'ب', en: 'b' }, validTo: Date.UTC(2026, 11, 3, 8) });
   adv(3); s.tick(); assert.equal(s.store.get('alerts', al.id).status, 'expired');
+});
+
+test('IMO/territorial rules: local warnings not on NAVTEX, direct alerts only up to territorial waters', () => {
+  const { s, now } = mk();
+  const loc = s.saveNavtex(OFF, { subject: 'A', scope: 'LOCAL', targetId: 'H_JED', areaText: 'Jeddah port', textEn: 'Buoy unlit', validFrom: now(), validTo: now() + H });
+  assert.equal(loc.status, 'invalid'); assert.ok(loc.errors.some(e => /should not be broadcast on international NAVTEX/.test(e)));
+  const off = s.createAlert(OFF, { customArea: true, lat: 20.0, lon: 38.6, radiusNm: 10, targets: ['V1'], title: { ar: 'ا', en: 'a' }, body: { ar: 'ب', en: 'b' } });
+  assert.equal(off.wwnws.reachesTerritorialSea, false); s.submitAlert(OFF, { id: off.id });
+  assert.throws(() => s.approveAlert(OFF, { id: off.id, disclaimer: true }), /outside_territorial_sea/);
+  const port = s.createAlert(OFF, { customArea: true, lat: 21.47, lon: 39.1, radiusNm: 6, targets: ['V12'], title: { ar: 'ا', en: 'a' }, body: { ar: 'ب', en: 'b' } });
+  assert.equal(port.wwnws.level, 'LOCAL'); assert.equal(port.wwnws.directAlertAllowed, true);
+  const r = s.snapshot(OFF).maritimeRisks.find(x => x.areaId === 'NRS' || x.areaId === 'JED');
+  assert.ok(r.indicators.some(i => i.name !== 'windKn' || i.beaufort >= 1));
+  const mf = s.marineForecast(OFF, { areaId: 'JED' });
+  assert.match(mf.text.en, /PART I - WARNINGS/); assert.match(mf.text.en, /PART III - FORECAST/); assert.ok(mf.validTo - mf.validFrom >= 23 * H);
 });

@@ -99,6 +99,12 @@
     socotra: [[53.3,12.6],[54.5,12.7],[54.2,12.3],[53.6,12.3]],
     bahrain: [[50.45,26.25],[50.65,26.25],[50.62,25.8],[50.45,25.9]]
   };
+  // Saudi coastline (subset of the simplified outline above: Red Sea and Arabian Gulf coasts). Approximate – not official baselines.
+  const SA_COAST = [LAND.asia.slice(80, 95), LAND.asia.slice(43, 51)];
+  const TERRITORIAL_SEA_NM = 12; // UNCLOS art. 3; measured here from the simplified coastline, not from official baselines
+  function distSegNm(p, a, b) { const k = Math.cos(p[1] * Math.PI / 180), ax = (a[0] - p[0]) * k * 60, ay = (a[1] - p[1]) * 60, bx = (b[0] - p[0]) * k * 60, by = (b[1] - p[1]) * 60, dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy; let t = L ? -(ax * dx + ay * dy) / L : 0; t = Math.max(0, Math.min(1, t)); const x = ax + t * dx, y = ay + t * dy; return Math.sqrt(x * x + y * y); }
+  function distToSaudiCoastNm(p) { let m = Infinity; for (const line of SA_COAST) for (let i = 1; i < line.length; i++) m = Math.min(m, distSegNm(p, line[i - 1], line[i])); return m; }
+  const inSaudiTerritorialSea = p => distToSaudiCoastNm(p) <= TERRITORIAL_SEA_NM;
   const SEA_LABELS = [
     { ar: 'البحر الأحمر', en: 'Red Sea', p: [37.3, 21.2], rot: -58 },
     { ar: 'خليج عدن', en: 'Gulf of Aden', p: [47.5, 12.2], rot: 8 },
@@ -423,7 +429,7 @@
   return {
     gcNm, pointInPoly, segmentHitsPoly, distPolyToPolyline, centroid, circlePoly, polylineLength, pointAlong, bearing, fmtCoord,
     PORT_PROFILES, DEFAULT_THRESHOLDS, LOCAL_RADIUS_NM, WAITING_AREAS, classifyWarningLevel, sha256,
-    LAND, SEA_LABELS, NODES, VIRTUAL, EDGES, GRAPH, PORTS, NAVAREAS, STATIONS, MET_AREAS, CHOKEPOINTS, ASSUMPTIONS,
+    LAND, SA_COAST, TERRITORIAL_SEA_NM, distToSaudiCoastNm, inSaudiTerritorialSea, SEA_LABELS, NODES, VIRTUAL, EDGES, GRAPH, PORTS, NAVAREAS, STATIONS, MET_AREAS, CHOKEPOINTS, ASSUMPTIONS,
     shortestPath, nodesToCoords, nodesNm, remainingRoute, displayCoords, navareaOf, selectStations, classifyScope,
     buildStationMessage, voyageCost, roadKm, scoreRoute, polyExtentNm
   };

@@ -48,10 +48,10 @@
   const UKC_M = 1.0; // under-keel clearance used against test depths
   // Test vessel records: [id, name, type, origin, dest, atNode, nmBack, sog, draft, lengthM, channel]
   const VESSELS = [
-    ['V1', 'Murjan Glory', 'bulk', 'JZN', 'JED', 'RS4', 15, 12.5, 10.5, 180, 'bridge'], ['V2', 'Aegean Star', 'container', 'PSD', 'JED', 'RS3', 25, 15, 12.6, 260, 'bridge'],
+    ['V1', 'Murjan Glory', 'bulk', 'JZN', 'JED', 'approach', 0, 8, 10.5, 180, 'bridge'], ['V2', 'Aegean Star', 'container', 'PSD', 'JED', 'RS3', 25, 15, 12.6, 260, 'bridge'],
     ['V3', 'Sawari Trader', 'general', 'AQB', 'JED', 'RS2', 30, 13, 9.8, 160, 'bridge'], ['V4', 'Ocean Falcon', 'container', 'PSU', 'JED', 'RS4', 40, 16, 12.0, 250, 'bridge'],
     ['V5', 'Tihama Bulk', 'bulk', 'JZN', 'JED', 'RS5', 20, 12, 9.8, 190, 'bridge'], ['V6', 'Red Sea Breeze', 'roro', 'PSD', 'JED', 'RS1', 10, 17, 8.8, 200, 'bridge'],
-    ['V7', 'Asir Spirit', 'container', 'YNB', 'JED', 'YNB_A', 15, 15, 11.2, 220, 'bridge'], ['V8', 'Hejaz Carrier', 'bulk', 'PSU', 'JED', 'PSU_A', 20, 12.5, 10.8, 185, 'ais'],
+    ['V7', 'Asir Spirit', 'container', 'YNB', 'JED', 'YNB_A', 15, 15, 11.2, 220, 'bridge'], ['V8', 'Hejaz Carrier', 'bulk', 'PSU', 'JED', 'PSU_A', 20, 12.5, 10.8, 185, 'vhf'],
     ['V9', 'Corniche Express', 'container', 'KAP', 'JED', 'anchor', 0, 15, 11.5, 230, 'bridge'], ['V10', 'Fanar Pioneer', 'general', 'YNB', 'JED', 'anchor', 0, 13, 9.5, 150, 'bridge'],
     ['V11', 'Balad Trader', 'bulk', 'AQB', 'JED', 'anchor', 0, 12, 10.2, 170, 'none'], ['V12', 'Obhur Star', 'container', 'PSD', 'JED', 'berth', 0, 16, 12.8, 270, 'bridge'],
     ['V13', 'Yanbu Express', 'container', 'JED', 'YNB', 'JED_A', 8, 15, 11.0, 210, 'bridge'], ['V14', 'Kandara Bay', 'container', 'MUM', 'KAP', 'RS4', 60, 17, 12.9, 280, 'bridge'],
@@ -69,7 +69,7 @@
   ];
   const DEFAULT_RULES = {
     minLevel: 'medium',
-    windKn: [15, 22, 28, 34], waveM: [1.25, 2.0, 2.5, 3.5], visNm: [5, 2, 1, 0.5], currentKn: [1.5, 2.0, 2.5, 3.0],
+    windKn: [15, 22, 28, 34], waveM: [1.25, 2.0, 2.5, 3.5], visNm: [6, 2, 1, 0.5], currentKn: [1.5, 2.0, 2.5, 3.0],
     seaPenaltyPct: 30, ukcM: UKC_M
   };
   const IND = { windKn: tx('سرعة الرياح', 'Wind speed'), waveM: tx('ارتفاع الأمواج', 'Wave height'), visNm: tx('الرؤية الأفقية', 'Visibility'), currentKn: tx('سرعة التيار', 'Current speed') };
@@ -82,6 +82,13 @@
     if (ind === 'visNm') return v <= t[3] ? 'critical' : v <= t[2] ? 'high' : v <= t[1] ? 'medium' : v <= t[0] ? 'low' : 'none';
     return v >= t[3] ? 'critical' : v >= t[2] ? 'high' : v >= t[1] ? 'medium' : v >= t[0] ? 'low' : 'none';
   }
+
+  // Beaufort scale and WMO wind-warning categories (MSC.470(101) – revised WWMIWS guidance, 4.2.1.2)
+  const BFT = [1, 4, 7, 11, 17, 22, 28, 34, 41, 48, 56, 64]; // lower knot bound of Beaufort 1..12
+  const beaufort = kn => { let b = 0; for (let i = 0; i < BFT.length; i++) if (kn >= BFT[i]) b = i + 1; return b; };
+  const windWarning = kn => { const b = beaufort(kn); return b >= 12 ? 'hurricane' : b >= 10 ? 'storm' : b >= 8 ? 'gale' : null; };
+  const WWARN = { gale: tx('تحذير عاصفة (Gale) – بوفورت ٨–٩', 'Gale warning – Beaufort 8–9'), storm: tx('تحذير عاصفة شديدة (Storm) – بوفورت ١٠–١١', 'Storm warning – Beaufort 10–11'), hurricane: tx('تحذير إعصار (Hurricane-force) – بوفورت ١٢', 'Hurricane-force warning – Beaufort 12') };
+  const WWMIWS_REF = 'IMO Res. A.1051(27) as revised by MSC.470(101) (WWMIWS)';
 
   // ---------------------------------------------------------------- STORE
   class MemoryStore {
@@ -158,6 +165,7 @@
     }
     const nearestNodes = (p, k = 3) => Object.keys(C.NODES).filter(n => !C.VIRTUAL[n]).map(n => [n, C.gcNm(p, C.NODES[n])]).sort((a, b) => a[1] - b[1]).slice(0, k).map(x => x[0]);
     const destNodeOf = id => { const p = C.PORTS.find(x => x.id === id); return p ? p.node : null; };
+    const geo = v => { v.distCoastNm = r1(C.distToSaudiCoastNm(v.pos)); v.inTerritorialSea = v.distCoastNm <= C.TERRITORIAL_SEA_NM; return v; };
     const coordsOf = v => [v.pos].concat(v.routeNodes.map(n => C.NODES[n]));
     function remainingNm(v) { return v.routeNodes.length ? C.gcNm(v.pos, C.NODES[v.routeNodes[0]]) + C.nodesNm(v.routeNodes) : 0; }
     function planVesselRoute(v) {
@@ -191,13 +199,14 @@
       for (const [id, name, type, oId, dId, at, back, sog, draft, len, ch] of VESSELS) {
         const o = C.PORTS.find(p => p.id === oId), d = C.PORTS.find(p => p.id === dId), n = parseInt(id.slice(1), 10);
         const v = { id, name, imo: 'TEST-' + (9100000 + n * 4111 + 1), mmsi: '999' + String(100000 + n * 731).slice(-6), type, flag: 'SA', originId: oId, destId: dId, sog, cog: 0, draft, lengthM: len, channel: ch, status: 'underway', pos: null, routeNodes: [], recordedAt: T0 - (3 + n % 7) * MIN, source: 'test' };
-        if (at === 'anchor' || at === 'berth') { v.status = at === 'anchor' ? 'anchored' : 'moored'; v.sog = 0; v.pos = at === 'anchor' ? [C.NODES[d.node][0] - .02 + .05 * (n % 3), C.NODES[d.node][1] + .04 * ((n % 4) - 1.5)] : [d.p[0] - .02, d.p[1] + .01 * (n % 3)]; }
+        if (at === 'anchor' || at === 'berth') { v.status = at === 'anchor' ? 'anchored' : 'moored'; v.sog = 0; const N0 = C.NODES[d.node]; v.pos = at === 'anchor' ? [d.p[0] * .55 + N0[0] * .45 - .01 + .02 * (n % 3), d.p[1] * .55 + N0[1] * .45 + .025 * ((n % 4) - 1.5)] : [d.p[0] - .02, d.p[1] + .01 * (n % 3)]; }
+        else if (at === 'approach') { const N0 = C.NODES[d.node]; v.pos = [N0[0] + (d.p[0] - N0[0]) * .35, N0[1] + (d.p[1] - N0[1]) * .35 - .03]; v.cog = Math.round(C.bearing ? C.bearing(v.pos, d.p) : 90); v.routeNodes = []; v.approachNm = C.gcNm(v.pos, d.p); }
         else {
           const path = C.shortestPath(o.node, d.node, { draft }); const line = [o.virtual ? C.NODES[path.nodes[0]] : o.p].concat(path.nodes.map(x => C.NODES[x]));
           let acc = 0, idx = 1; for (; idx < line.length; idx++) { acc += C.gcNm(line[idx - 1], line[idx]); if (path.nodes[idx - 1] === at) break; }
           const pa = C.pointAlong(line, Math.max(0, acc - back)); v.pos = pa.pos; v.cog = Math.round(pa.cog); v.routeNodes = path.nodes.slice(Math.max(0, pa.idx - 1));
         }
-        v.routeNm = Math.round(remainingNm(v)); v.etaAt = v.status === 'underway' && !C.VIRTUAL[d.node] ? T0 + v.routeNm / v.sog * H : null;
+        v.routeNm = Math.round(v.approachNm || remainingNm(v)); delete v.approachNm; v.etaAt = v.status === 'underway' && !C.VIRTUAL[d.node] ? T0 + v.routeNm / v.sog * H : null; geo(v);
         S.insert('vessels', v);
         S.insert('users', { id: 'B-' + id, username: 'bridge.' + v.mmsi, role: 'bridge', vesselId: id, name: tx('جسر ' + name, name + ' bridge') });
       }
@@ -248,7 +257,8 @@
         const expAr = 'صُنّفت ' + w.a.name.ar + ' بمستوى «' + LVA[w.level] + '» لأن: ' + inds.map(x => IND[x.name].ar + ' ' + x.value + ' ' + UNIT[x.name] + ' (حد مستوى «' + LVA[x.level] + '» ' + th(x) + ')').join('، ') + '. المدة ' + (w.toH - w.fromH + 1) + ' ساعة في بيانات التوقعات التجريبية.';
         const expEn = w.a.name.en + ' is rated ' + w.level + ' because: ' + inds.map(x => IND[x.name].en + ' ' + x.value + ' ' + UNIT[x.name] + ' (' + x.level + ' threshold ' + th(x) + ')').join(', ') + '. Duration ' + (w.toH - w.fromH + 1) + ' h in the sample forecast.';
         S.insert('maritimeRisks', { id: 'R:' + w.a.id + ':' + Math.round((start - T0) / H), key: w.a.id + ':' + Math.round((start - T0) / H), source: 'rules', type: dom, level: w.level, title: tx(RTYPE[dom].ar + ' – ' + w.a.name.ar, RTYPE[dom].en + ' – ' + w.a.name.en), areaId: w.a.id, areaName: w.a.name, center: w.a.p, radiusNm: w.a.radiusNm, poly: w.a.poly,
-          start, end, durationH: w.toH - w.fromH + 1, peak: { at: w.peak.validAt, windKn: w.peak.windKn, gustKn: w.peak.gustKn, waveM: w.peak.waveM, visNm: w.peak.visNm, currentKn: w.peak.currentKn }, indicators: inds.map(x => ({ name: x.name, label: IND[x.name], value: x.value, unit: UNIT[x.name], level: x.level, threshold: th(x), at: x.at })),
+          start, end, durationH: w.toH - w.fromH + 1, peak: { at: w.peak.validAt, windKn: w.peak.windKn, gustKn: w.peak.gustKn, waveM: w.peak.waveM, visNm: w.peak.visNm, currentKn: w.peak.currentKn }, indicators: inds.map(x => Object.assign({ name: x.name, label: IND[x.name], value: x.value, unit: UNIT[x.name], level: x.level, threshold: th(x), at: x.at }, x.name === 'windKn' ? { beaufort: beaufort(x.value), wmoWarning: windWarning(x.value) } : {})),
+          wmoWindWarning: windWarning(w.peak.windKn) ? { category: windWarning(w.peak.windKn), label: WWARN[windWarning(w.peak.windKn)], beaufort: beaufort(w.peak.windKn), ref: WWMIWS_REF } : null,
           reliability: w.f.series[w.fromH].reliability, explanation: tx(expAr, expEn), createdAt: t, createdBy: 'rules-engine' });
       }
       for (const p of S.all('ports').filter(p => p.status !== 'open')) {
@@ -362,15 +372,51 @@
 
     // ---------------- Alerts lifecycle
     function setAlert(a, status, actor, note, patch = {}) { const cur = S.get('alerts', a.id); S.update('alerts', a.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch)); }
+    function releaseHeld(vid, actor) {
+      const v = vessel(vid); if (!v || !C.inSaudiTerritorialSea(v.pos)) return; const t = now();
+      for (const d of S.all('deliveryRecords').filter(x => x.vesselId === vid && x.status === 'held_outside_ts')) {
+        const al = S.get('alerts', d.alertId); if (!al || !['dispatched_test', 'received', 'acknowledged'].includes(al.status) || al.validTo <= t) continue;
+        if (al.status !== 'dispatched_test' && d.channel === 'test_bridge_screen') setAlert(al, 'dispatched_test', SYS, 'new delivery: ' + v.name + ' entered territorial waters');
+        const ok = d.channel !== 'none';
+        S.update('deliveryRecords', d.id, ok ? { status: 'dispatched', dispatchedAt: t, history: d.history.concat([{ s: 'dispatched', at: t, note: 'entered territorial waters' }]) } : { status: 'failed', failReason: tx('لا توجد قناة اتصال مسجلة', 'No communication channel registered'), history: d.history.concat([{ s: 'failed', at: t }]) });
+        audit(actor || SYS, 'alert.release', 'delivery', d.id, tx('دخلت ' + v.name + ' المياه الإقليمية: إرسال الإنذار ' + al.number + ' المحجوز', v.name + ' entered territorial waters: held alert ' + al.number + ' dispatched'));
+      }
+    }
     function aggregateAlert(id) {
       const a = S.get('alerts', id); if (!a || !['dispatched_test', 'received'].includes(a.status)) return;
-      const d = S.all('deliveryRecords').filter(x => x.alertId === id && x.status !== 'failed');
+      const d = S.all('deliveryRecords').filter(x => x.alertId === id && !['failed', 'held_outside_ts'].includes(x.status) && x.channel === 'test_bridge_screen');
       if (!d.length) return;
       if (d.every(x => x.ackAt)) setAlert(a, 'acknowledged', SYS, 'all targets acknowledged');
       else if (a.status === 'dispatched_test' && d.every(x => x.receivedAt)) setAlert(a, 'received', SYS, 'all targets received');
     }
 
-    // ---------------- NAVTEX-format message preparation (test only)
+    // ---------------- IMO Res. A.706(17) as amended – World-Wide Navigational Warning Service (WWNWS)
+  // Four warning levels. Local warnings are disseminated by VHF/local means and are NOT broadcast on international NAVTEX (§10.2.1.3).
+  const WWNWS_REF = 'IMO Res. A.706(17), as amended (WWNWS), 10.2.1.3';
+  const KSA_WATERS_NM = 120; // test approximation of the Kingdom's maritime areas (distance from Saudi ports and coastal sea areas) – not an official boundary
+  const WW = {
+    NAVAREA: { name: tx('تحذير NAVAREA', 'NAVAREA warning'), area: tx('المناطق البحرية الدولية الواسعة', 'Wide international sea areas'), means: tx('NAVTEX / EGC (SafetyNET) حسب التغطية – عبر منسق NAVAREA IX', 'NAVTEX / EGC (SafetyNET) per coverage – via the NAVAREA IX coordinator') },
+    SUBAREA: { name: tx('تحذير منطقة فرعية', 'Sub-area warning'), area: tx('المناطق البحرية الفرعية', 'Sub-areas'), means: tx('وسائل نشر MSI المعتمدة', 'Approved MSI dissemination means') },
+    COASTAL: { name: tx('تحذير ساحلي', 'Coastal warning'), area: tx('المياه الساحلية والمسارات البحرية', 'Coastal waters and sea routes'), means: tx('NAVTEX / EGC حسب التغطية', 'NAVTEX / EGC per coverage') },
+    LOCAL: { name: tx('تحذير محلي', 'Local warning'), area: tx('المياه المحلية ونطاق اختصاص الموانئ', 'Local waters and port jurisdiction'), means: tx('VHF والقنوات المحلية المناسبة – لا يُبث على NAVTEX الدولي', 'VHF and appropriate local channels – not broadcast on international NAVTEX') }
+  };
+  function warningClass(poly) {
+    const cls = C.classifyWarningLevel(poly), sa = C.PORTS.filter(p => p.country === 'SA');
+    const ref = sa.map(p => p.p).concat(SEA_AREAS.map(a => a.p)); // Saudi ports + Saudi coastal sea-area centres
+    const inKingdom = poly.every(v => Math.min(...ref.map(q => C.gcNm(q, v))) <= KSA_WATERS_NM);
+    const reachesTS = poly.some(v => C.inSaudiTerritorialSea(v)) || C.SA_COAST.some(l => l.some(q => C.pointInPoly(q, poly)));
+    const level = cls.levels.includes('LOCAL') && inKingdom ? 'LOCAL' : inKingdom ? 'COASTAL' : 'NAVAREA';
+    const navtex = C.STATIONS.filter(st => st.role === 'NAVTEX' && st.country === 'SA' && poly.every(v => C.gcNm(st.p, v) <= st.rangeNm)).map(st => st.id);
+    const means = level === 'LOCAL' ? WW.LOCAL.means : level === 'COASTAL' ? (navtex.length ? tx('NAVTEX عبر ' + navtex.map(id => C.STATIONS.find(x => x.id === id).ar).join('، '), 'NAVTEX via ' + navtex.map(id => C.STATIONS.find(x => x.id === id).en).join(', ')) : tx('EGC (SafetyNET) – المنطقة خارج تغطية NAVTEX السعودية في بيانات الاختبار', 'EGC (SafetyNET) – area outside Saudi NAVTEX coverage in the test data')) : WW.NAVAREA.means;
+    const direct = !reachesTS && inKingdom ? tx('المنطقة لا تصل إلى المياه الإقليمية السعودية (١٢ ميلًا بحريًا): لا يُرسل الإنذار مباشرة؛ يُنشر تحذيرًا ساحليًا عبر NAVTEX/EGC من الجهة المختصة.', 'The area does not reach Saudi territorial waters (12 nm): no direct alert; promulgate as a coastal warning via NAVTEX/EGC by the competent authority.') : inKingdom
+      ? (level === 'LOCAL' ? tx('ضمن المياه المحلية للمملكة: يُرسل الإنذار مباشرة بوسائل محلية دون NAVTEX (' + WWNWS_REF + ') للسفن الموجودة داخل المياه الإقليمية فقط.', 'Within the Kingdom\'s local waters: the alert is sent directly by local means without NAVTEX (' + WWNWS_REF + ') to vessels inside territorial waters only.')
+        : tx('ضمن المناطق البحرية للمملكة: يُرسل الإنذار مباشرة دون NAVTEX للسفن المستهدفة الموجودة داخل المياه الإقليمية فقط، وتُحجز البقية حتى دخولها؛ ويبقى التحذير الساحلي عبر NAVTEX/EGC من اختصاص الجهة المختصة.', 'Within the Kingdom\'s maritime areas: the alert goes directly, without NAVTEX, only to targeted vessels inside territorial waters; others are held until they enter; the coastal warning via NAVTEX/EGC remains with the competent authority.'))
+      : tx('المنطقة خارج المناطق البحرية للمملكة (حسب التقريب التجريبي): لا يُرسل الإنذار مباشرة؛ يلزم تحذير NAVAREA عبر منسق المنطقة التاسعة.', 'Area is outside the Kingdom\'s maritime areas (test approximation): no direct alert; a NAVAREA warning via the NAVAREA IX coordinator is required.');
+    return { level, name: WW[level].name, means, inKingdom, reachesTerritorialSea: reachesTS, directAlertAllowed: inKingdom && reachesTS, navtexStations: navtex, ports: cls.ports, extentNm: cls.extentNm, ref: WWNWS_REF, note: direct };
+  }
+  const normScope = sc => sc === 'INTERNATIONAL' ? 'NAVAREA' : ['LOCAL', 'COASTAL', 'SUBAREA', 'NAVAREA'].includes(sc) ? sc : null;
+
+  // ---------------- NAVTEX-format message preparation (test only)
     const SUBJECT = { A: tx('تحذير ملاحي', 'Navigational warning'), B: tx('تحذير أرصاد', 'Meteorological warning'), E: tx('توقعات أرصاد', 'Meteorological forecast'), L: tx('تحذير ملاحي إضافي', 'Additional navigational warning') };
     const pad = (n, k) => String(n).padStart(k, '0');
     const dtg = ts => { const d = new Date(ts); return pad(d.getUTCDate(), 2) + pad(d.getUTCHours(), 2) + pad(d.getUTCMinutes(), 2) + ' UTC ' + ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][d.getUTCMonth()] + ' ' + String(d.getUTCFullYear()).slice(2); };
@@ -382,11 +428,13 @@
       if (m.textEn && /[^\x20-\x7E\n]/.test(m.textEn)) errors.push('NAVTEX text must use plain English characters');
       if (m.textEn && m.textEn.length > 1500) errors.push('message text too long (max 1500 characters)');
       const st = C.STATIONS.find(s => s.id === m.targetId);
-      if (m.scope === 'INTERNATIONAL' && st && st.role !== 'COORDINATOR') errors.push('international scope is addressed to the NAVAREA IX coordinator, not a NAVTEX station');
-      if (m.scope && m.scope !== 'INTERNATIONAL' && st && st.role === 'COORDINATOR') errors.push('local/coastal scope is addressed to a NAVTEX transmitting station, not the NAVAREA IX coordinator');
+      if (m.scope === 'LOCAL') errors.push('Local warnings should not be broadcast on international NAVTEX (' + WWNWS_REF + '); disseminate by VHF and appropriate local channels');
+      if (m.scope === 'SUBAREA') errors.push('no Sub-area coordinator is defined in the test data (to be verified officially); use approved MSI means');
+      if (m.scope === 'NAVAREA' && st && st.role !== 'COORDINATOR') errors.push('NAVAREA scope is addressed to the NAVAREA IX coordinator, not a NAVTEX station');
+      if (m.scope === 'COASTAL' && st && st.role === 'COORDINATOR') errors.push('coastal scope is addressed to a NAVTEX transmitting station, not the NAVAREA IX coordinator');
       const b1 = st && st.b1 ? st.b1 : 'X', serial = pad(m.serial || 1, 2);
       const yy = String(new Date(m.validFrom || now()).getUTCFullYear()).slice(2);
-      const header = m.scope === 'INTERNATIONAL' ? 'NAVAREA IX TEST ' + pad(m.serial || 1, 3) + '/' + yy : (st ? st.en.toUpperCase() : 'COASTAL') + ' TEST ' + pad(m.serial || 1, 3) + '/' + yy;
+      const header = m.scope === 'NAVAREA' ? 'NAVAREA IX TEST ' + pad(m.serial || 1, 3) + '/' + yy : (st ? st.en.toUpperCase() : 'COASTAL') + ' TEST ' + pad(m.serial || 1, 3) + '/' + yy;
       const pos = m.position ? dm(m.position[1], 'N', 'S', 2) + ' ' + dm(m.position[0], 'E', 'W', 3) : null;
       const text = ['ZCZC ' + b1 + (m.subject || '?') + serial, dtg(m.preparedAt || now()), header, String(m.areaText || '').toUpperCase(), pos ? 'IN POSITION ' + pos : null,
         String(m.textEn || '').toUpperCase().trim(), 'VALID ' + (m.validFrom ? dtg(m.validFrom) : '?') + ' TO ' + (m.validTo ? dtg(m.validTo) : '?') + '.', 'TEST MESSAGE - NOT FOR TRANSMISSION', 'NNNN'].filter(Boolean).join('\n');
@@ -433,7 +481,27 @@
       if (res.accepted.length) analyse('weather update');
     }
 
-    // ---------------- Snapshot
+    // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
+  function marineForecast(areaId, hours) {
+    const a = area(areaId), f = S.get('weatherForecasts', 'F:' + areaId); if (!a || !f) throw new ValidationError('area');
+    const H0 = 0, H1 = clamp(+hours || 24, 24, 48); // valid period at least 24 h (MSC.470(101) 4.2.2.2)
+    const ser = f.series.filter(x => x.h >= H0 && x.h <= H1), mx = k => Math.max(...ser.map(x => x[k])), mn = k => Math.min(...ser.map(x => x[k]));
+    const peak = ser.reduce((m, x) => x.windKn > m.windKn ? x : m, ser[0]), cat = windWarning(peak.windKn);
+    const card = d => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(((d % 360) + 360) % 360 / 45) % 8], cardAr = d => ['شمالية', 'شمالية شرقية', 'شرقية', 'جنوبية شرقية', 'جنوبية', 'جنوبية غربية', 'غربية', 'شمالية غربية'][Math.round(((d % 360) + 360) % 360 / 45) % 8];
+    const systems = SAMPLE_SYSTEMS.filter(x => x.areas[areaId] && x.start <= H1);
+    const vis = mn('visNm'), from = ser[0].validAt, to = ser[ser.length - 1].validAt;
+    const en = ['MARINE FORECAST - TEST DATA - NOT FOR TRANSMISSION', 'ISSUED ' + dtg(now()) + '. VALID ' + dtg(from) + ' TO ' + dtg(to) + '.', 'AREA: ' + a.name.en.toUpperCase() + '.',
+      'PART I - WARNINGS: ' + (cat ? WWARN[cat].en.toUpperCase().replace(' – ', ' ') + ' IN FORCE. MAX WIND ' + Math.round(peak.windKn) + ' KT (BEAUFORT ' + beaufort(peak.windKn) + ') AT ' + dtg(peak.validAt) + '.' : 'NO WIND WARNINGS IN FORCE.'),
+      'PART II - SYNOPSIS: ' + (systems.length ? systems.map(x => x.en.toUpperCase()).join('. ') + '.' : 'NO SIGNIFICANT SYSTEMS AFFECTING THE AREA.'),
+      'PART III - FORECAST: WIND ' + card(ser[0].windDir) + ' ' + Math.round(mn('windKn')) + '-' + Math.round(mx('windKn')) + ' KT. SEA STATE ' + r1(mn('waveM')) + '-' + r1(mx('waveM')) + ' M.' + (vis < 6 ? ' VISIBILITY ' + r1(vis) + ' NM AT TIMES.' : '')].join('\n');
+    const ar = ['توقعات بحرية – بيانات اختبار', 'صدرت ' + dtg(now()) + '، صالحة من ' + dtg(from) + ' إلى ' + dtg(to) + '.', 'المنطقة: ' + a.name.ar + '.',
+      'الجزء الأول – التحذيرات: ' + (cat ? WWARN[cat].ar + ' ساري. أقصى رياح ' + Math.round(peak.windKn) + ' عقدة (بوفورت ' + beaufort(peak.windKn) + ').' : 'لا توجد تحذيرات رياح سارية.'),
+      'الجزء الثاني – الحالة العامة: ' + (systems.length ? systems.map(x => x.ar).join('؛ ') + '.' : 'لا توجد أنظمة مؤثرة.'),
+      'الجزء الثالث – التوقعات: رياح ' + cardAr(ser[0].windDir) + ' ' + Math.round(mn('windKn')) + '–' + Math.round(mx('windKn')) + ' عقدة، ارتفاع الموج ' + r1(mn('waveM')) + '–' + r1(mx('waveM')) + ' م' + (vis < 6 ? '، الرؤية تنخفض إلى ' + r1(vis) + ' ميل بحري أحيانًا' : '') + '.'].join('\n');
+    return { areaId, validFrom: from, validTo: to, hours: H1, warning: cat, text: tx(ar, en), ref: WWMIWS_REF };
+  }
+
+  // ---------------- Snapshot
     function snapshot(user) {
       const m = meta(), t = now();
       if (user.role === 'bridge') {
@@ -446,7 +514,7 @@
       return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, rules: rules(), seaAreas: S.all('seaAreas'), ports: S.all('ports'), vessels: S.all('vessels'), constraints: S.all('constraints'),
         weatherObservations: S.all('weatherObservations'), weatherForecasts: S.all('weatherForecasts'), maritimeRisks: S.all('maritimeRisks'), affectedVessels: S.all('affectedVessels'), alerts: S.all('alerts'), deliveryRecords: S.all('deliveryRecords'),
         alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
-        stations: C.STATIONS.filter(s => s.navarea === 'IX').map(s => ({ id: s.id, role: s.role, name: tx(s.ar, s.en), country: s.country, b1: s.b1 })), sampleSystems: SAMPLE_SYSTEMS.map(s => ({ id: s.id, name: tx(s.ar, s.en) })) };
+        stations: C.STATIONS.filter(s => s.navarea === 'IX').map(s => ({ id: s.id, role: s.role, name: tx(s.ar, s.en), country: s.country, b1: s.b1 })), sampleSystems: SAMPLE_SYSTEMS.map(s => ({ id: s.id, name: tx(s.ar, s.en) })), wwnws: { ref: WWNWS_REF, levels: WW, kingdomWatersNm: KSA_WATERS_NM }, wwmiwsRef: WWMIWS_REF };
     }
 
     const touch = () => { bump(); };
@@ -473,12 +541,13 @@
         const ex = a.id && vessel(a.id), t = now();
         const v = Object.assign(ex ? Object.assign({}, ex) : { id: uid('V'), imo: 'TEST-' + (9200000 + (seq * 7919) % 90000), mmsi: '999' + String((seq * 104729) % 1e6).padStart(6, '0'), flag: 'SA', source: 'test', lengthM: 150 }, {
           name: str(a.name, 60), type: ['container', 'tanker', 'bulk', 'general', 'roro', 'lng'].includes(a.type) ? a.type : 'general', pos: [lon, lat], sog, cog, draft, originId: a.originId || (ex && ex.originId) || null, destId: a.destId,
-          status: ['underway', 'anchored', 'moored'].includes(a.status) ? a.status : 'underway', channel: ['bridge', 'ais', 'none'].includes(a.channel) ? a.channel : (ex ? ex.channel : 'bridge'), recordedAt: t });
+          status: ['underway', 'anchored', 'moored'].includes(a.status) ? a.status : 'underway', channel: ['bridge', 'vhf', 'ais', 'none'].includes(a.channel) ? a.channel : (ex ? ex.channel : 'bridge'), recordedAt: t });
         if (v.status !== 'underway') { v.sog = 0; v.routeNodes = []; v.routeNm = 0; v.etaAt = null; } else { Object.assign(v, planVesselRoute(v)); v.etaAt = v.sog > 0 && !C.VIRTUAL[destNodeOf(v.destId)] ? t + v.routeNm / v.sog * H : null; }
+        geo(v);
         if (ex) S.update('vessels', v.id, v); else { S.insert('vessels', v); S.insert('users', { id: 'B-' + v.id, username: 'bridge.' + v.mmsi, role: 'bridge', vesselId: v.id, name: tx('جسر ' + v.name, v.name + ' bridge') }); }
         const ds = S.get('dataSources', 'ais'); S.update('dataSources', 'ais', { lastReceivedAt: t, accepted: ds.accepted + 1 });
         audit(u, ex ? 'vessel.update' : 'vessel.create', 'vessel', v.id, tx((ex ? 'تعديل' : 'إضافة') + ' سجل السفينة ' + v.name, 'Vessel record ' + (ex ? 'updated' : 'added') + ': ' + v.name));
-        computeAffected(); touch(); return vessel(v.id);
+        releaseHeld(v.id, u); computeAffected(); touch(); return vessel(v.id);
       },
       deleteVessel(u, { id }) { needOfficer(u); const v = vessel(id); if (!v) throw new ValidationError('id'); S.remove('vessels', id); S.remove('users', 'B-' + id); audit(u, 'vessel.delete', 'vessel', id, tx('حذف سجل السفينة ' + v.name, 'Vessel record deleted: ' + v.name)); computeAffected(); touch(); return { ok: true }; },
       updatePort(u, a) {
@@ -522,7 +591,8 @@
         let poly, areaName; if (r && !a.customArea) { poly = r.poly; areaName = r.areaName; } else { const lon = +a.lon, lat = +a.lat, rad = clamp(+a.radiusNm || 20, 1, 150); if (!(lon >= 32 && lon <= 60 && lat >= 12 && lat <= 31)) throw new ValidationError('area'); poly = C.circlePoly([lon, lat], rad, 20); areaName = bil(a.areaName && (a.areaName.ar || a.areaName.en) ? a.areaName : tx('منطقة محددة', 'Defined area'), 160); }
         const targets = Array.isArray(a.targets) ? [...new Set(a.targets.filter(id => vessel(id)))] : []; if (!targets.length) throw new ValidationError('targets');
         const t = now(), from = a.validFrom ? +a.validFrom : t, to = a.validTo ? +a.validTo : (r ? r.end : t + 24 * H); if (!(to > from)) throw new ValidationError('validity');
-        const al = { id: uid('AL'), number: num('MRS-TA', 'al'), riskId: r ? r.id : null, riskSnapshot: r ? { title: r.title, type: r.type, level: r.level, start: r.start, end: r.end, explanation: r.explanation } : null, title, body, instructions: instr, poly, areaName,
+        const wc = warningClass(poly);
+        const al = { id: uid('AL'), number: num('MRS-TA', 'al'), wwnws: wc, riskId: r ? r.id : null, riskSnapshot: r ? { title: r.title, type: r.type, level: r.level, start: r.start, end: r.end, explanation: r.explanation } : null, title, body, instructions: instr, poly, areaName,
           priority: ['routine', 'important', 'urgent'].includes(a.priority) ? a.priority : 'important', severity: ['low', 'medium', 'high', 'critical'].includes(a.severity) ? a.severity : (r ? r.level : 'medium'), validFrom: from, validTo: to, targets,
           status: 'draft', history: [{ s: 'draft', at: t, by: u.username }], createdAt: t, createdBy: u.username, approvedBy: null, approvedAt: null, dispatchedAt: null, label: 'Test Maritime Alert' };
         S.insert('alerts', al); audit(u, 'alert.create', 'alert', al.id, tx('إنشاء إنذار ' + al.number + ' لـ' + targets.length + ' سفن: ' + title.ar, 'Alert ' + al.number + ' created for ' + targets.length + ' vessels: ' + title.en)); touch(); return al;
@@ -537,6 +607,7 @@
       submitAlert(u, { id }) { needOfficer(u); const al = S.get('alerts', id); if (!al || al.status !== 'draft') throw new ValidationError('state'); setAlert(al, 'pending_approval', u); audit(u, 'alert.submit', 'alert', id, tx('إرسال الإنذار ' + al.number + ' للمراجعة', 'Alert ' + al.number + ' submitted for review')); touch(); return { ok: true }; },
       approveAlert(u, a) {
         needOfficer(u); const al = S.get('alerts', a.id); if (!al || al.status !== 'pending_approval') throw new ValidationError('state'); needDisc(a);
+        if (!a.reject && al.wwnws && !al.wwnws.directAlertAllowed) throw new ValidationError(al.wwnws.inKingdom ? 'outside_territorial_sea' : 'outside_kingdom_waters');
         if (a.reject) { setAlert(al, 'draft', u, a.note || 'returned'); audit(u, 'alert.return', 'alert', al.id, tx('إعادة الإنذار ' + al.number + ' للتعديل', 'Alert ' + al.number + ' returned for changes')); touch(); return { ok: true }; }
         setAlert(al, 'approved', u, a.note, { approvedBy: u.username, approvedAt: now(), verification: C.sha256(JSON.stringify([al.number, al.title, al.body, al.instructions, al.targets, al.validFrom, al.validTo])).slice(0, 16).toUpperCase() });
         audit(u, 'alert.approve', 'alert', al.id, tx('اعتماد الإنذار ' + al.number + ' في بيئة الاختبار مع الإقرار بالمسؤولية', 'Alert ' + al.number + ' approved in the test environment with responsibility statement'));
@@ -547,13 +618,15 @@
       prepareDispatch(u, { id }) {
         needOfficer(u); const al = S.get('alerts', id); if (!al || al.status !== 'approved') throw new ValidationError('state');
         const t = now();
-        for (const vid of al.targets) { const v = vessel(vid); if (!v) continue; S.insert('deliveryRecords', { id: uid('DR'), alertId: al.id, vesselId: vid, mmsi: v.mmsi, channel: v.channel === 'bridge' ? 'test_bridge_screen' : v.channel === 'ais' ? 'test_ais_message' : 'none', status: 'queued', queuedAt: t, dispatchedAt: null, receivedAt: null, ackAt: null, ackBy: null, failReason: null, history: [{ s: 'queued', at: t }] }); }
-        setAlert(al, 'ready_for_dispatch', u, al.targets.length + ' delivery records');
+        let held = 0;
+        for (const vid of al.targets) { const v = vessel(vid); if (!v) continue; const ts = C.inSaudiTerritorialSea(v.pos); if (!ts) held++;
+          S.insert('deliveryRecords', { id: uid('DR'), alertId: al.id, vesselId: vid, mmsi: v.mmsi, channel: v.channel === 'bridge' ? 'test_bridge_screen' : v.channel === 'vhf' ? 'test_vhf_broadcast' : v.channel === 'ais' ? 'test_ais_message' : 'none', status: ts ? 'queued' : 'held_outside_ts', distCoastNm: r1(C.distToSaudiCoastNm(v.pos)), holdReason: ts ? null : tx('السفينة خارج المياه الإقليمية (' + r1(C.distToSaudiCoastNm(v.pos)) + ' ميل من الساحل > ١٢): لا يُرسل الإنذار المباشر حتى تدخلها؛ تُغطى بالتحذير الساحلي/NAVAREA عبر NAVTEX/EGC.', 'Vessel is outside territorial waters (' + r1(C.distToSaudiCoastNm(v.pos)) + ' nm from coast > 12): the direct alert is held until it enters; covered by coastal/NAVAREA warnings via NAVTEX/EGC.'), queuedAt: t, dispatchedAt: null, receivedAt: null, ackAt: null, ackBy: null, failReason: null, history: [{ s: ts ? 'queued' : 'held_outside_ts', at: t }] }); }
+        setAlert(al, 'ready_for_dispatch', u, al.targets.length + ' delivery records' + (held ? ', ' + held + ' held outside territorial waters' : ''));
         audit(u, 'alert.prepare', 'alert', id, tx('تجهيز الإنذار ' + al.number + ' للإرسال: ' + al.targets.length + ' سجلات تسليم', 'Alert ' + al.number + ' prepared for dispatch: ' + al.targets.length + ' delivery records')); touch(); return { ok: true };
       },
       dispatchAlert(u, { id }) {
         needOfficer(u); const al = S.get('alerts', id); if (!al || al.status !== 'ready_for_dispatch') throw new ValidationError('state'); const t = now(); let ok = 0, fail = 0;
-        for (const d of S.all('deliveryRecords').filter(x => x.alertId === id)) {
+        for (const d of S.all('deliveryRecords').filter(x => x.alertId === id && x.status === 'queued')) {
           if (d.channel === 'none') { fail++; S.update('deliveryRecords', d.id, { status: 'failed', failReason: tx('لا توجد قناة اتصال مسجلة لهذه السفينة في بيانات الاختبار', 'No communication channel registered for this vessel in the test data'), history: d.history.concat([{ s: 'failed', at: t }]) }); }
           else { ok++; S.update('deliveryRecords', d.id, { status: 'dispatched', dispatchedAt: t, history: d.history.concat([{ s: 'dispatched', at: t }]) }); }
         }
@@ -578,9 +651,12 @@
         needOfficer(u); const types = ['weather_bulletin', 'wind_wave_warning', 'port_closure', 'nav_restriction']; if (!types.includes(a.type)) throw new ValidationError('type');
         const r = a.riskId ? S.get('maritimeRisks', a.riskId) : null; const title = bil(a.title, 200), body = bil(a.body); if (!title.ar || !title.en || !body.ar || !body.en) throw new ValidationError('title');
         let poly, areaName; if (r) { poly = r.poly; areaName = r.areaName; } else if (a.areaId && area(a.areaId)) { poly = area(a.areaId).poly; areaName = area(a.areaId).name; } else if (a.portId && port(a.portId)) { poly = C.circlePoly(port(a.portId).p, 12, 16); areaName = port(a.portId).name; } else throw new ValidationError('area');
-        const cls = C.classifyWarningLevel(poly), auto = cls.levels.includes('INTERNATIONAL') ? 'INTERNATIONAL' : cls.levels.includes('COASTAL') ? 'COASTAL' : 'LOCAL';
-        const t = now(), b = { id: uid('BL'), number: num('MRS-TB', 'bl'), type: a.type, scope: ['LOCAL', 'COASTAL', 'INTERNATIONAL'].includes(a.scope) ? a.scope : auto, suggestedScope: auto, riskId: r ? r.id : null, portId: a.portId || null, title, body, poly, areaName,
+        const wc = warningClass(poly), auto = wc.level;
+        const t = now(), b = { id: uid('BL'), number: num('MRS-TB', 'bl'), type: a.type, scope: normScope(a.scope) || auto, suggestedScope: auto, wwnws: wc, riskId: r ? r.id : null, portId: a.portId || null, title, body, poly, areaName,
           validFrom: a.validFrom ? +a.validFrom : t, validTo: a.validTo ? +a.validTo : (r ? r.end : t + 24 * H), status: 'draft', history: [{ s: 'draft', at: t, by: u.username }], createdAt: t, createdBy: u.username, label: 'Test Bulletin' };
+        b.checks = [];
+        if (b.type === 'weather_bulletin' && b.validTo - b.validFrom < 24 * H) b.checks.push(tx('فترة صلاحية التوقعات أقل من ٢٤ ساعة (' + WWMIWS_REF + '، 4.2.2.2)', 'Forecast valid period is less than 24 h (' + WWMIWS_REF + ', 4.2.2.2)'));
+        if (b.scope !== 'LOCAL' && /[^\x20-\x7E\n]/.test(b.body.en)) b.checks.push(tx('النص الإنجليزي يحتوي أحرفًا غير لاتينية؛ الخدمات الدولية (NAVTEX/EGC) بالإنجليزية فقط', 'English text contains non-Latin characters; international services (NAVTEX/EGC) are English only'));
         S.insert('bulletins', b); audit(u, 'bulletin.create', 'bulletin', b.id, tx('إنشاء نشرة ' + b.number + ': ' + title.ar, 'Bulletin ' + b.number + ' created: ' + title.en)); touch(); return b;
       },
       issueBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); S.update('bulletins', id, { status: 'issued_test', history: b.history.concat([{ s: 'issued_test', at: now(), by: u.username }]) }); audit(u, 'bulletin.issue', 'bulletin', id, tx('إصدار النشرة ' + b.number + ' داخل بيئة الاختبار', 'Bulletin ' + b.number + ' issued in the test environment')); touch(); return { ok: true }; },
@@ -588,7 +664,7 @@
       saveNavtex(u, a) {
         needOfficer(u); const t = now(); const ex = a.id && S.get('navtexMessages', a.id);
         const m = Object.assign(ex ? Object.assign({}, ex) : { id: uid('NX'), number: num('NX-TEST', 'nx'), createdAt: t, createdBy: u.username, history: [], dispatches: [] }, {
-          bulletinId: a.bulletinId || (ex && ex.bulletinId) || null, subject: SUBJECT[a.subject] ? a.subject : null, scope: ['LOCAL', 'COASTAL', 'INTERNATIONAL'].includes(a.scope) ? a.scope : null, targetId: C.STATIONS.some(s => s.id === a.targetId) ? a.targetId : null,
+          bulletinId: a.bulletinId || (ex && ex.bulletinId) || null, subject: SUBJECT[a.subject] ? a.subject : null, scope: normScope(a.scope), targetId: C.STATIONS.some(s => s.id === a.targetId) ? a.targetId : null,
           areaText: str(a.areaText, 200), position: a.lon != null && a.lat != null && a.lon !== '' && a.lat !== '' ? [+a.lon, +a.lat] : null, textEn: str(a.textEn, 2000), textAr: str(a.textAr, 2000), validFrom: a.validFrom ? +a.validFrom : null, validTo: a.validTo ? +a.validTo : null, serial: clamp(+a.serial || 1, 1, 999), preparedAt: t });
         const f = formatNavtex(m); m.errors = f.errors; m.formatted = f.text; m.status = f.errors.length ? 'invalid' : 'formatted';
         m.history = m.history.concat([{ s: m.status, at: t, by: u.username, note: f.errors.join('; ') || null }]);
@@ -600,11 +676,11 @@
       dispatchNavtexTest(u, { id }) {
         needOfficer(u); const m = S.get('navtexMessages', id); if (!m) throw new ValidationError('id'); if (m.status === 'invalid') throw new ValidationError('message has validation errors');
         const t = now(), st = C.STATIONS.find(s => s.id === m.targetId);
-        const rec = { at: t, endpoint: m.scope === 'INTERNATIONAL' ? 'proposed://navarea-ix/coordinator/test' : 'proposed://navtex-station/' + (st ? st.id : '?') + '/test', target: st ? tx(st.ar, st.en) : null, targetRole: st ? st.role : null, payloadBytes: m.formatted.length,
+        const rec = { at: t, endpoint: m.scope === 'NAVAREA' ? 'proposed://navarea-ix/coordinator/test' : 'proposed://navtex-station/' + (st ? st.id : '?') + '/test', target: st ? tx(st.ar, st.en) : null, targetRole: st ? st.role : null, payloadBytes: m.formatted.length,
           response: { status: 'accepted_by_test_endpoint', note: tx('استجابة بيئة الاختبار: تم التحقق من بنية الرسالة. لم تُرسل إلى أي جهة أو محطة.', 'Test environment response: message structure validated. Not sent to any authority or station.') } };
         S.update('navtexMessages', m.id, { status: 'test_dispatched', dispatches: m.dispatches.concat([rec]), history: m.history.concat([{ s: 'test_dispatched', at: t, by: u.username }]) });
-        S.insert('integrationEvents', { id: uid('IE'), at: t, integration: m.scope === 'INTERNATIONAL' ? 'navarea_ix' : 'navtex', direction: 'out', status: 'test_only', messageId: m.id, endpoint: rec.endpoint, by: u.username });
-        audit(u, 'navtex.test_dispatch', 'navtex', m.id, tx('تمرير ' + m.number + ' إلى نقطة تكامل مقترحة (' + (m.scope === 'INTERNATIONAL' ? 'منسق NAVAREA IX' : 'محطة NAVTEX') + ') في بيئة الاختبار – لم يُرسل فعليًا', m.number + ' passed to a proposed integration endpoint (' + (m.scope === 'INTERNATIONAL' ? 'NAVAREA IX coordinator' : 'NAVTEX station') + ') in the test environment – not actually sent'));
+        S.insert('integrationEvents', { id: uid('IE'), at: t, integration: m.scope === 'NAVAREA' ? 'navarea_ix' : 'navtex', direction: 'out', status: 'test_only', messageId: m.id, endpoint: rec.endpoint, by: u.username });
+        audit(u, 'navtex.test_dispatch', 'navtex', m.id, tx('تمرير ' + m.number + ' إلى نقطة تكامل مقترحة (' + (m.scope === 'NAVAREA' ? 'منسق NAVAREA IX' : 'محطة NAVTEX') + ') في بيئة الاختبار – لم يُرسل فعليًا', m.number + ' passed to a proposed integration endpoint (' + (m.scope === 'NAVAREA' ? 'NAVAREA IX coordinator' : 'NAVTEX station') + ') in the test environment – not actually sent'));
         touch(); return rec;
       },
       tick() {
@@ -613,6 +689,8 @@
         for (const b of S.all('bulletins')) if (b.status === 'issued_test' && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
         if (ch) touch();
       },
+      classifyArea: (u, { poly }) => warningClass(poly),
+      marineForecast: (u, { areaId, hours }) => { needOfficer(u); return marineForecast(areaId, hours); },
       ingestWeather(payload) { const res = validateWeather(payload); applyWeather({ username: 'integration:ncm-test', role: 'integration' }, res, 'test_api'); touch(); return { accepted: res.accepted.length, rejected: res.rejected, warnings: res.warnings }; },
       validateWeather,
       onChange(f) { listeners.push(f); },
