@@ -82,7 +82,7 @@
         const dx = e.clientX - last[0], dy = e.clientY - last[1]; moved += Math.abs(dx) + Math.abs(dy); last = [e.clientX, e.clientY];
         if (moved > 3) { const r = this.svg.getBoundingClientRect(); this.vb.x -= dx / r.width * this.vb.w; this.vb.y -= dy / r.height * this.vb.h; this.svg.setAttribute('viewBox', [this.vb.x, this.vb.y, this.vb.w, this.vb.h].map(d3).join(' ')); }
       });
-      const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (moved <= 3 && e.type === 'pointerup') { const t = document.elementFromPoint(e.clientX, e.clientY); const s = t && t.closest('[data-sel]'); if (s && this.opts.onSelect) { const [type, id] = s.getAttribute('data-sel').split(':'); this.opts.onSelect(type, id); } } };
+      const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (moved <= 3 && e.type === 'pointerup') { const t = document.elementFromPoint(e.clientX, e.clientY); const s = t && t.closest('[data-sel]'); if (s && this.opts.onSelect) { const v = s.getAttribute('data-sel'), i = v.indexOf(':'); this.opts.onSelect(v.slice(0, i), v.slice(i + 1)); } } };
       this.svg.addEventListener('pointerup', up); this.svg.addEventListener('pointercancel', up);
     }
     setLang(l) { this.lang = l; this.render(); }

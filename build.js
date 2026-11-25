@@ -3,7 +3,7 @@ const fs = require('fs'), path = require('path');
 const R = p => fs.readFileSync(path.join(__dirname, p), 'utf8');
 let html = R('web/index.html');
 html = html.replace(/<!--STYLE-->[\s\S]*?<!--\/STYLE-->/, () => '<style>\n' + R('web/styles.css') + '\n</style>');
-const js = ['shared/core.js', 'shared/predict.js', 'shared/service.js', 'web/i18n.js', 'web/map.js', 'web/export.js', 'web/app.js'].map(f => '<script>\n/* ' + f + ' */\n' + R(f).replace(/<\/script/gi, '<\\/script') + '\n</script>').join('\n');
+const js = ['shared/core.js', 'shared/service.js', 'web/i18n.js', 'web/map.js', 'web/export.js', 'web/app.js'].map(f => '<script>\n/* ' + f + ' */\n' + R(f).replace(/<\/script/gi, '<\\/script') + '\n</script>').join('\n');
 html = html.replace(/<!--SCRIPTS-->[\s\S]*?<!--\/SCRIPTS-->/, () => js);
 fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'dist/marsa.html'), html);
