@@ -412,3 +412,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 @media (max-width:700px){.howit{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .recline{font-size:15px;margin:8px 0}.tbl tr.rec td{background:var(--ok2)}
 .recbox{background:rgba(255,255,255,.14);border-radius:12px;padding:12px 14px;margin:10px 0;display:flex;flex-direction:column;gap:4px;font-size:15px}.recbox b{font-size:17px}.recbox span{font-size:13px;opacity:.9}
+.notice{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border:1px solid var(--line);border-inline-start:4px solid var(--teal);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.notice.read{opacity:.75;border-inline-start-color:var(--line)}.notice b{display:block}.notice p{margin:6px 0 0;font-size:14px;line-height:1.6;white-space:pre-line}
+.flow.small .fstep{min-height:0;padding:6px 10px}.flow.small .fstep b{font-size:12.5px}
+.notice>button,.notice>.b{flex:none}@media (max-width:600px){.notice{flex-direction:column}}

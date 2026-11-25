@@ -422,6 +422,10 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 @media (max-width:700px){.howit{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .recline{font-size:15px;margin:8px 0}.tbl tr.rec td{background:var(--ok2)}
 .recbox{background:rgba(255,255,255,.14);border-radius:12px;padding:12px 14px;margin:10px 0;display:flex;flex-direction:column;gap:4px;font-size:15px}.recbox b{font-size:17px}.recbox span{font-size:13px;opacity:.9}
+.notice{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border:1px solid var(--line);border-inline-start:4px solid var(--teal);border-radius:10px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.notice.read{opacity:.75;border-inline-start-color:var(--line)}.notice b{display:block}.notice p{margin:6px 0 0;font-size:14px;line-height:1.6;white-space:pre-line}
+.flow.small .fstep{min-height:0;padding:6px 10px}.flow.small .fstep b{font-size:12.5px}
+.notice>button,.notice>.b{flex:none}@media (max-width:600px){.notice{flex-direction:column}}
 
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;const h=c.closest('table').rows[0].cells[i];c.dataset.l=h?h.textContent:''}}).observe(document,{childList:true,subtree:true})</script>
@@ -1048,7 +1052,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 
     // ---------------- Seed: the test dataset
     function seed() {
-      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
+      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'bulletinDeliveries', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
       const T0 = Math.floor(now() / (10 * MIN)) * 10 * MIN; // dataset reference time
       S.insert('meta', { id: 'meta', version: 1, counters: {}, datasetAt: T0, seededAt: now() });
       S.insert('settings', Object.assign({ id: 'rules' }, JSON.parse(JSON.stringify(DEFAULT_RULES))));
@@ -1399,10 +1403,25 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
       if (res.accepted.length) analyse('weather update');
     }
 
-    // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
+    // ---------------- Bulletins & navigational notices: routed by WWNWS level to the competent parties (test environment)
+  function bulletinRecipients(b) {
+    const out = [], ports = S.all('ports').filter(p => C.pointInPoly(p.p, b.poly) || (b.portId === p.id)).slice(0, 4);
+    if (!ports.length) { const c = b.poly.reduce((a, q) => [a[0] + q[0] / b.poly.length, a[1] + q[1] / b.poly.length], [0, 0]); const n = S.all('ports').slice().sort((x, y) => C.gcNm(x.p, c) - C.gcNm(y.p, c))[0]; if (n) ports.push(n); }
+    for (const p of ports) out.push({ id: 'P:' + p.id, kind: 'port', targetId: p.id, name: tx('إدارة ' + p.name.ar + ' (مأمور الميناء)', p.name.en + ' (harbour master)'), means: tx('VHF والقنوات المحلية', 'VHF and local channels'), status: 'pending' });
+    if (b.scope === 'COASTAL' || b.scope === 'NAVAREA') {
+      const st = (b.wwnws && b.wwnws.navtexStations || []).map(id => C.STATIONS.find(x => x.id === id)).filter(Boolean);
+      const c = b.poly[0], near = st.length ? st : C.STATIONS.filter(x => x.role === 'NAVTEX' && x.country === 'SA').sort((x, y) => C.gcNm(x.p, c) - C.gcNm(y.p, c)).slice(0, 1);
+      for (const x of near) out.push({ id: 'N:' + x.id, kind: 'navtex', targetId: x.id, name: tx(x.ar, x.en), means: tx('بث NAVTEX (' + x.b1 + ')', 'NAVTEX broadcast (' + x.b1 + ')'), status: 'pending' });
+    }
+    if (b.scope === 'NAVAREA') { const k = C.STATIONS.find(x => x.id === 'KHI_NAV'); out.push({ id: 'C:KHI_NAV', kind: 'coordinator', targetId: k.id, name: tx(k.ar, k.en), means: tx('تحذير NAVAREA عبر NAVTEX/EGC', 'NAVAREA warning via NAVTEX/EGC'), status: 'pending' }); }
+    return out;
+  }
+  function setBulletin(b, status, actor, note, patch) { const cur = S.get('bulletins', b.id); S.update('bulletins', b.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
+
+  // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
   function marineForecast(areaId, hours) {
     const a = area(areaId), f = S.get('weatherForecasts', 'F:' + areaId); if (!a || !f) throw new ValidationError('area');
-    const H0 = 0, H1 = clamp(+hours || 24, 24, 48); // valid period at least 24 h (MSC.470(101) 4.2.2.2)
+    const H0 = 0, lag = Math.ceil(Math.max(0, now() - meta().datasetAt) / H), H1 = clamp((+hours || 24) + lag, 24, 48); // valid at least 24 h from now // valid period at least 24 h (MSC.470(101) 4.2.2.2)
     const ser = f.series.filter(x => x.h >= H0 && x.h <= H1), mx = k => Math.max(...ser.map(x => x[k])), mn = k => Math.min(...ser.map(x => x[k]));
     const peak = ser.reduce((m, x) => x.windKn > m.windKn ? x : m, ser[0]), cat = windWarning(peak.windKn);
     const card = d => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(((d % 360) + 360) % 360 / 45) % 8], cardAr = d => ['شمالية', 'شمالية شرقية', 'شرقية', 'جنوبية شرقية', 'جنوبية', 'جنوبية غربية', 'غربية', 'شمالية غربية'][Math.round(((d % 360) + 360) % 360 / 45) % 8];
@@ -1426,12 +1445,13 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
         const v = vessel(user.vesselId);
         const dl = S.all('deliveryRecords').filter(d => d.vesselId === user.vesselId && !['queued'].includes(d.status));
         const aIds = new Set(dl.map(d => d.alertId));
-        return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, vessels: v ? [v] : [], ports: S.all('ports'), alerts: S.all('alerts').filter(a => aIds.has(a.id)), deliveryRecords: dl,
+        const bd = S.all('bulletinDeliveries').filter(d => d.vesselId === user.vesselId), bIds = new Set(bd.map(d => d.bulletinId));
+        return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, vessels: v ? [v] : [], bulletinDeliveries: bd, bulletins: S.all('bulletins').filter(b => bIds.has(b.id)).map(b => ({ id: b.id, number: b.number, type: b.type, title: b.title, body: b.body, areaName: b.areaName, validFrom: b.validFrom, validTo: b.validTo, status: b.status })), ports: S.all('ports'), alerts: S.all('alerts').filter(a => aIds.has(a.id)), deliveryRecords: dl,
           alternativeRoutes: S.all('alternativeRoutes').filter(r => r.vesselId === user.vesselId && r.alertId && aIds.has(r.alertId)), constraints: S.all('constraints'), dataSources: S.all('dataSources').filter(x => x.id === 'ais') };
       }
       return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, rules: rules(), seaAreas: S.all('seaAreas'), ports: S.all('ports'), vessels: S.all('vessels'), constraints: S.all('constraints'),
         weatherObservations: S.all('weatherObservations'), weatherForecasts: S.all('weatherForecasts'), maritimeRisks: S.all('maritimeRisks'), affectedVessels: S.all('affectedVessels'), alerts: S.all('alerts'), deliveryRecords: S.all('deliveryRecords'),
-        alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
+        alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), bulletinDeliveries: S.all('bulletinDeliveries'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
         stations: C.STATIONS.filter(s => s.navarea === 'IX').map(s => ({ id: s.id, role: s.role, name: tx(s.ar, s.en), country: s.country, b1: s.b1 })), sampleSystems: SAMPLE_SYSTEMS.map(s => ({ id: s.id, name: tx(s.ar, s.en) })), wwnws: { ref: WWNWS_REF, levels: WW, kingdomWatersNm: KSA_WATERS_NM }, wwmiwsRef: WWMIWS_REF };
     }
 
@@ -1577,9 +1597,38 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
         b.checks = [];
         if (b.type === 'weather_bulletin' && b.validTo - b.validFrom < 24 * H) b.checks.push(tx('فترة صلاحية التوقعات أقل من ٢٤ ساعة (' + WWMIWS_REF + '، 4.2.2.2)', 'Forecast valid period is less than 24 h (' + WWMIWS_REF + ', 4.2.2.2)'));
         if (b.scope !== 'LOCAL' && /[^\x20-\x7E\n]/.test(b.body.en)) b.checks.push(tx('النص الإنجليزي يحتوي أحرفًا غير لاتينية؛ الخدمات الدولية (NAVTEX/EGC) بالإنجليزية فقط', 'English text contains non-Latin characters; international services (NAVTEX/EGC) are English only'));
+        b.recipients = bulletinRecipients(b);
         S.insert('bulletins', b); audit(u, 'bulletin.create', 'bulletin', b.id, tx('إنشاء نشرة ' + b.number + ': ' + title.ar, 'Bulletin ' + b.number + ' created: ' + title.en)); touch(); return b;
       },
-      issueBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); S.update('bulletins', id, { status: 'issued_test', history: b.history.concat([{ s: 'issued_test', at: now(), by: u.username }]) }); audit(u, 'bulletin.issue', 'bulletin', id, tx('إصدار النشرة ' + b.number + ' داخل بيئة الاختبار', 'Bulletin ' + b.number + ' issued in the test environment')); touch(); return { ok: true }; },
+      readyBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); setBulletin(b, 'ready', u); audit(u, 'bulletin.ready', 'bulletin', id, tx('النشرة ' + b.number + ' جاهزة للإرسال', 'Bulletin ' + b.number + ' ready')); touch(); return { ok: true }; },
+      sendBulletin(u, { id }) {
+        needOfficer(u); let b = S.get('bulletins', id); if (!b || !['draft', 'ready'].includes(b.status)) throw new ValidationError('state'); const t = now();
+        const recipients = (b.recipients || []).map(r => Object.assign({}, r, { status: 'sent_test', sentAt: t, endpoint: 'proposed://' + r.kind + '/' + r.targetId + '/test' }));
+        let n = 0;
+        if (b.scope === 'LOCAL' || b.scope === 'COASTAL') for (const v of S.all('vessels').filter(v => C.pointInPoly(v.pos, b.poly) && C.inSaudiTerritorialSea(v.pos) && v.channel === 'bridge')) { S.insert('bulletinDeliveries', { id: uid('BD'), bulletinId: id, vesselId: v.id, status: 'sent', sentAt: t, readAt: null }); n++; }
+        setBulletin(b, 'sent_test', u, recipients.length + ' parties, ' + n + ' ships', { recipients, sentAt: t, shipNotices: n });
+        for (const r of recipients) S.insert('integrationEvents', { id: uid('IE'), at: t, integration: 'bulletin_' + r.kind, direction: 'out', status: 'test_only', messageId: id, endpoint: r.endpoint, by: u.username });
+        audit(u, 'bulletin.send', 'bulletin', id, tx('إرسال النشرة ' + b.number + ' داخل بيئة الاختبار إلى ' + recipients.map(r => r.name.ar).join('، ') + (n ? ' وإشعار ' + n + ' سفن داخل المياه الإقليمية' : '') + ' – لم تُرسل فعليًا لأي جهة', 'Bulletin ' + b.number + ' sent in the test environment to ' + recipients.map(r => r.name.en).join(', ') + (n ? ' and ' + n + ' ships in territorial waters notified' : '') + ' – not actually sent to any party'));
+        touch(); return { recipients: recipients.length, ships: n };
+      },
+      confirmBulletinRecipient(u, { id, recipientId, by, ref }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'receipt_confirmed'].includes(b.status)) throw new ValidationError('state');
+        if (!by || str(by, 80).length < 2) throw new ValidationError('officer'); const t = now();
+        const recipients = b.recipients.map(r => r.id === recipientId ? Object.assign({}, r, { status: 'confirmed', confirmedAt: t, confirmedBy: str(by, 80), ref: str(ref, 60) || null }) : r);
+        const all = recipients.every(r => r.status === 'confirmed');
+        S.update('bulletins', id, { recipients });
+        audit(u, 'bulletin.receipt', 'bulletin', id, tx('تسجيل تأكيد استلام النشرة ' + b.number + ' من ' + recipients.find(r => r.id === recipientId).name.ar + ' (' + str(by, 80) + ')', 'Receipt of bulletin ' + b.number + ' recorded from ' + recipients.find(r => r.id === recipientId).name.en + ' (' + str(by, 80) + ')'));
+        if (all) setBulletin(S.get('bulletins', id), 'awaiting_official', SYS, 'all parties confirmed receipt');
+        touch(); return { ok: true, all };
+      },
+      recordOfficialIssue(u, { id, ref }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'awaiting_official'].includes(b.status)) throw new ValidationError('state');
+        setBulletin(b, 'issued_official', u, str(ref, 80) || null, { officialRef: str(ref, 80) || null, officialAt: now() });
+        audit(u, 'bulletin.official', 'bulletin', id, tx('تسجيل صدور النشرة ' + b.number + ' رسميًا من الجهة المختصة' + (ref ? ' (مرجع ' + str(ref, 80) + ')' : ''), 'Official issuance of bulletin ' + b.number + ' recorded' + (ref ? ' (ref ' + str(ref, 80) + ')' : '')));
+        touch(); return { ok: true };
+      },
+      markBulletinRead(u, { id }) { if (!u || u.role !== 'bridge') throw new PermissionError('bridge'); const d = S.get('bulletinDeliveries', id); if (!d || d.vesselId !== u.vesselId) throw new PermissionError('own'); if (!d.readAt) { S.update('bulletinDeliveries', id, { status: 'read', readAt: now() }); audit(u, 'bulletin.read', 'bulletin', d.bulletinId, tx('اطلعت ' + vessel(d.vesselId).name + ' على الإشعار الملاحي', vessel(d.vesselId).name + ' read the navigational notice')); touch(); } return { ok: true }; },
+      issueBulletin(u, a) { return api.sendBulletin(u, a); },
       cancelBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status === 'cancelled') throw new ValidationError('state'); S.update('bulletins', id, { status: 'cancelled', history: b.history.concat([{ s: 'cancelled', at: now(), by: u.username }]) }); audit(u, 'bulletin.cancel', 'bulletin', id, tx('إلغاء النشرة ' + b.number, 'Bulletin ' + b.number + ' cancelled')); touch(); return { ok: true }; },
       saveNavtex(u, a) {
         needOfficer(u); const t = now(); const ex = a.id && S.get('navtexMessages', a.id);
@@ -1606,7 +1655,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
       tick() {
         const t = now(); let ch = false;
         for (const a of S.all('alerts')) if (!['expired', 'cancelled'].includes(a.status) && a.validTo <= t) { setAlert(a, 'expired', SYS); audit(SYS, 'alert.expire', 'alert', a.id, tx('انتهاء صلاحية الإنذار ' + a.number, 'Alert ' + a.number + ' expired')); ch = true; }
-        for (const b of S.all('bulletins')) if (b.status === 'issued_test' && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
+        for (const b of S.all('bulletins')) if (['sent_test', 'awaiting_official', 'issued_official'].includes(b.status) && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
         if (ch) touch();
       },
       classifyArea: (u, { poly }) => warningClass(poly),
@@ -2231,10 +2280,10 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
       list.map(v => '<li data-n="' + esc((v.name + ' ' + v.mmsi).toLowerCase()) + '"><button data-a="pickBridge" data-id="' + esc(v.userId) + '"><b>' + esc(v.name) + '</b><span>MMSI ' + esc(v.mmsi) + ' · ' + vtype(v.type) + ' → ' + esc(C.PORTS.find(p => p.id === v.destId) ? T(C.PORTS.find(p => p.id === v.destId).ar, C.PORTS.find(p => p.id === v.destId).en) : v.destId) + '</span></button></li>').join('') + '</ul>', 'wide');
     $('.vsearch', m).oninput = e => { const q = e.target.value.toLowerCase(); $$('.vpick li', m).forEach(li => { li.hidden = !!q && !li.dataset.n.includes(q); }); };
   };
-  A.pickBridge = async d => { closeModal(); try { const s = await client.enter(d.id); state.view = 'bridge'; state.snap = s; state.seenDeliv = null; renderView(); } catch (e) { toast(String(e.message || e), 'bad'); } };
+  A.pickBridge = async d => { closeModal(); try { const s = await client.enter(d.id); state.view = 'bridge'; state.snap = s; state.seenDeliv = null; state.seenNotices = null; renderView(); } catch (e) { toast(String(e.message || e), 'bad'); } };
 
   // ---------- Shell ----------
-  const SECS = () => [['map', 'الخريطة وحركة السفن', 'Map & vessel traffic'], ['risks', 'تحليل المخاطر ٤٨ ساعة', '48 h risk analysis'], ['alerts', 'الإنذارات', 'Alerts'], ['bulletins', 'النشرات وNAVTEX', 'Bulletins & NAVTEX'], ['routes', 'المسارات البديلة', 'Alternative routes'], ['data', 'بيانات الاختبار', 'Test data'], ['integrations', 'التكاملات المقترحة', 'Proposed integrations'], ['audit', 'سجل العمليات', 'Operations log']];
+  const SECS = () => [['map', 'الخريطة وحركة السفن', 'Map & vessel traffic'], ['risks', 'تحليل المخاطر ٤٨ ساعة', '48 h risk analysis'], ['alerts', 'الإنذارات', 'Alerts'], ['bulletins', 'النشرات والإشعارات', 'Bulletins & notices'], ['routes', 'المسارات البديلة', 'Alternative routes'], ['data', 'بيانات الاختبار', 'Test data'], ['integrations', 'التكاملات المقترحة', 'Proposed integrations'], ['audit', 'سجل العمليات', 'Operations log']];
   function header(title, sub, extra) {
     return '<header class="top v3"><button class="btn ghost light sm homebtn" data-a="home">' + ic(I_HOME) + '<span>' + T('الرئيسية', 'Home') + '</span></button>' + LOGO + '<div class="ttl"><b>' + esc(title) + '</b><span>' + sub + '</span></div><div class="grow"></div>' + envBadge() + '<div class="clock" id="clock"></div>' + (extra || '') + '<button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>';
   }
@@ -2428,23 +2477,41 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
   A.alertCancel = async d => { const n = prompt(T('سبب الإلغاء', 'Reason')); if (n != null) await act('cancelAlert', { id: d.id, note: n }, T('أُلغي', 'Cancelled')); };
 
   // 4) Bulletins & NAVTEX
-  const BST = { draft: ['muted', 'مسودة', 'Draft'], issued_test: ['ok', 'صادرة (اختبار)', 'Issued (test)'], cancelled: ['muted', 'ملغاة', 'Cancelled'], expired: ['muted', 'منتهية', 'Expired'] };
+  const BST = { draft: ['muted', 'قيد الإنشاء', 'Draft'], ready: ['info', 'جاهزة', 'Ready'], sent_test: ['info', 'أُرسلت للجهات (اختبار)', 'Sent to parties (test)'], awaiting_official: ['warn', 'بانتظار الإصدار الرسمي', 'Awaiting official issue'], issued_official: ['ok', 'صدرت رسميًا', 'Officially issued'], issued_test: ['info', 'أُرسلت (اختبار)', 'Sent (test)'], cancelled: ['muted', 'ملغاة', 'Cancelled'], expired: ['muted', 'منتهية', 'Expired'] };
+  const BFLOW = [['draft', 'قيد الإنشاء', 'Draft'], ['ready', 'جاهزة', 'Ready'], ['sent_test', 'أُرسلت للجهات', 'Sent to parties'], ['awaiting_official', 'تأكيد الاستلام', 'Receipt confirmed'], ['issued_official', 'صدرت رسميًا', 'Officially issued']];
+  const RKIND = { port: ['ميناء', 'Port'], navtex: ['محطة NAVTEX', 'NAVTEX station'], coordinator: ['منسق NAVAREA IX', 'NAVAREA IX coordinator'] };
+  function bulletinCard(b, s) {
+    const idx = BFLOW.findIndex(x => x[0] === b.status), st = BST[b.status] || ['muted', b.status, b.status];
+    const shipsN = (s.bulletinDeliveries || []).filter(d => d.bulletinId === b.id), readN = shipsN.filter(d => d.readAt).length;
+    const btn = (a, label, cls, extra) => '<button class="btn sm ' + (cls || '') + '" data-a="' + a + '" data-id="' + b.id + '"' + (extra || '') + '>' + label + '</button>';
+    const act = { draft: btn('bReady', T('جاهزة للإرسال', 'Mark ready')), ready: btn('bSend', T('إرسال للجهات المختصة', 'Send to competent parties')), awaiting_official: btn('bOfficial', T('تسجيل الإصدار الرسمي', 'Record official issue')), sent_test: btn('bOfficial', T('تسجيل الإصدار الرسمي', 'Record official issue'), 'ghost') }[b.status] || '';
+    return '<div class="nxcard"><div class="row between"><div><b>' + esc(b.number) + ' · ' + esc(L(b.title)) + '</b><div class="sm muted">' + T(...BTYPE[b.type]) + ' · ' + T(...SCOPE[b.scope]) + ' · ' + esc(L(b.areaName)) + ' · ' + fT(b.validFrom) + ' – ' + fT(b.validTo) + '</div></div>' + B(st[0], T(st[1], st[2])) + '</div>' +
+      (idx >= 0 ? '<div class="flow wrap small">' + BFLOW.map((x, i) => (i ? '<span class="arr"></span>' : '') + '<div class="fstep' + (i === idx ? ' on' : i < idx ? ' done' : '') + '"><b>' + T(x[1], x[2]) + '</b></div>').join('') + '</div>' : '') +
+      (b.checks && b.checks.length ? b.checks.map(c => '<div class="sm bad">! ' + esc(L(c)) + '</div>').join('') : '') +
+      tbl([T('الجهة', 'Party'), T('النوع', 'Type'), T('وسيلة النشر', 'Dissemination'), T('الحالة', 'Status'), ''], (b.recipients || []).map(r => tr(['<b>' + esc(L(r.name)) + '</b>', T(...RKIND[r.kind]), esc(L(r.means)), r.status === 'confirmed' ? B('ok', T('أكدت الاستلام', 'Receipt confirmed')) + '<div class="sm muted">' + esc(r.confirmedBy) + ' · ' + fH(r.confirmedAt) + (r.ref ? ' · ' + esc(r.ref) : '') + '</div>' : r.status === 'sent_test' ? B('info', T('أُرسلت (اختبار)', 'Sent (test)')) + '<div class="sm muted"><code>' + esc(r.endpoint) + '</code></div>' : B('muted', T('بانتظار الإرسال', 'Pending')), r.status === 'sent_test' ? '<button class="btn sm ghost" data-a="bConfirm" data-id="' + b.id + '" data-r="' + esc(r.id) + '">' + T('تسجيل تأكيد الاستلام', 'Record receipt') + '</button>' : '']))) +
+      (shipsN.length ? '<p class="sm">' + T('إشعار السفن داخل المياه الإقليمية في المنطقة: ', 'Ships notified inside territorial waters in the area: ') + '<b>' + shipsN.length + '</b> · ' + T('اطلعت: ', 'read: ') + '<b>' + readN + '</b></p>' : '') +
+      (b.officialRef ? '<p class="sm okline">' + T('المرجع الرسمي: ', 'Official reference: ') + esc(b.officialRef) + '</p>' : '') +
+      '<div class="row">' + act + (b.scope === 'LOCAL' ? '' : btn('navtexForm', 'NAVTEX', 'ghost', ' data-b="' + b.id + '"')) + (!['cancelled', 'expired', 'issued_official'].includes(b.status) ? btn('bCancel', T('إلغاء', 'Cancel'), 'ghost danger') : '') + '</div></div>';
+  }
   const NST = { invalid: ['crit', 'حقول غير صالحة', 'Validation errors'], formatted: ['info', 'منسّقة', 'Formatted'], test_dispatched: ['ok', 'مُررت لنقطة اختبار', 'Passed to test endpoint'] };
   OFF.bulletins = {
     mount: () => sechead(T('النشرات والإشعارات الملاحية', 'Bulletins & navigational notices'), T('نشرات اختبار (Test Bulletin) مع أداة لإعداد رسالة بصيغة NAVTEX للاختبار والتكامل المستقبلي. لا تبث مَرسى أي رسالة رسميًا ولا ترسلها إلى محطة كراتشي.', 'Test Bulletins with a tool to prepare NAVTEX-format messages for testing and future integration. MARSA does not broadcast any message officially or send it to the Karachi station.'), '<button class="btn sm ghost" data-a="navtexForm">' + T('رسالة NAVTEX جديدة', 'New NAVTEX message') + '</button><button class="btn sm" data-a="bulletinForm">' + T('نشرة جديدة', 'New bulletin') + '</button>') +
       '<div class="panel"><h3>' + T('النشرات', 'Bulletins') + '</h3><div id="bcomp"></div><div id="blist"></div></div><div class="panel"><h3>' + T('رسائل NAVTEX التجريبية', 'Test NAVTEX messages') + '</h3><div id="nlist"></div></div>',
     upd: () => {
       const s = S();
-      const wb = s.bulletins.filter(b => b.type === 'weather_bulletin' && b.history.some(h => h.s === 'issued_test' && h.at > s.now - 24 * H)).length;
+      const wb = s.bulletins.filter(b => b.type === 'weather_bulletin' && b.history.some(h => ['sent_test', 'issued_test'].includes(h.s) && h.at > s.now - 24 * H)).length;
       fill('#bcomp', '<p class="sm ' + (wb >= 2 ? 'okline' : 'bad') + '">' + T('نشرات الطقس خلال ٢٤ ساعة: ', 'Weather bulletins in 24 h: ') + wb + ' / 2</p>');
-      fill('#blist', s.bulletins.length ? tbl([T('الرقم', 'No.'), T('النوع', 'Type'), T('العنوان', 'Title'), T('النطاق', 'Scope'), T('المنطقة', 'Area'), T('الصلاحية', 'Validity'), T('الحالة', 'Status'), ''], s.bulletins.slice().reverse().map(b => tr(['<b>' + esc(b.number) + '</b>', T(...BTYPE[b.type]), esc(L(b.title)), T(...SCOPE[b.scope]) + (b.scope !== b.suggestedScope ? '<div class="sm muted">' + T('المقترح: ', 'suggested: ') + T(...SCOPE[b.suggestedScope]) + '</div>' : '') + '<div class="sm muted">' + (b.wwnws && b.scope === b.wwnws.level ? esc(L(b.wwnws.means)) : esc(L((s.wwnws.levels[b.scope] || s.wwnws.levels.NAVAREA).means))) + '</div>' + (b.checks && b.checks.length ? b.checks.map(c => '<div class="sm bad">! ' + esc(L(c)) + '</div>').join('') : ''), esc(L(b.areaName)), fT(b.validFrom) + ' – ' + fT(b.validTo), B(BST[b.status][0], T(BST[b.status][1], BST[b.status][2])),
-        '<div class="row nowrap">' + (b.status === 'draft' ? '<button class="btn sm" data-a="bIssue" data-id="' + b.id + '">' + T('إصدار', 'Issue') + '</button>' : '') + (b.scope === 'LOCAL' ? '<span class="sm muted">' + T('VHF/قنوات محلية – لا NAVTEX', 'VHF/local – no NAVTEX') + '</span>' : '<button class="btn sm ghost" data-a="navtexForm" data-b="' + b.id + '">NAVTEX</button>') + (!['cancelled', 'expired'].includes(b.status) ? '<button class="btn sm ghost danger" data-a="bCancel" data-id="' + b.id + '">' + T('إلغاء', 'Cancel') + '</button>' : '') + '</div>']))) : empty(T('لا توجد نشرات بعد.', 'No bulletins yet.')));
+      fill('#blist', s.bulletins.length ? s.bulletins.slice().reverse().map(b => bulletinCard(b, s)).join('') : empty(T('لا توجد نشرات بعد.', 'No bulletins yet.')));
       fill('#nlist', s.navtexMessages.length ? s.navtexMessages.slice().reverse().map(m => { const st = s.stations.find(x => x.id === m.targetId), ns = NST[m.status] || ['muted', m.status, m.status]; return '<div class="nxcard"><div class="row between"><b>' + esc(m.number) + '</b><span>' + B(ns[0], T(ns[1], ns[2])) + ' ' + TAG('TEST') + '</span></div><div class="kv sm"><span>' + T('النوع', 'Subject') + '</span><b>' + (m.subject ? T(...SUBJ[m.subject]) : '—') + '</b><span>' + T('النطاق', 'Scope') + '</span><b>' + (m.scope ? T(...SCOPE[m.scope]) : '—') + '</b><span>' + T('الجهة', 'Addressee') + '</span><b>' + (st ? esc(L(st.name)) + ' · ' + (st.role === 'COORDINATOR' ? T('مركز تنسيق', 'Coordinator') : T('محطة بث NAVTEX', 'NAVTEX station')) : '—') + '</b></div>' +
         (m.errors.length ? '<ul class="errs">' + m.errors.map(e => '<li>' + esc(e) + '</li>').join('') + '</ul>' : '') + '<pre class="msg" dir="ltr">' + esc(m.formatted) + '</pre>' + (m.dispatches.length ? '<ul class="mini plain sm">' + m.dispatches.map(x => '<li>' + fTs(x.at) + ' · <code>' + esc(x.endpoint) + '</code> → ' + esc(x.response.status) + ' – ' + esc(L(x.response.note)) + '</li>').join('') + '</ul>' : '') +
         '<div class="row"><button class="btn sm ghost" data-a="navtexForm" data-id="' + m.id + '">' + T('تعديل', 'Edit') + '</button><button class="btn sm ghost" data-a="nxTxt" data-id="' + m.id + '">' + T('تصدير TXT', 'Export TXT') + '</button><button class="btn sm ghost" data-a="nxJson" data-id="' + m.id + '">' + T('تصدير JSON', 'Export JSON') + '</button>' + (m.status !== 'invalid' ? '<button class="btn sm" data-a="nxDispatch" data-id="' + m.id + '">' + T('تمرير لنقطة تكامل اختبارية', 'Pass to test integration endpoint') + '</button>' : '') + '</div></div>'; }).join('') : empty(T('لا توجد رسائل بعد.', 'No messages yet.')));
     }
   };
-  A.bIssue = d => act('issueBulletin', { id: d.id }, T('صدرت النشرة داخل بيئة الاختبار', 'Bulletin issued in the test environment'));
+  A.bIssue = d => A.bSend(d);
+  A.bReady = d => act('readyBulletin', { id: d.id }, T('النشرة جاهزة', 'Bulletin ready'));
+  A.bSend = async d => { const r = await act('sendBulletin', { id: d.id }, false); if (r) toast(T('أُرسلت داخل بيئة الاختبار إلى ' + r.recipients + ' جهات' + (r.ships ? ' و' + r.ships + ' سفن' : ''), 'Sent in the test environment to ' + r.recipients + ' parties' + (r.ships ? ' and ' + r.ships + ' ships' : '')), 'ok'); };
+  A.bConfirm = d => { const by = prompt(T('اسم من أكد الاستلام لدى الجهة', 'Name of the person who confirmed receipt'), T('المناوب', 'Duty officer')); if (by == null) return; const ref = prompt(T('رقم مرجعي (اختياري)', 'Reference number (optional)'), '') || ''; act('confirmBulletinRecipient', { id: d.id, recipientId: d.r, by, ref }, T('سُجل تأكيد الاستلام', 'Receipt recorded')); };
+  A.bOfficial = d => { const ref = prompt(T('المرجع الرسمي للنشرة الصادرة (مثل رقم تحذير NAVTEX أو NAVAREA)', 'Official reference of the issued warning (e.g. NAVTEX or NAVAREA number)'), ''); if (ref == null) return; act('recordOfficialIssue', { id: d.id, ref }, T('سُجل الإصدار الرسمي', 'Official issue recorded')); };
   A.bCancel = d => act('cancelBulletin', { id: d.id }, T('أُلغيت', 'Cancelled'));
   A.bulletinForm = d => {
     const s = S(), r = d.r ? risk(d.r) : null, type = r ? (['port_closure', 'port_restriction'].includes(r.type) ? 'port_closure' : ['navigation_hazard', 'operational', 'security'].includes(r.type) ? 'nav_restriction' : 'wind_wave_warning') : 'weather_bulletin';
@@ -2599,7 +2666,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 
   // ---------- Ship Bridge ----------
   const BR = {
-    mount: () => '<div id="sndhint"></div><div id="bstatus"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
+    mount: () => '<div id="sndhint"></div><div id="bstatus"></div><div id="bnotice"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
     upd: () => {
       const s = S(), v = s.vessels[0]; if (!v) { fill('#bstatus', empty(T('حُذف سجل هذه السفينة.', 'This vessel record was deleted.'))); return; }
       fill('#sndhint', Sound.on && !Sound.unlocked ? '<button class="sndhint" data-a="enableSound">' + ic(I_SOUND) + T('اضغط هنا لتفعيل صوت الإنذار على هذا الجهاز', 'Tap here to enable the alarm sound on this device') + '</button>' : '');
@@ -2609,6 +2676,10 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
       if (unseen.length && document.visibilityState === 'visible') { unseen.forEach(id => state.sentReceived.add(id)); client.call('markReceived', { ids: unseen }).catch(() => unseen.forEach(id => state.sentReceived.delete(id))); }
       fill('#bstatus', open.length ? open.map(d => { const a = alertById(d.alertId) || {}; return '<div class="bigalert lv-critical"><div class="ba-head"><span class="ba-icon">!</span><div><b>' + esc(L(a.title)) + '</b><span>' + T('إنذار من مَرسى (اختبار)', 'MARSA alert (test)') + ' · ' + esc(a.number) + ' · ' + lv(a.severity) + '</span></div></div><div class="ba-body"><p>' + esc(L(a.body)) + '</p><p><b>' + T('التعليمات: ', 'Instructions: ') + '</b>' + esc(L(a.instructions)) + '</p><p class="sm">' + T('موقع الخطر: ', 'Hazard location: ') + esc(L(a.areaName)) + ' · ' + T('الوقت المتوقع: ', 'Expected: ') + (a.riskSnapshot ? fT(a.riskSnapshot.start) + ' – ' + fT(a.riskSnapshot.end) : fT(a.validFrom) + ' – ' + fT(a.validTo)) + '</p></div><button class="btn big light" data-a="ackAlert" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button></div>'; }).join('')
         : '<div class="calmline">' + T('لا توجد إنذارات بانتظار التأكيد.', 'No alerts awaiting confirmation.') + '</div>');
+      const bd = (s.bulletinDeliveries || []).slice().sort((a, b) => b.sentAt - a.sentAt);
+      fill('#bnotice', bd.length ? '<div class="panel"><h2>' + T('الإشعارات الملاحية', 'Navigational notices') + '</h2>' + bd.map(d => { const b = (s.bulletins || []).find(x => x.id === d.bulletinId) || {}; return '<div class="notice' + (d.readAt ? ' read' : '') + '"><div><b>' + esc(L(b.title)) + '</b><span class="sm muted">' + esc(b.number) + ' · ' + T(...(BTYPE[b.type] || ['', ''])) + ' · ' + T('صالحة حتى ', 'valid until ') + fT(b.validTo) + '</span><p>' + esc(L(b.body)) + '</p></div>' + (d.readAt ? B('ok', T('تم الاطلاع ', 'Read ') + fH(d.readAt)) : '<button class="btn sm" data-a="bRead" data-id="' + d.id + '">' + T('تم الاطلاع', 'Mark as read') + '</button>') + '</div>'; }).join('') + '</div>' : '');
+      if (state.seenNotices) { const fresh = bd.filter(d => !state.seenNotices.has(d.id)); if (fresh.length) toast(T('إشعار ملاحي جديد', 'New navigational notice'), 'ok'); }
+      state.seenNotices = new Set(bd.map(d => d.id));
       const ar = s.alternativeRoutes.slice(-1)[0];
       if (ar) {
         if (!$('#bmap')) fill('#broute', '<div class="mapbox mid" id="bmap"></div><div class="maplegend"><span class="lg z rk-critical"></span>' + T('منطقة الخطر', 'Hazard area') + ' <span class="lg ln cur"></span>' + T('المسار الحالي', 'Current route') + ' <span class="lg ln alt"></span>' + T('المسار المقترح', 'Suggested route') + '</div><div id="rinfo"></div>');
@@ -2639,6 +2710,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
   A.testAlarm = () => { Sound.unlock(); showAlarm(null, true); };
   A.closeAlarm = () => { $$('.alarm-wrap').forEach(x => x.remove()); Sound.stopRepeat(); };
   A.ackFromAlarm = async d => { const name = ($('#alof') || {}).value || T('ضابط المناوبة', 'Officer of the watch'); if (await act('acknowledge', { id: d.id, officer: name, action: d.act || null }, T('أُرسل تأكيد الاستلام', 'Receipt confirmed'))) A.closeAlarm(); };
+  A.bRead = d => act('markBulletinRead', { id: d.id }, false);
   A.ackAlert = d => showAlarm(S().deliveryRecords.find(x => x.id === d.id));
 
   // ---------- Boot ----------

@@ -176,7 +176,7 @@
 
     // ---------------- Seed: the test dataset
     function seed() {
-      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
+      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'bulletinDeliveries', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
       const T0 = Math.floor(now() / (10 * MIN)) * 10 * MIN; // dataset reference time
       S.insert('meta', { id: 'meta', version: 1, counters: {}, datasetAt: T0, seededAt: now() });
       S.insert('settings', Object.assign({ id: 'rules' }, JSON.parse(JSON.stringify(DEFAULT_RULES))));
@@ -527,10 +527,25 @@
       if (res.accepted.length) analyse('weather update');
     }
 
-    // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
+    // ---------------- Bulletins & navigational notices: routed by WWNWS level to the competent parties (test environment)
+  function bulletinRecipients(b) {
+    const out = [], ports = S.all('ports').filter(p => C.pointInPoly(p.p, b.poly) || (b.portId === p.id)).slice(0, 4);
+    if (!ports.length) { const c = b.poly.reduce((a, q) => [a[0] + q[0] / b.poly.length, a[1] + q[1] / b.poly.length], [0, 0]); const n = S.all('ports').slice().sort((x, y) => C.gcNm(x.p, c) - C.gcNm(y.p, c))[0]; if (n) ports.push(n); }
+    for (const p of ports) out.push({ id: 'P:' + p.id, kind: 'port', targetId: p.id, name: tx('إدارة ' + p.name.ar + ' (مأمور الميناء)', p.name.en + ' (harbour master)'), means: tx('VHF والقنوات المحلية', 'VHF and local channels'), status: 'pending' });
+    if (b.scope === 'COASTAL' || b.scope === 'NAVAREA') {
+      const st = (b.wwnws && b.wwnws.navtexStations || []).map(id => C.STATIONS.find(x => x.id === id)).filter(Boolean);
+      const c = b.poly[0], near = st.length ? st : C.STATIONS.filter(x => x.role === 'NAVTEX' && x.country === 'SA').sort((x, y) => C.gcNm(x.p, c) - C.gcNm(y.p, c)).slice(0, 1);
+      for (const x of near) out.push({ id: 'N:' + x.id, kind: 'navtex', targetId: x.id, name: tx(x.ar, x.en), means: tx('بث NAVTEX (' + x.b1 + ')', 'NAVTEX broadcast (' + x.b1 + ')'), status: 'pending' });
+    }
+    if (b.scope === 'NAVAREA') { const k = C.STATIONS.find(x => x.id === 'KHI_NAV'); out.push({ id: 'C:KHI_NAV', kind: 'coordinator', targetId: k.id, name: tx(k.ar, k.en), means: tx('تحذير NAVAREA عبر NAVTEX/EGC', 'NAVAREA warning via NAVTEX/EGC'), status: 'pending' }); }
+    return out;
+  }
+  function setBulletin(b, status, actor, note, patch) { const cur = S.get('bulletins', b.id); S.update('bulletins', b.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
+
+  // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
   function marineForecast(areaId, hours) {
     const a = area(areaId), f = S.get('weatherForecasts', 'F:' + areaId); if (!a || !f) throw new ValidationError('area');
-    const H0 = 0, H1 = clamp(+hours || 24, 24, 48); // valid period at least 24 h (MSC.470(101) 4.2.2.2)
+    const H0 = 0, lag = Math.ceil(Math.max(0, now() - meta().datasetAt) / H), H1 = clamp((+hours || 24) + lag, 24, 48); // valid at least 24 h from now // valid period at least 24 h (MSC.470(101) 4.2.2.2)
     const ser = f.series.filter(x => x.h >= H0 && x.h <= H1), mx = k => Math.max(...ser.map(x => x[k])), mn = k => Math.min(...ser.map(x => x[k]));
     const peak = ser.reduce((m, x) => x.windKn > m.windKn ? x : m, ser[0]), cat = windWarning(peak.windKn);
     const card = d => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(((d % 360) + 360) % 360 / 45) % 8], cardAr = d => ['شمالية', 'شمالية شرقية', 'شرقية', 'جنوبية شرقية', 'جنوبية', 'جنوبية غربية', 'غربية', 'شمالية غربية'][Math.round(((d % 360) + 360) % 360 / 45) % 8];
@@ -554,12 +569,13 @@
         const v = vessel(user.vesselId);
         const dl = S.all('deliveryRecords').filter(d => d.vesselId === user.vesselId && !['queued'].includes(d.status));
         const aIds = new Set(dl.map(d => d.alertId));
-        return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, vessels: v ? [v] : [], ports: S.all('ports'), alerts: S.all('alerts').filter(a => aIds.has(a.id)), deliveryRecords: dl,
+        const bd = S.all('bulletinDeliveries').filter(d => d.vesselId === user.vesselId), bIds = new Set(bd.map(d => d.bulletinId));
+        return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, vessels: v ? [v] : [], bulletinDeliveries: bd, bulletins: S.all('bulletins').filter(b => bIds.has(b.id)).map(b => ({ id: b.id, number: b.number, type: b.type, title: b.title, body: b.body, areaName: b.areaName, validFrom: b.validFrom, validTo: b.validTo, status: b.status })), ports: S.all('ports'), alerts: S.all('alerts').filter(a => aIds.has(a.id)), deliveryRecords: dl,
           alternativeRoutes: S.all('alternativeRoutes').filter(r => r.vesselId === user.vesselId && r.alertId && aIds.has(r.alertId)), constraints: S.all('constraints'), dataSources: S.all('dataSources').filter(x => x.id === 'ais') };
       }
       return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, rules: rules(), seaAreas: S.all('seaAreas'), ports: S.all('ports'), vessels: S.all('vessels'), constraints: S.all('constraints'),
         weatherObservations: S.all('weatherObservations'), weatherForecasts: S.all('weatherForecasts'), maritimeRisks: S.all('maritimeRisks'), affectedVessels: S.all('affectedVessels'), alerts: S.all('alerts'), deliveryRecords: S.all('deliveryRecords'),
-        alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
+        alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), bulletinDeliveries: S.all('bulletinDeliveries'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
         stations: C.STATIONS.filter(s => s.navarea === 'IX').map(s => ({ id: s.id, role: s.role, name: tx(s.ar, s.en), country: s.country, b1: s.b1 })), sampleSystems: SAMPLE_SYSTEMS.map(s => ({ id: s.id, name: tx(s.ar, s.en) })), wwnws: { ref: WWNWS_REF, levels: WW, kingdomWatersNm: KSA_WATERS_NM }, wwmiwsRef: WWMIWS_REF };
     }
 
@@ -705,9 +721,38 @@
         b.checks = [];
         if (b.type === 'weather_bulletin' && b.validTo - b.validFrom < 24 * H) b.checks.push(tx('فترة صلاحية التوقعات أقل من ٢٤ ساعة (' + WWMIWS_REF + '، 4.2.2.2)', 'Forecast valid period is less than 24 h (' + WWMIWS_REF + ', 4.2.2.2)'));
         if (b.scope !== 'LOCAL' && /[^\x20-\x7E\n]/.test(b.body.en)) b.checks.push(tx('النص الإنجليزي يحتوي أحرفًا غير لاتينية؛ الخدمات الدولية (NAVTEX/EGC) بالإنجليزية فقط', 'English text contains non-Latin characters; international services (NAVTEX/EGC) are English only'));
+        b.recipients = bulletinRecipients(b);
         S.insert('bulletins', b); audit(u, 'bulletin.create', 'bulletin', b.id, tx('إنشاء نشرة ' + b.number + ': ' + title.ar, 'Bulletin ' + b.number + ' created: ' + title.en)); touch(); return b;
       },
-      issueBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); S.update('bulletins', id, { status: 'issued_test', history: b.history.concat([{ s: 'issued_test', at: now(), by: u.username }]) }); audit(u, 'bulletin.issue', 'bulletin', id, tx('إصدار النشرة ' + b.number + ' داخل بيئة الاختبار', 'Bulletin ' + b.number + ' issued in the test environment')); touch(); return { ok: true }; },
+      readyBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); setBulletin(b, 'ready', u); audit(u, 'bulletin.ready', 'bulletin', id, tx('النشرة ' + b.number + ' جاهزة للإرسال', 'Bulletin ' + b.number + ' ready')); touch(); return { ok: true }; },
+      sendBulletin(u, { id }) {
+        needOfficer(u); let b = S.get('bulletins', id); if (!b || !['draft', 'ready'].includes(b.status)) throw new ValidationError('state'); const t = now();
+        const recipients = (b.recipients || []).map(r => Object.assign({}, r, { status: 'sent_test', sentAt: t, endpoint: 'proposed://' + r.kind + '/' + r.targetId + '/test' }));
+        let n = 0;
+        if (b.scope === 'LOCAL' || b.scope === 'COASTAL') for (const v of S.all('vessels').filter(v => C.pointInPoly(v.pos, b.poly) && C.inSaudiTerritorialSea(v.pos) && v.channel === 'bridge')) { S.insert('bulletinDeliveries', { id: uid('BD'), bulletinId: id, vesselId: v.id, status: 'sent', sentAt: t, readAt: null }); n++; }
+        setBulletin(b, 'sent_test', u, recipients.length + ' parties, ' + n + ' ships', { recipients, sentAt: t, shipNotices: n });
+        for (const r of recipients) S.insert('integrationEvents', { id: uid('IE'), at: t, integration: 'bulletin_' + r.kind, direction: 'out', status: 'test_only', messageId: id, endpoint: r.endpoint, by: u.username });
+        audit(u, 'bulletin.send', 'bulletin', id, tx('إرسال النشرة ' + b.number + ' داخل بيئة الاختبار إلى ' + recipients.map(r => r.name.ar).join('، ') + (n ? ' وإشعار ' + n + ' سفن داخل المياه الإقليمية' : '') + ' – لم تُرسل فعليًا لأي جهة', 'Bulletin ' + b.number + ' sent in the test environment to ' + recipients.map(r => r.name.en).join(', ') + (n ? ' and ' + n + ' ships in territorial waters notified' : '') + ' – not actually sent to any party'));
+        touch(); return { recipients: recipients.length, ships: n };
+      },
+      confirmBulletinRecipient(u, { id, recipientId, by, ref }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'receipt_confirmed'].includes(b.status)) throw new ValidationError('state');
+        if (!by || str(by, 80).length < 2) throw new ValidationError('officer'); const t = now();
+        const recipients = b.recipients.map(r => r.id === recipientId ? Object.assign({}, r, { status: 'confirmed', confirmedAt: t, confirmedBy: str(by, 80), ref: str(ref, 60) || null }) : r);
+        const all = recipients.every(r => r.status === 'confirmed');
+        S.update('bulletins', id, { recipients });
+        audit(u, 'bulletin.receipt', 'bulletin', id, tx('تسجيل تأكيد استلام النشرة ' + b.number + ' من ' + recipients.find(r => r.id === recipientId).name.ar + ' (' + str(by, 80) + ')', 'Receipt of bulletin ' + b.number + ' recorded from ' + recipients.find(r => r.id === recipientId).name.en + ' (' + str(by, 80) + ')'));
+        if (all) setBulletin(S.get('bulletins', id), 'awaiting_official', SYS, 'all parties confirmed receipt');
+        touch(); return { ok: true, all };
+      },
+      recordOfficialIssue(u, { id, ref }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'awaiting_official'].includes(b.status)) throw new ValidationError('state');
+        setBulletin(b, 'issued_official', u, str(ref, 80) || null, { officialRef: str(ref, 80) || null, officialAt: now() });
+        audit(u, 'bulletin.official', 'bulletin', id, tx('تسجيل صدور النشرة ' + b.number + ' رسميًا من الجهة المختصة' + (ref ? ' (مرجع ' + str(ref, 80) + ')' : ''), 'Official issuance of bulletin ' + b.number + ' recorded' + (ref ? ' (ref ' + str(ref, 80) + ')' : '')));
+        touch(); return { ok: true };
+      },
+      markBulletinRead(u, { id }) { if (!u || u.role !== 'bridge') throw new PermissionError('bridge'); const d = S.get('bulletinDeliveries', id); if (!d || d.vesselId !== u.vesselId) throw new PermissionError('own'); if (!d.readAt) { S.update('bulletinDeliveries', id, { status: 'read', readAt: now() }); audit(u, 'bulletin.read', 'bulletin', d.bulletinId, tx('اطلعت ' + vessel(d.vesselId).name + ' على الإشعار الملاحي', vessel(d.vesselId).name + ' read the navigational notice')); touch(); } return { ok: true }; },
+      issueBulletin(u, a) { return api.sendBulletin(u, a); },
       cancelBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status === 'cancelled') throw new ValidationError('state'); S.update('bulletins', id, { status: 'cancelled', history: b.history.concat([{ s: 'cancelled', at: now(), by: u.username }]) }); audit(u, 'bulletin.cancel', 'bulletin', id, tx('إلغاء النشرة ' + b.number, 'Bulletin ' + b.number + ' cancelled')); touch(); return { ok: true }; },
       saveNavtex(u, a) {
         needOfficer(u); const t = now(); const ex = a.id && S.get('navtexMessages', a.id);
@@ -734,7 +779,7 @@
       tick() {
         const t = now(); let ch = false;
         for (const a of S.all('alerts')) if (!['expired', 'cancelled'].includes(a.status) && a.validTo <= t) { setAlert(a, 'expired', SYS); audit(SYS, 'alert.expire', 'alert', a.id, tx('انتهاء صلاحية الإنذار ' + a.number, 'Alert ' + a.number + ' expired')); ch = true; }
-        for (const b of S.all('bulletins')) if (b.status === 'issued_test' && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
+        for (const b of S.all('bulletins')) if (['sent_test', 'awaiting_official', 'issued_official'].includes(b.status) && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
         if (ch) touch();
       },
       classifyArea: (u, { poly }) => warningClass(poly),
