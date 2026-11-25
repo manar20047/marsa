@@ -276,7 +276,7 @@
       const t = now(), horizon = t + 48 * H;
       for (const r of S.all('maritimeRisks')) {
         let cnt = 0;
-        if (r.end < t) { S.update('maritimeRisks', r.id, { affectedCount: 0 }); continue; }
+        if (r.end < t) { S.update('maritimeRisks', r.id, { affectedCount: 0, affectedPorts: [] }); continue; }
         for (const v of S.all('vessels')) {
           if (!v.pos) continue;
           let rel = null, eta = null, dist = 0;
@@ -294,7 +294,8 @@
           S.insert('affectedVessels', { id: 'AV:' + r.id + ':' + v.id, riskId: r.id, vesselId: v.id, relation: rel, etaToZone: eta, distanceNm: r1(dist), duringRisk: during, reason, computedAt: t });
           if (rel !== 'crossing') cnt++;
         }
-        S.update('maritimeRisks', r.id, { affectedCount: cnt });
+        const ports = S.all('ports').filter(pt => C.pointInPoly(pt.p, r.poly) || C.gcNm(pt.p, r.center) <= r.radiusNm + 5).map(pt => pt.id);
+        S.update('maritimeRisks', r.id, { affectedCount: cnt, affectedPorts: ports });
       }
     }
     function trackTo(cs, nm) { const out = [cs[0]]; let acc = 0; for (let i = 1; i < cs.length; i++) { const d = C.gcNm(cs[i - 1], cs[i]); if (acc + d >= nm) { out.push(C.pointAlong([cs[i - 1], cs[i]], nm - acc).pos); return out; } out.push(cs[i]); acc += d; } return out; }
