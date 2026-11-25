@@ -172,3 +172,21 @@ test('IMO/territorial rules: local warnings not on NAVTEX, direct alerts only up
   const mf = s.marineForecast(OFF, { areaId: 'JED' });
   assert.match(mf.text.en, /PART I - WARNINGS/); assert.match(mf.text.en, /PART III - FORECAST/); assert.ok(mf.validTo - mf.validFrom >= 23 * H);
 });
+
+test('decision engine: options per vessel, port capacity limit 88%, ship accepts recommendation', () => {
+  const { s } = mk();
+  const r = s.snapshot(OFF).maritimeRisks.find(x => x.areaId === 'JED');
+  const targets = s.snapshot(OFF).affectedVessels.filter(a => a.riskId === r.id && a.relation !== 'crossing').map(a => a.vesselId);
+  const al = s.createAlert(OFF, { riskId: r.id, targets, title: { ar: 'أ', en: 'a' }, body: { ar: 'ب', en: 'b' } });
+  s.submitAlert(OFF, { id: al.id }); s.approveAlert(OFF, { id: al.id, disclaimer: true });
+  const recs = s.snapshot(OFF).alternativeRoutes.filter(x => x.alertId === al.id);
+  assert.ok(recs.length > 3 && recs.every(x => x.options && x.options.length >= 2 && x.recommended));
+  for (const x of recs) { const best = x.options.find(o => o.recommended); assert.ok(best); if (x.options.some(o => o.safe)) assert.ok(best.safe); for (const o of x.options) assert.ok(o.costSAR > 0 && o.fuelT >= 0); }
+  assert.ok(recs.some(x => x.kind === 'divert'), 'at least one diversion');
+  for (const x of recs.filter(y => y.kind === 'divert')) assert.ok(x.options.find(o => o.recommended).occupancyAfter <= 88);
+  s.prepareDispatch(OFF, { id: al.id }); s.dispatchAlert(OFF, { id: al.id });
+  const d = s.snapshot(OFF).deliveryRecords.find(x => x.alertId === al.id && x.vesselId === 'V1');
+  s.acknowledge(bridgeOf(s, 'V1'), { id: d.id, officer: 'C/O Test', action: 'accepted' });
+  const after = s.snapshot(OFF).deliveryRecords.find(x => x.id === d.id);
+  assert.equal(after.action, 'accepted'); assert.ok(after.actionLabel.en);
+});
