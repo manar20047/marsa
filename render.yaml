@@ -4,6 +4,7 @@ services:
     name: marsa
     runtime: node
     plan: free
+    autoDeployTrigger: commit
     buildCommand: "node build.js"
     startCommand: "node server/server.js"
     healthCheckPath: /healthz
