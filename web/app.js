@@ -121,35 +121,55 @@
   const empty = txt => '<p class="muted empty">' + esc(txt) + '</p>';
 
   // ---------- Sound: bell alarm (Web Audio), testable ----------
+  // The bell is rendered once into a WAV file and played with an <audio> element: on phones (iOS in particular)
+  // media playback is allowed after one tap and is not muted by the silent switch the way Web Audio is.
   const Sound = (() => {
-    let ctx = null, comp = null, repeatT = null;
     let on = true; try { on = localStorage.getItem('marsa.sound') !== '0'; } catch (e) { /* ignore */ }
-    const RING_S = 5, BELL_F = 440, GAP = .62, VOL = .42;
-    const ensure = () => { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } } if (ctx && ctx.state === 'suspended') ctx.resume(); return ctx; };
-    function out() { if (!comp) { comp = ctx.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 4; const g = ctx.createGain(); g.gain.value = 1.6; comp.connect(g).connect(ctx.destination); } return comp; }
-    function strike(at, f) {
-      for (const [m, a, d] of [[1, 1, 3.2], [1.004, .7, 3.0], [.5, .45, 3.6], [2.0, .5, 2.2], [2.76, .35, 1.6], [3.0, .2, 1.2], [5.4, .12, .7]]) {
-        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f * m;
-        g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(VOL * a, at + .006); g.gain.exponentialRampToValueAtTime(.0001, at + d);
-        o.connect(g).connect(out()); o.start(at); o.stop(at + d + .05);
+    const RING_S = 5, BELL_F = 440, GAP = .62, SR = 22050;
+    let audio = null, unlocked = false, repeatT = null, ctx = null;
+    function bellWav() {
+      const n = Math.floor(RING_S * SR), buf = new Float32Array(n), parts = [[1, 1, 3.2], [1.004, .7, 3.0], [.5, .45, 3.6], [2.0, .5, 2.2], [2.76, .35, 1.6], [3.0, .2, 1.2], [5.4, .12, .7]];
+      for (let k = 0; k * GAP < RING_S - 1; k++) {
+        const t0 = Math.floor(k * GAP * SR);
+        for (const [m, a, d] of parts) {
+          const w = 2 * Math.PI * BELL_F * m / SR, len = Math.min(n - t0, Math.floor(d * SR)), att = Math.floor(.006 * SR), dec = Math.log(1e-4) / (len - att);
+          for (let i = 0; i < len; i++) buf[t0 + i] += a * (i < att ? i / att : Math.exp(dec * (i - att))) * Math.sin(w * i);
+        }
       }
+      let peak = 0; for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(buf[i]));
+      const g = .97 / (peak || 1), dv = new DataView(new ArrayBuffer(44 + n * 2)), str = (o, t) => { for (let i = 0; i < t.length; i++) dv.setUint8(o + i, t.charCodeAt(i)); };
+      str(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+      dv.setUint32(24, SR, true); dv.setUint32(28, SR * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); str(36, 'data'); dv.setUint32(40, n * 2, true);
+      for (let i = 0; i < n; i++) { const v = Math.tanh(buf[i] * g * 1.4) / Math.tanh(1.4); dv.setInt16(44 + i * 2, Math.max(-1, Math.min(1, v)) * 32767, true); }
+      return URL.createObjectURL(new Blob([dv.buffer], { type: 'audio/wav' }));
     }
-    function ring(force) { if ((!on && !force) || !ensure()) return; try { const t0 = ctx.currentTime + .02; for (let k = 0; k * GAP < RING_S - 1; k++) strike(t0 + k * GAP, BELL_F); } catch (e) { /* audio blocked */ } }
+    try { audio = new Audio(bellWav()); audio.preload = 'auto'; audio.setAttribute('playsinline', ''); } catch (e) { audio = null; }
+    function unlock() {
+      if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } }
+      if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+      if (unlocked || !audio) return;
+      audio.muted = true;
+      const p = audio.play(); if (p && p.then) p.then(() => { audio.pause(); audio.currentTime = 0; audio.muted = false; unlocked = true; update && update(); }).catch(() => { audio.muted = false; });
+    }
+    function ring(force) {
+      if (!on && !force) return; unlock();
+      if (audio) { try { audio.muted = false; audio.volume = 1; audio.currentTime = 0; const p = audio.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* blocked */ } }
+    }
     return {
-      get on() { return on; }, ring, unlock: ensure,
-      toggle() { on = !on; try { localStorage.setItem('marsa.sound', on ? '1' : '0'); } catch (e) { /* ignore */ } if (on) ring(); else this.stopRepeat(); },
+      get on() { return on; }, get unlocked() { return unlocked || !audio; }, ring, unlock,
+      toggle() { on = !on; try { localStorage.setItem('marsa.sound', on ? '1' : '0'); } catch (e) { /* ignore */ } if (on) ring(true); else { this.stopRepeat(); if (audio) audio.pause(); } },
       repeat() { clearInterval(repeatT); repeatT = setInterval(() => ring(), 12000); },
-      stopRepeat() { clearInterval(repeatT); }
+      stopRepeat() { clearInterval(repeatT); if (audio) audio.pause(); }
     };
   })();
-  document.addEventListener('pointerdown', () => Sound.unlock(), { capture: true, once: true });
+  for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) document.addEventListener(ev, () => Sound.unlock(), { capture: true, passive: true });
 
   // ---------- Global click actions ----------
   const A = {};
   document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b) return; const f = A[b.dataset.a]; if (f) { e.preventDefault(); f(b.dataset, b); } });
   A.home = () => goHome();
   A.lang = () => { I.lang = I.lang === 'ar' ? 'en' : 'ar'; try { localStorage.setItem('marsa.lang', I.lang); } catch (e) { /* ignore */ } applyLang(); if (state.view === 'home') renderHome(); else renderView(); };
-  A.sound = () => { Sound.toggle(); fill('#soundbtn', soundBtnInner()); };
+  A.sound = () => { Sound.toggle(); fill('#soundbtn', soundBtnInner()); update(); };
   const soundBtnInner = () => ic(I_SOUND) + '<span>' + (Sound.on ? T('الصوت مفعّل', 'Sound on') : T('الصوت متوقف', 'Sound off')) + '</span>';
   function applyLang() { document.documentElement.lang = I.lang; document.documentElement.dir = I.lang === 'ar' ? 'rtl' : 'ltr'; document.title = T('مَرسى · MARSA', 'MARSA · مَرسى'); for (const k in state.maps) state.maps[k].setLang(I.lang); }
 
@@ -478,10 +498,11 @@
 
   // ---------- Ship Bridge ----------
   const BR = {
-    mount: () => '<div id="bstatus"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
+    mount: () => '<div id="sndhint"></div><div id="bstatus"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
     bind: () => {},
     upd: () => {
       const s = S(), v = s.vessels[0]; if (!v) return;
+      fill('#sndhint', Sound.on && !Sound.unlocked ? '<button class="sndhint" data-a="enableSound">' + ic(I_SOUND) + T('اضغط هنا لتفعيل صوت الإنذار على هذا الجهاز', 'Tap here to enable the alarm sound on this device') + '</button>' : !Sound.on ? '<button class="sndhint off" data-a="sound">' + T('صوت الإنذار متوقف – اضغط للتشغيل', 'Alarm sound is off – tap to turn on') + '</button>' : '');
       const dls = s.deliveries.slice().sort((a, b) => b.sentAt - a.sentAt), open = dls.filter(d => !d.ackAt && !['cancelled', 'failed'].includes(d.status));
       // mark received when displayed
       const unseen = dls.filter(d => !d.receivedAt && d.channel === 'marsa_app' && !state.sentReceived.has(d.id)).map(d => d.id);
@@ -521,6 +542,7 @@
     document.body.appendChild(el);
     Sound.ring(); if (!test) Sound.repeat();
   }
+  A.enableSound = () => { Sound.unlock(); setTimeout(() => { Sound.ring(true); update(); }, 150); toast(T('تم تفعيل صوت الإنذار', 'Alarm sound enabled'), 'ok'); };
   A.testAlarm = () => { Sound.unlock(); showAlarm(null, true); };
   A.closeAlarm = () => { $$('.alarm-wrap').forEach(x => x.remove()); Sound.stopRepeat(); };
   A.ackFromAlarm = async d => { const name = ($('#alof') || {}).value || T('ضابط المناوبة', 'Officer of the watch'); if (await act('acknowledge', { id: d.id, officer: name }, T('أُرسل تأكيد الاستلام إلى مَرسى', 'Receipt confirmation sent to MARSA'))) A.closeAlarm(); };

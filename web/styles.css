@@ -350,3 +350,4 @@ header.top.v3 .logo{width:36px;height:36px;flex:none}header.top.v3 .btn{white-sp
 .seamap .route.alt.dim{opacity:.5}
 .tabs.v3 button{flex:none}
 @media (max-width:700px){.v3main .flow{flex-direction:row;flex-wrap:wrap;gap:6px}.v3main .flow .arr{display:none}.v3main .flow .fstep{flex:1 1 40%;min-height:0;padding:6px 10px}.v3main{padding:12px}.tabs.v3{top:52px;padding:6px 10px}}
+.sndhint{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;padding:14px;border-radius:14px;border:2px dashed #1f8ef1;background:color-mix(in srgb,#1f8ef1 12%,transparent);color:inherit;font:inherit;font-weight:700;font-size:16px;cursor:pointer}.sndhint svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2}.sndhint.off{border-color:var(--warn)}
