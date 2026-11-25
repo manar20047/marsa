@@ -1,0 +1,15 @@
+{
+  "name": "marsa",
+  "version": "3.0.0",
+  "description": "MARSA – maritime alerting and 48 h risk prediction for Saudi coasts (prototype)",
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "start:openmeteo": "MARSA_MET_SOURCE=openmeteo node server/server.js",
+    "build": "node build.js",
+    "test": "node --test test/scenario.test.js"
+  }
+}

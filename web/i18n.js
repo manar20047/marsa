@@ -1,0 +1,130 @@
+/* MARSA UI strings — Arabic (default, RTL) and English (LTR). */
+(function (root) {
+  const D = {
+    app: ['مَرسى', 'MARSA'],
+    tagline: ['منصة الإشعارات والنشرات الملاحية والمسارات البديلة', 'Navigational notifications, bulletins & alternative routes'],
+    env_badge: ['بيئة تجريبية · بيانات محاكاة', 'Demo environment · simulated data'],
+    env_server: ['خادم مَرسى · بيانات محاكاة', 'MARSA server · simulated data'],
+    login_title: ['تسجيل الدخول', 'Sign in'], username: ['اسم المستخدم', 'Username'], password: ['كلمة المرور', 'Password'], signin: ['دخول', 'Sign in'],
+    demo_accounts: ['حسابات العرض', 'Demo accounts'], demo_hint: ['اضغط على أي حساب لتعبئة بياناته. كلمات المرور معروضة لأغراض العرض فقط.', 'Tap an account to fill it in. Passwords are shown for demo purposes only.'],
+    bad_login: ['بيانات الدخول غير صحيحة أو الحساب معطل.', 'Invalid credentials or disabled account.'],
+    logout: ['خروج', 'Sign out'], lang: ['English', 'العربية'],
+    role_note: ['المحتوى والصلاحيات تختلف حسب الدور', 'Content and permissions differ by role'],
+    login_points: [['ترصد المخاطر البحرية وبيانات الأرصاد آليًا', 'Detects maritime hazards and met data automatically'], ['تجهز المعلومات وترسلها للمحطة الملاحية المختصة', 'Prepares information and sends it to the competent station'], ['تقترح مسارات بديلة وتوصيات مساندة للقرار', 'Suggests alternative routes and decision-support recommendations']],
+    // nav
+    nav_dashboard: ['لوحة الوضع', 'Situation'], nav_notifications: ['الإشعارات الملاحية', 'Notifications'], nav_bulletins: ['النشرات الملاحية', 'Bulletins'], nav_map: ['الخريطة البحرية', 'Sea map'],
+    nav_routes: ['المسارات البديلة', 'Alternative routes'], nav_stations: ['المحطات الدولية', 'Int’l stations'], nav_met: ['الأرصاد والبيانات', 'Met & data'], nav_recs: ['التوصيات', 'Recommendations'],
+    nav_reports: ['التقارير والسجلات', 'Reports & logs'], nav_users: ['المستخدمون والصلاحيات', 'Users & roles'], nav_bridge: ['جسر السفينة', 'Ship bridge'], nav_truck: ['بوابة النقل البري', 'Land transport'],
+    // KPIs
+    k_notifs: ['إشعارات نشطة', 'Active notifications'], k_bulletins: ['نشرات سارية', 'Bulletins in force'], k_areas: ['مناطق خطر', 'Hazard areas'], k_ports: ['موانئ متأثرة', 'Affected ports'],
+    k_vessels: ['سفن متأثرة', 'Affected vessels'], k_routes: ['مسارات بديلة', 'Alternative routes'], k_ncm: ['المركز الوطني للأرصاد', 'NCM link'], k_navtex: ['محطات NAVTEX', 'NAVTEX stations'],
+    // statuses
+    st_new: ['جديد', 'New'], st_processing: ['قيد المعالجة', 'Processing'], st_sent: ['تم إرساله للمحطة', 'Sent to station'], st_acknowledged: ['تم تأكيد الاستلام', 'Receipt confirmed'], st_expired: ['منتهي الصلاحية', 'Expired'], st_failed: ['تعذر الإرسال', 'Delivery failed'],
+    ds_queued: ['في قائمة الإرسال', 'Queued'], ds_sent: ['أُرسل', 'Sent'], ds_acknowledged: ['تأكد الاستلام', 'Acknowledged'], ds_retrying: ['إعادة محاولة', 'Retrying'], ds_abandoned: ['متوقف – يتطلب تدخلًا', 'Stopped – action needed'],
+    conn_connected: ['متصل', 'Connected'], conn_down: ['منقطع', 'Down'], conn_not_configured: ['غير مهيأ', 'Not configured'], conn_degraded: ['متذبذب', 'Degraded'], conn_error: ['خطأ', 'Error'],
+    mode_simulation: ['محاكاة', 'Simulation'], mode_sandbox: ['بيئة تكامل تجريبية', 'Sandbox'], mode_live: ['حي', 'Live'], mode_disabled: ['غير مفعل', 'Disabled'],
+    port_open: ['مفتوح', 'Open'], port_restricted: ['مقيد', 'Restricted'], port_closed: ['مغلق', 'Closed'],
+    flag_close_recommended: ['يوصى بإيقاف الملاحة', 'Suspension recommended'], flag_restrict_recommended: ['يوصى بالتقييد', 'Restriction recommended'],
+    cat_hazard: ['مخاطر بحرية', 'Maritime hazard'], cat_port_closure: ['إغلاق ميناء', 'Port closure'], cat_area: ['منطقة متأثرة', 'Affected area'], cat_weather: ['ظروف جوية وبحرية', 'Weather & sea state'], cat_operational: ['تغيير تشغيلي', 'Operational change'],
+    hz_security: ['أمني', 'Security'], hz_weather: ['جوي/بحري', 'Weather'], hz_maritime: ['ملاحي', 'Navigational'], hz_closure: ['إغلاق', 'Closure'], hz_operational: ['تشغيلي', 'Operational'],
+    scope_LOCAL: ['محلي', 'Local'], scope_REGIONAL: ['إقليمي', 'Regional'], scope_GLOBAL: ['عالمي', 'Global'],
+    why_chokepoint: ['ممر ملاحي حيوي', 'Strategic chokepoint'], why_small_area: ['منطقة ساحلية محدودة', 'Limited coastal area'], why_wide_area: ['منطقة واسعة', 'Wide area'], why_multi_navarea: ['يمتد عبر أكثر من منطقة ملاحية', 'Spans several NAVAREAs'],
+    risk_low: ['منخفض', 'Low'], risk_medium: ['متوسط', 'Medium'], risk_high: ['مرتفع', 'High'], risk_critical: ['حرج', 'Critical'],
+    lvl_warning: ['تحذير', 'Warning'], lvl_advisory: ['تنبيه', 'Advisory'], lvl_none: ['ضمن الحدود', 'Within limits'],
+    sev: ['الخطورة', 'Severity'],
+    vs_underway: ['في الطريق', 'Underway'], vs_holding: ['في الانتظار', 'Holding'], vs_arrived: ['وصلت', 'Arrived'], vs_anchored: ['في المخطاف', 'At anchor'], vs_out_of_area: ['خارج نطاق التغطية', 'Left coverage area'],
+    rv_pending: ['بانتظار المراجعة', 'Pending review'], rv_approved: ['معتمدة', 'Approved'], rv_rejected: ['مرفوضة', 'Rejected'],
+    rs_active: ['سارية', 'Active'], rs_superseded: ['استُبدلت بتحديث', 'Superseded'], rs_expired: ['انتهت', 'Expired'],
+    resp_accepted: ['قُبلت من السفينة/الشركة', 'Accepted by ship/company'], resp_declined: ['لم تُقبل', 'Declined'],
+    opt_reroute: ['مسار بديل', 'Re-route'], opt_wait: ['تأجيل وانتظار', 'Delay & hold'], opt_alt_port: ['ميناء بديل', 'Alternative port'], current_route: ['المسار الحالي', 'Current route'],
+    tr_scheduled: ['مجدولة', 'Scheduled'], tr_at_risk: ['معرضة للتأثر', 'At risk'], tr_rescheduled: ['أعيدت جدولتها', 'Rescheduled'], tr_redirected: ['حُوّلت', 'Redirected'],
+    bl_periodic: ['دورية', 'Periodic'], bl_urgent: ['عاجلة', 'Urgent'], bs_published: ['سارية', 'In force'], bs_superseded: ['سابقة', 'Superseded'], bs_expired: ['منتهية', 'Expired'], bs_cancelled: ['ملغاة', 'Cancelled'],
+    bc_weather: ['الأحوال الجوية البحرية', 'Marine weather'], bc_waves: ['ارتفاع الأمواج', 'Wave height'], bc_wind: ['الرياح', 'Wind'], bc_visibility: ['الرؤية', 'Visibility'], bc_sea_conditions: ['الظروف البحرية', 'Sea conditions'], bc_maintenance: ['أعمال تشغيلية وصيانة', 'Operations & maintenance'], bc_closures: ['إغلاقات موانئ وممرات', 'Port & channel closures'], bc_traffic_changes: ['تغييرات حركة السفن', 'Traffic changes'],
+    // common
+    search: ['بحث', 'Search'], all: ['الكل', 'All'], status: ['الحالة', 'Status'], category: ['الفئة', 'Category'], scope: ['النطاق', 'Scope'], area: ['المنطقة', 'Area'], source: ['المصدر', 'Source'],
+    issued: ['الإصدار', 'Issued'], validity: ['الصلاحية', 'Valid until'], details: ['التفاصيل', 'Details'], close: ['إغلاق', 'Close'], cancel: ['إلغاء', 'Cancel'], save: ['حفظ', 'Save'], confirm: ['تأكيد', 'Confirm'],
+    open_map: ['عرض على الخريطة', 'Show on map'], none: ['لا يوجد', 'None'], simulated: ['محاكاة', 'SIM'], real_input: ['إدخال فعلي', 'User input'], number: ['الرقم', 'Number'], time: ['الوقت', 'Time'], actor: ['المنفذ', 'Actor'], event: ['الحدث', 'Event'],
+    vessel: ['السفينة', 'Vessel'], port: ['الميناء', 'Port'], station: ['المحطة', 'Station'], type: ['النوع', 'Type'], destination: ['الوجهة', 'Destination'], origin: ['المنشأ', 'Origin'], position: ['الموقع', 'Position'], speed: ['السرعة', 'Speed'], draft: ['الغاطس', 'Draft'],
+    nm: ['ميل بحري', 'nm'], kn: ['عقدة', 'kn'], h: ['س', 'h'], m: ['م', 'm'], sar: ['ر.س', 'SAR'], t: ['طن', 't'], km: ['كم', 'km'],
+    empty: ['لا توجد بيانات لعرضها حاليًا.', 'Nothing to show right now.'], loading: ['جارٍ التحميل…', 'Loading…'], forbidden: ['لا تملك صلاحية لهذا الإجراء.', 'You do not have permission for this action.'],
+    done: ['تم', 'Done'], error: ['خطأ', 'Error'], yes: ['نعم', 'Yes'], no: ['لا', 'No'],
+    // dashboard
+    situation_now: ['الوضع الملاحي الآن', 'Navigational situation now'], latest_events: ['آخر الأحداث', 'Latest events'], pending_reviews: ['توصيات بانتظار المراجعة', 'Recommendations awaiting review'],
+    run_scenario: ['تشغيل السيناريو', 'Run scenario'], scenarios: ['السيناريوهات التجريبية', 'Demo scenarios'], scen_bab: ['خطر في منطقة باب المندب', 'Hazard in Bab el-Mandeb'], scen_jed: ['أمواج ورياح شديدة قبالة جدة', 'High waves & wind off Jeddah'],
+    scen_bab_d: ['بلاغ أمني يصل من المصدر المختص، فتحلل مَرسى المنطقة وترسل المعلومات لمحطة كراتشي وتقترح المسارات البديلة.', 'A security report arrives; MARSA analyses it, sends information to the Karachi station and proposes alternative routes.'],
+    scen_jed_d: ['محاكي الأرصاد يرفع الأمواج تدريجيًا قرب جدة حتى تتجاوز حد إيقاف الملاحة، ثم يقرر موظف الميناء الإغلاق.', 'The met simulator ramps up waves off Jeddah past the suspension threshold; port staff then decide on closure.'],
+    reset_demo: ['إعادة ضبط بيئة العرض', 'Reset demo'], reset_confirm: ['سيتم حذف جميع الأحداث والعودة للبيانات الأولية. متابعة؟', 'All events will be cleared and seed data restored. Continue?'],
+    scenario_progress: ['تقدم السيناريو', 'Scenario progress'],
+    sp: [['استقبال البلاغ من المصدر المختص', 'Report received from competent source'], ['ظهور الحالة في لوحة الوضع', 'Situation shown on dashboard'], ['تحديد المنطقة الجغرافية المتأثرة', 'Affected area delineated'], ['تحليل السفن والمسارات المتأثرة', 'Affected ships & routes analysed'], ['تجهيز المعلومات وإرسالها لمحطة كراتشي (تجريبي)', 'Information prepared & sent to Karachi (sandbox)'], ['حالة الإرسال: تأكيد الاستلام', 'Delivery status: receipt confirmed'], ['بث NAVTEX من المحطة – وليس من مَرسى', 'NAVTEX broadcast by the station – not MARSA'], ['عرض السفن التي استلمت الإنذار', 'Ships that received the warning'], ['اقتراح مسارات بديلة لكل سفينة', 'Alternative routes per ship'], ['عرضها على الخريطة بالوقت والمسافة والتكلفة', 'Shown on map with time, distance, cost'], ['التوصية وإخلاء المسؤولية', 'Recommendation and disclaimer'], ['حفظ جميع الأحداث في السجل', 'All events stored in the log']],
+    flow_title: ['مسار المعلومة', 'Information flow'], flow: [['الجهات السعودية', 'Saudi sources'], ['منصة مَرسى', 'MARSA'], ['المحطة المختصة', 'Competent station'], ['بث NAVTEX', 'NAVTEX broadcast'], ['السفن', 'Ships']],
+    flow_note: ['مَرسى تجهز المعلومات وتتابع حالة الإرسال فقط. إصدار إنذار NAVTEX وبثه من اختصاص المحطة وإجراءاتها الرسمية.', 'MARSA prepares information and tracks delivery only. Issuing and broadcasting NAVTEX warnings is the station’s responsibility under its official procedures.'],
+    // notifications
+    notif_detail: ['تفاصيل الإشعار', 'Notification details'], timeline: ['تسلسل الحالة', 'Status timeline'], prepared_msg: ['الرسالة المنظمة المرسلة للمحطة', 'Structured message to station'], dispatch_log: ['سجل الإرسال', 'Dispatch log'],
+    affected: ['المتأثرون', 'Affected'], stations_sel: ['المحطات المختصة', 'Competent stations'], primary: ['المستلم الرئيس', 'Primary recipient'], dispatch_now: ['إرسال للمحطة الآن', 'Send to station now'], retry: ['إعادة المحاولة', 'Retry'],
+    new_hazard: ['تسجيل حالة/خطر', 'Register hazard'], end_hazard: ['إنهاء الحالة', 'End hazard'], attempts: ['المحاولات', 'Attempts'], ack_ref: ['مرجع التأكيد', 'Ack ref'], last_error: ['آخر خطأ', 'Last error'], copy: ['نسخ', 'Copy'], copied: ['تم النسخ', 'Copied'],
+    hz_form_title: ['تسجيل حالة جديدة', 'Register new hazard'], hz_preset: ['منطقة جاهزة', 'Preset area'], hz_hours: ['مدة الصلاحية (ساعات)', 'Validity (hours)'], title_ar: ['العنوان (عربي)', 'Title (Arabic)'], title_en: ['العنوان (إنجليزي)', 'Title (English)'], detail_ar: ['التفاصيل (عربي)', 'Details (Arabic)'], detail_en: ['التفاصيل (إنجليزي)', 'Details (English)'],
+    // bulletins
+    urgent_bulletins: ['النشرات العاجلة', 'Urgent bulletins'], periodic_bulletins: ['النشرات الدورية', 'Periodic bulletins'], issue_periodic: ['إصدار نشرة دورية من آخر بيانات الأرصاد', 'Issue periodic bulletin from latest met data'], new_urgent: ['نشرة عاجلة جديدة', 'New urgent bulletin'],
+    print_pdf: ['طباعة / PDF', 'Print / PDF'], previous: ['النشرات السابقة', 'Previous bulletins'], wind: ['الرياح', 'Wind'], gust: ['الهبّات', 'Gusts'], dir: ['الاتجاه', 'Direction'], waves: ['الأمواج', 'Waves'], visibility: ['الرؤية', 'Visibility'], level: ['المستوى', 'Level'], body: ['النص', 'Text'], hours: ['ساعات', 'hours'],
+    // map
+    layers: ['الطبقات', 'Layers'], l_ports: ['الموانئ', 'Ports'], l_vessels: ['السفن (AIS)', 'Vessels (AIS)'], l_hazards: ['المناطق الخطرة', 'Hazard areas'], l_lanes: ['الممرات الملاحية', 'Shipping lanes'], l_current: ['المسارات الحالية', 'Current routes'], l_alt: ['المسارات البديلة', 'Alternative routes'], l_cov: ['تغطية NAVTEX', 'NAVTEX coverage'], l_navarea: ['حدود المنطقة التاسعة', 'NAVAREA IX limit'], l_met: ['مناطق الأرصاد', 'Met areas'], l_stations: ['المحطات', 'Stations'],
+    legend: ['مفتاح الخريطة', 'Legend'], map_note: ['خطوط السواحل مبسطة للعرض فقط ولا تصلح للملاحة.', 'Coastlines are simplified for display only — not for navigation.'], zoom_in: ['تكبير', 'Zoom in'], zoom_out: ['تصغير', 'Zoom out'], reset_view: ['العرض الكامل', 'Reset view'],
+    // routes
+    pick_vessel: ['اختر سفينة', 'Select a vessel'], compare: ['مقارنة الخيارات', 'Compare options'], option: ['الخيار', 'Option'], distance: ['المسافة', 'Distance'], extra: ['الإضافي', 'Extra'], duration: ['الزمن', 'Time'], fuel: ['الوقود', 'Fuel'], cost: ['التكلفة التقديرية', 'Est. cost'], risk: ['مستوى المخاطر', 'Risk level'], constraints: ['القيود', 'Constraints'],
+    recommended: ['الخيار الموصى به', 'Recommended'], why: ['سبب التوصية', 'Why'], no_affected: ['لا توجد سفن متأثرة حاليًا. شغّل سيناريو باب المندب لرؤية المسارات البديلة.', 'No vessels affected right now. Run the Bab el-Mandeb scenario to see alternative routes.'], affected_vessels: ['السفن المتأثرة', 'Affected vessels'], unaffected: ['غير متأثرة', 'Not affected'],
+    no_reroute: ['لا يوجد مسار بحري بديل إلى الوجهة نفسها ضمن نطاق التغطية يتجنب منطقة الخطر.', 'No sea route to the same destination within coverage avoids the hazard.'],
+    c_via_cape: ['عبر رأس الرجاء الصالح', 'Via Cape of Good Hope'], c_suez_draft: ['غاطس قناة السويس ≤ 20.1 م', 'Suez Canal draft ≤ 20.1 m'], c_depends_on_hazard_end: ['مرهون بانتهاء الحالة', 'Depends on hazard ending'], c_port_capacity: ['إشغال متوقع', 'Projected occupancy'], c_port_draft: ['غاطس الميناء', 'Port max draft'], c_landside: ['نقل بري', 'Land leg'], c_onward_booking: ['يتطلب إعادة حجز للمرحلة التالية', 'Onward booking required'],
+    f_inside_hazard: ['يمر داخل منطقة خطر', 'Passes through hazard'], f_hazard_near: ['قرب منطقة خطر', 'Near hazard'], f_waves: ['أمواج على المسار', 'Waves en route'], f_gusts: ['هبّات رياح', 'Wind gusts'], f_congestion: ['ازدحام الميناء', 'Port congestion'], f_draft_margin: ['هامش الغاطس محدود', 'Tight draft margin'], f_stale_data: ['بيانات قديمة', 'Stale data'], f_long_exposure: ['رحلة أطول = تعرض أطول', 'Longer exposure'], f_uncertain_duration: ['مدة الحالة غير مؤكدة', 'Uncertain hazard duration'], f_dest_closed: ['الوجهة مغلقة', 'Destination closed'],
+    assumptions: ['الافتراضات المستخدمة', 'Assumptions used'], assumptions_txt: ['سعر الوقود ٦٢٠ دولار/طن، سعر الصرف ٣٫٧٥، تكاليف تشغيل يومية حسب نوع السفينة، ٦٫٥ ر.س/كم للشاحنة. قيم افتراضية قابلة للتعديل وليست أسعارًا فعلية.', 'Fuel USD 620/t, FX 3.75, daily opex by ship type, SAR 6.5/km per truck. Configurable assumptions, not live prices.'],
+    hold_until: ['انتظار حتى', 'Hold until'], wait_h: ['مدة الانتظار', 'Wait'],
+    // stations
+    stations_title: ['المحطات الملاحية الدولية المرتبطة', 'Connected international stations'], b1: ['معرّف B1', 'B1 id'], navarea: ['المنطقة الملاحية', 'NAVAREA'], role: ['الدور', 'Role'], channel: ['القناة', 'Channel'], heartbeat: ['آخر نبضة', 'Last heartbeat'], range: ['نطاق الخدمة', 'Service range'],
+    sent_ack_fail: ['أُرسل/تأكد/فشل', 'Sent/Ack/Fail'], simulate_outage: ['محاكاة انقطاع', 'Simulate outage'], restore_link: ['إعادة الاتصال', 'Restore link'], coordinator: ['منسق منطقة ملاحية', 'NAVAREA coordinator'], navtex_station: ['محطة NAVTEX', 'NAVTEX station'],
+    stations_note: ['قائمة المحطات ومعرفاتها مأخوذة من تقارير منسق المنطقة الملاحية التاسعة لدى المنظمة الهيدروغرافية الدولية، ويجب التحقق منها مقابل قائمة ALRS المجلد 5 وخطة GMDSS الرئيسية قبل أي استخدام تشغيلي.', 'Station list and identifiers come from NAVAREA IX coordinator reports to the IHO; verify against ALRS Vol. 5 and the IMO GMDSS Master Plan before any operational use.'],
+    view_msg: ['عرض الرسالة', 'View message'], ch_sandbox: ['تجريبية', 'Sandbox'], ch_unconfigured: ['غير مهيأة', 'Not configured'],
+    // met
+    met_title: ['بيانات المركز الوطني للأرصاد', 'National Center for Meteorology data'], integ_status: ['حالة الربط', 'Link status'], last_sync: ['آخر تحديث', 'Last update'], records: ['السجلات المستلمة', 'Records received'], refresh_now: ['تحديث الآن', 'Refresh now'],
+    thresholds: ['حدود التشغيل المعتمدة في المنصة', 'Platform operating thresholds'], trend: ['اتجاه الأمواج', 'Wave trend'], forecast: ['التوقعات', 'Forecast'], history: ['السجل التاريخي', 'History'], auto_note: ['تُستقبل البيانات آليًا كل ١٥ ثانية في المحاكاة دون أي إدخال يدوي.', 'Data arrives automatically every 15 s in the simulation, with no manual entry.'],
+    integrations: ['التكاملات', 'Integrations'],
+    // recs
+    recs_title: ['التوصيات الذكية', 'Smart recommendations'], approve: ['اعتماد وإتاحة للسفينة', 'Approve & release'], reject: ['رفض', 'Reject'], basis: ['البيانات المستند إليها', 'Data used'], created: ['أنشئت', 'Created'], valid_until: ['صالحة حتى', 'Valid until'], reassess: ['إعادة التقييم', 'Reassess'],
+    review: ['المراجعة', 'Review'], response: ['رد السفينة/الشركة', 'Ship/company response'], current: ['الحالية', 'Current'], past: ['السابقة', 'Past'], decision_support: ['التوصيات مساندة لاتخاذ القرار وليست قرارات ملاحية رسمية.', 'Recommendations support decisions; they are not official navigational decisions.'],
+    accept_rec: ['قبول التوصية', 'Accept recommendation'], decline_rec: ['عدم القبول', 'Decline'], officer: ['اسم الضابط المسؤول', 'Responsible officer'], reason_txt: ['السبب', 'Reason'], select_option: ['اعتماد خيار آخر', 'Approve another option'],
+    disclaimer_t: ['إخلاء المسؤولية', 'Disclaimer'], disclaimer_more: ['التفاصيل الكاملة لإخلاء المسؤولية', 'Full disclaimer'],
+    disclaimer: ['المسارات البديلة والتوصيات المقدمة عبر منصة مَرسى هي معلومات استرشادية داعمة لاتخاذ القرار، وتعتمد على البيانات المتاحة وقت التحليل. ولا تُعد بديلًا عن التحذيرات والنشرات الملاحية الرسمية أو تعليمات الجهات البحرية المختصة. وتبقى مسؤولية التحقق من صلاحية المسار واعتماد القرار الملاحي وتنفيذه على الجهات والأطراف المخولة بذلك.', 'Alternative routes and recommendations provided through MARSA are guidance information to support decision-making and rely on the data available at the time of analysis. They are not a substitute for official navigational warnings and bulletins or instructions from competent maritime authorities. Responsibility for verifying the route and adopting and executing the navigational decision remains with the authorised parties.'],
+    disclaimer_full: [['لا تصف المنصة أي مسار بأنه آمن بشكل مضمون؛ مستوى المخاطر تقدير مبني على البيانات المذكورة في كل توصية.', 'No route is described as guaranteed safe; risk levels are estimates from the data listed in each recommendation.'], ['بيانات العرض الحالية محاكاة (الأرصاد، AIS، البلاغات الأمنية، المحطات) وتوسم بذلك في الواجهة.', 'Current demo data is simulated (met, AIS, security reports, stations) and labelled as such.'], ['خطوط السواحل والأعماق والطاقات الاستيعابية قيم مرجعية تقريبية ولا تصلح للملاحة.', 'Coastlines, depths and capacities are approximate reference values, not for navigation.'], ['التكاليف تقديرية مبنية على افتراضات معلنة قابلة للتعديل.', 'Costs are estimates based on declared, configurable assumptions.'], ['القرار الملاحي الرسمي يبقى للربان والجهات البحرية المختصة.', 'The official navigational decision remains with the master and competent maritime authorities.']],
+    // reports
+    report_type: ['نوع التقرير', 'Report type'], from: ['من', 'From'], to: ['إلى', 'To'], export_pdf: ['تصدير PDF', 'Export PDF'], export_xlsx: ['تصدير Excel', 'Export Excel'], rows: ['صفًا', 'rows'],
+    rp_notifications: ['الإشعارات المرسلة', 'Notifications sent'], rp_bulletins: ['النشرات الصادرة', 'Bulletins issued'], rp_hazards: ['حالات المخاطر', 'Hazard cases'], rp_vessels: ['السفن المتأثرة', 'Affected vessels'], rp_routes: ['المسارات البديلة', 'Alternative routes'], rp_comms: ['سجل الاتصالات', 'Communications log'], rp_delivery: ['نجاح وفشل الإرسال', 'Delivery success/failure'], rp_audit: ['سجل التدقيق', 'Audit log'],
+    download_unavail: ['التنزيل غير متاح في هذا العرض. افتح المنصة في متصفح على الكمبيوتر.', 'Downloads are unavailable in this view. Open the platform in a desktop browser.'], download_declined: ['لم يتم حفظ الملف.', 'File was not saved.'], generating: ['جارٍ تجهيز الملف…', 'Preparing file…'],
+    // users
+    users_title: ['المستخدمون', 'Users'], perm_matrix: ['مصفوفة الصلاحيات', 'Permission matrix'], add_user: ['إضافة مستخدم', 'Add user'], name: ['الاسم', 'Name'], org: ['الجهة', 'Organisation'], active: ['نشط', 'Active'], disable: ['تعطيل', 'Disable'], enable: ['تفعيل', 'Enable'], settings: ['إعدادات النظام', 'System settings'],
+    s_autoDispatch: ['إرسال المعلومات للمحطة آليًا عند تحقق الشروط', 'Auto-send information to station when conditions are met'], s_requireReview: ['مراجعة التوصيات من الضابط المناوب قبل إتاحتها', 'Duty officer reviews recommendations before release'], s_simAccel: ['تسريع حركة السفن في المحاكاة', 'Simulation vessel speed-up'],
+    linked: ['مرتبط بـ', 'Linked to'],
+    // vessel bridge
+    navtex_rx: ['نص إنذار NAVTEX (للمرجع)', 'NAVTEX warning text (reference)'], navtex_rx_note: ['استُلم عبر جهاز NAVTEX في السفينة (محاكاة). صادر عن المحطة المذكورة وليس عن مَرسى.', 'Received on the ship’s NAVTEX receiver (simulated). Issued by the named station, not by MARSA.'],
+    my_vessel: ['سفينتي', 'My vessel'], no_alert: ['لا توجد إنذارات تخص مسارك حاليًا.', 'No warnings affecting your route right now.'], awaiting_release: ['تحليل المسارات جارٍ لدى غرفة العمليات وستظهر التوصية هنا عند اعتمادها.', 'Route analysis is with the operations room; the recommendation will appear here once released.'],
+    your_options: ['الخيارات المتاحة لسفينتك', 'Options for your vessel'], responded: ['تم تسجيل الرد', 'Response recorded'],
+    // trucks
+    ports_board: ['حالة الموانئ السعودية', 'Saudi ports status'], my_trucks: ['شاحناتي ومواعيد البوابة', 'My trucks & gate slots'], slot: ['موعد البوابة', 'Gate slot'], cargo: ['الحمولة', 'Cargo'], plate: ['اللوحة', 'Plate'],
+    reschedule: ['إعادة الجدولة', 'Reschedule'], redirect: ['تحويل لميناء آخر', 'Redirect'], keep: ['إبقاء الموعد', 'Keep slot'], landside_demand: ['طلب نقل بري متوقع من تحويل السفن', 'Expected land-transport demand from diversions'], trucks_needed: ['شاحنة تقريبًا', 'trucks approx.'],
+    sound_on: ['التنبيه الصوتي مفعل', 'Sound alerts on'], sound_off: ['التنبيه الصوتي متوقف – اضغط للتفعيل', 'Sound alerts off – tap to enable'],
+    al_title: ['تنبيه مَرسى', 'MARSA alert'], al_ack: ['تم الاطلاع', 'Acknowledge'], al_sound_hint: ['فعّل الجرس أعلى الصفحة لسماع التنبيهات', 'Enable the bell at the top to hear alerts'],
+    al_new_case: ['حالة جديدة', 'New case'], al_dispatch_failed: ['تعذر الإرسال للمحطة – يتطلب تدخلك', 'Delivery to station failed – action needed'], al_rec_pending: ['توصية بانتظار مراجعتك', 'Recommendation awaiting your review'], al_rec_response: ['رد على توصية', 'Recommendation response'],
+    al_port_status: ['تغيرت حالة ميناء', 'Port status changed'], al_my_port: ['حالة تخص ميناءك', 'Affects your port'], al_fleet_affected: ['سفينة من أسطولك متأثرة', 'Fleet vessel affected'], al_rec_released: ['توصية معتمدة لسفينتك', 'Recommendation released for your vessel'],
+    al_route_hazard: ['مسارك يتقاطع مع منطقة خطر – راجع الخيارات', 'Your route crosses a hazard area – review options'], al_rec_waiting: ['توصية جديدة بانتظار قرارك', 'New recommendation awaiting your decision'], al_truck_risk: ['موعد بوابة متأثر', 'Gate slot affected'],
+    rx_title: ['الوصول إلى السفن', 'Delivery to ships'], rx_title_short: ['الوصول للسفينة', 'Delivery to ship'], rx_col: ['اطلاع السفن', 'Ships read'],
+    rx_delivered: ['وصلت', 'Delivered'], rx_ack: ['اطلع الطاقم', 'Crew read'], rx_not_ack: ['لم يطلع بعد', 'Not read yet'], rx_not_delivered: ['لم تصل بعد – تطبيق السفينة غير متصل', 'Not delivered – ship app offline'],
+    rx_no_app: ['لا يوجد حساب للسفينة على مَرسى – تصلها عبر NAVTEX فقط', 'Ship has no MARSA account – reached via NAVTEX only'], rx_navtex: ['بث NAVTEX ضمن نطاقها', 'In NAVTEX broadcast range'],
+    rx_note: ['«وصلت» يسجلها تطبيق السفينة آليًا عند الاستلام، و«اطلع الطاقم» عند ضغط «تم الاطلاع».', '"Delivered" is recorded automatically by the ship app; "Crew read" when the crew taps Acknowledge.'],
+    rx_none: ['لا توجد سفن متأثرة بهذا الإشعار.', 'No ships affected by this notification.'], rx_sent: ['أُبلغت غرفة العمليات باطلاعك', 'Operations room notified that you read it'], al_ship_ack: ['اطلعت السفينة', 'Ship acknowledged'],
+    al_bulletin_urgent: ['نشرة عاجلة', 'Urgent bulletin'], al_bulletin_periodic: ['نشرة دورية جديدة', 'New periodic bulletin'],
+    port_alerts: ['تنبيهات الموانئ', 'Port alerts'], no_port_alerts: ['لا توجد إغلاقات أو قيود على الموانئ السعودية حاليًا.', 'No closures or restrictions on Saudi ports right now.'],
+    port_panel: ['ميناؤي', 'My port'], set_status: ['تحديث حالة الميناء', 'Update port status'], occupancy: ['الإشغال', 'Occupancy'], berths: ['الأرصفة', 'Berths'], incoming: ['سفن قادمة', 'Inbound vessels'], weather_here: ['الطقس عند الميناء', 'Weather at port'], reason_ph: ['سبب التغيير', 'Reason for change'], duration_h: ['المدة بالساعات', 'Duration (h)'],
+    fleet: ['أسطول الشركة', 'Company fleet'], rec_short: ['التوصية', 'Recommendation'],
+    ago: ['منذ', 'ago'], in: ['خلال', 'in']
+  };
+  let lang = 'ar';
+  function t(k, i) { const v = D[k]; if (!v) return k; if (Array.isArray(v[0])) return i == null ? v.map(x => x[lang === 'ar' ? 0 : 1]) : v[i][lang === 'ar' ? 0 : 1]; return v[lang === 'ar' ? 0 : 1]; }
+  root.I18N = { t, D, get lang() { return lang; }, set lang(l) { lang = l; } };
+})(typeof self !== 'undefined' ? self : this);
