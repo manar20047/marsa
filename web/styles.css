@@ -399,3 +399,25 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 @media (max-width:900px){.oside button span{flex:none}.oside{gap:4px}}
 @media (max-width:600px){.envbadge .f{display:none}.envbadge .s{display:inline}header.top .ttl span{display:none}header.top .homebtn span,#soundbtn span{display:none}}
 @media (max-width:900px){.oside button{flex:0 0 auto}}
+/* ---------- v4.2 simple UI ---------- */
+details.more,details.info{margin:10px 0}
+details.more>summary,details.info>summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:13.5px;list-style:none;padding:6px 0}
+details.more>summary::before,details.info>summary::before{content:"▸ ";display:inline-block}
+details[open].more>summary::before,details[open].info>summary::before{content:"▾ "}
+details.info>summary{font-weight:500;font-size:12.5px;color:var(--muted)}
+details.panel.more>summary{font-size:16px;color:inherit}
+.lead{font-size:15.5px;line-height:1.7;margin:8px 0}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.steps span{flex:1 1 120px;text-align:center;padding:9px 8px;border-radius:10px;background:var(--bg);border:1px solid var(--line);font-size:13px;color:var(--muted)}
+.steps span.on{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700}
+.steps span.done{background:var(--ok2);color:var(--ok);border-color:var(--ok)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.tiles div{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;background:var(--bg)}
+.tiles b{display:block;font-size:24px}.tiles span{font-size:12px;color:var(--muted)}
+.tiles .ok b{color:var(--ok)}.tiles .warn b{color:var(--warn)}.tiles .crit b{color:var(--crit)}
+.btn.big{font-size:15.5px;padding:11px 22px}
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.subtabs button{padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:inherit;font:inherit;font-size:13.5px;cursor:pointer}
+.subtabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (max-width:600px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bname{margin:0 0 10px;font-size:20px}
