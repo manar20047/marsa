@@ -26,7 +26,7 @@ test('weather values are temporally consistent (no random jumps)', () => {
 
 test('analysis engine: explicit thresholds, explanation, affected vessels', () => {
   const { s } = mk(), sn = s.snapshot(OFF), r = sn.maritimeRisks.find(x => x.areaId === 'JED');
-  assert.equal(r.level, 'critical'); assert.equal(r.type, 'high_waves');
+  assert.equal(r.level, 'critical'); assert.ok(['high_waves', 'severe_weather'].includes(r.type)); assert.ok(r.actions.ar && r.confidence.label.en.includes('simulated'));
   assert.ok(r.indicators.find(i => i.name === 'waveM').threshold.includes('3.5'));
   assert.match(r.explanation.en, /because/); assert.ok(r.durationH > 0 && r.end > r.start);
   const av = sn.affectedVessels.filter(a => a.riskId === r.id && a.relation !== 'crossing');
@@ -114,9 +114,9 @@ test('CRUD on test data: add/edit/delete vessel, edit weather, add risk, edit po
   s.updatePort(OFF, { id: 'JED', status: 'closed', untilH: 12, restrictions: { ar: 'إغلاق', en: 'Closed' } });
   const pr = s.snapshot(OFF).maritimeRisks.find(r => r.id === 'R:PORT:JED'); assert.ok(pr && pr.type === 'port_closure' && pr.affectedCount > 0);
   const b = s.createBulletin(OFF, { type: 'port_closure', portId: 'JED', title: { ar: 'إغلاق', en: 'Closure' }, body: { ar: 'نص', en: 'Text' } });
-  assert.equal(b.scope, 'LOCAL'); s.issueBulletin(OFF, { id: b.id }); assert.equal(s.snapshot(OFF).bulletins[0].status, 'sent_test');
+  assert.equal(b.scope, 'LOCAL'); s.issueBulletin(OFF, { id: b.id }); assert.equal(s.store.get('bulletins', b.id).status, 'sent');
   s.resetTestData(OFF); const sn = s.snapshot(OFF);
-  assert.equal(sn.vessels.length, 24); assert.equal(sn.alerts.length, 0); assert.equal(sn.bulletins.length, 0); assert.equal(sn.ports.find(p => p.id === 'JED').status, 'open');
+  assert.equal(sn.vessels.length, 24); assert.equal(sn.alerts.length, 0); assert.equal(sn.bulletins.length, 3); assert.equal(sn.ports.find(p => p.id === 'JED').status, 'open');
   assert.ok(sn.auditLogs.some(a => a.action === 'data.reset'));
 });
 
@@ -191,22 +191,56 @@ test('decision engine: options per vessel, port capacity limit 88%, ship accepts
   assert.equal(after.action, 'accepted'); assert.ok(after.actionLabel.en);
 });
 
-test('bulletins & notices: routed by level to port, NAVTEX station, Karachi; receipt and official issue recorded; ships notified', () => {
+test('bulletins: draft → review → approved → sent → recipient ack → official only with authorized confirmation', () => {
   const { s } = mk();
   const r = s.snapshot(OFF).maritimeRisks.find(x => x.areaId === 'JED');
   const b = s.createBulletin(OFF, { type: 'wind_wave_warning', riskId: r.id, scope: 'NAVAREA', title: { ar: 'تحذير', en: 'Warning' }, body: { ar: 'نص', en: 'Text' } });
-  assert.deepEqual(b.recipients.map(x => x.kind).sort(), ['coordinator', 'navtex', 'port']);
-  s.readyBulletin(OFF, { id: b.id });
-  const res = s.sendBulletin(OFF, { id: b.id }); assert.equal(res.recipients, 3);
-  let cur = s.snapshot(OFF).bulletins[0]; assert.equal(cur.status, 'sent_test'); assert.ok(cur.recipients.every(x => x.status === 'sent_test' && /^proposed:\/\//.test(x.endpoint)));
-  for (const x of cur.recipients) s.confirmBulletinRecipient(OFF, { id: b.id, recipientId: x.id, by: 'Duty officer', ref: 'TEL-1' });
-  assert.equal(s.snapshot(OFF).bulletins[0].status, 'awaiting_official');
-  s.recordOfficialIssue(OFF, { id: b.id, ref: 'NAVAREA IX 123/26' });
-  assert.equal(s.snapshot(OFF).bulletins[0].status, 'issued_official');
+  assert.deepEqual(b.recipients.map(x => x.kind).sort(), ['coordinator', 'navtex', 'port']); assert.match(b.draftEn, /NAVAREA IX WARNING/); assert.match(b.draftEn, /NOT AN OFFICIAL WARNING/);
+  s.editBulletin(OFF, { id: b.id, warning: { precautions: 'Keep clear' } }); assert.match(s.store.get('bulletins', b.id).draftEn, /KEEP CLEAR/);
+  assert.throws(() => s.sendBulletin(OFF, { id: b.id }), /state/);
+  s.submitBulletin(OFF, { id: b.id }); s.approveBulletin(OFF, { id: b.id });
+  assert.equal(s.sendBulletin(OFF, { id: b.id }).recipients, 3);
+  assert.throws(() => s.recordOfficialIssue(OFF, { id: b.id, ref: 'X1', confirmedBy: 'A', authorityId: 'C:KHI_NAV' }), /not_acknowledged/);
+  for (const x of s.store.get('bulletins', b.id).recipients) s.confirmBulletinRecipient(OFF, { id: b.id, recipientId: x.id, by: 'Duty officer', ref: 'TEL-1' });
+  assert.equal(s.store.get('bulletins', b.id).status, 'recipient_ack');
+  assert.throws(() => s.recordOfficialIssue(OFF, { id: b.id, ref: 'NAVAREA IX 123/26', confirmedBy: 'Duty', authorityId: s.store.get('bulletins', b.id).recipients.find(x => x.kind === 'port').id }), /authority_required/);
+  s.recordOfficialIssue(OFF, { id: b.id, ref: 'NAVAREA IX 123/26', confirmedBy: 'Coordinator duty', authorityId: 'C:KHI_NAV' });
+  assert.equal(s.store.get('bulletins', b.id).status, 'issued_official');
+  const log = s.snapshot(OFF).auditLogs.filter(a => a.entityId === b.id);
+  assert.ok(log.some(a => a.prevStatus === 'under_review' && a.newStatus === 'approved'));
   const loc = s.createBulletin(OFF, { type: 'port_closure', portId: 'JED', title: { ar: 'إغلاق', en: 'Closure' }, body: { ar: 'نص', en: 'Text' } });
-  assert.equal(loc.scope, 'LOCAL'); assert.deepEqual(loc.recipients.map(x => x.kind), ['port']);
-  const sent = s.sendBulletin(OFF, { id: loc.id }); assert.ok(sent.ships >= 1);
+  assert.equal(loc.scope, 'LOCAL'); assert.deepEqual(loc.recipients.map(x => x.kind).sort(), ['port', 'vhf']);
+  s.submitBulletin(OFF, { id: loc.id }); s.approveBulletin(OFF, { id: loc.id }); const sent = s.sendBulletin(OFF, { id: loc.id }); assert.ok(sent.ships >= 1);
   const d = s.snapshot(OFF).bulletinDeliveries.find(x => x.bulletinId === loc.id), B = bridgeOf(s, d.vesselId);
-  assert.equal(s.snapshot(B).bulletins.length, 1); s.markBulletinRead(B, { id: d.id });
-  assert.ok(s.snapshot(OFF).bulletinDeliveries.find(x => x.id === d.id).readAt);
+  s.markBulletinRead(B, { id: d.id }); assert.ok(s.snapshot(OFF).bulletinDeliveries.find(x => x.id === d.id).readAt);
+});
+
+test('vessel rejects a recommendation with a reason; officer sees it', () => {
+  const { s } = mk();
+  const r = s.snapshot(OFF).maritimeRisks.find(x => x.areaId === 'JED');
+  const al = s.createAlert(OFF, { riskId: r.id, targets: ['V13'], title: { ar: 'أ', en: 'a' }, body: { ar: 'ب', en: 'b' } });
+  assert.equal(s.snapshot(OFF).alternativeRoutes.find(x => x.alertId === al.id).status, 'proposed', 'recommendations exist before approval');
+  s.submitAlert(OFF, { id: al.id }); s.approveAlert(OFF, { id: al.id, disclaimer: true }); s.prepareDispatch(OFF, { id: al.id }); s.dispatchAlert(OFF, { id: al.id });
+  const B = bridgeOf(s, 'V13'), d = s.snapshot(B).deliveryRecords[0];
+  assert.throws(() => s.acknowledge(B, { id: d.id, officer: 'C/O', action: 'rejected' }), /reason/);
+  s.acknowledge(B, { id: d.id, officer: 'C/O Test', action: 'rejected', reason: 'Draft too deep for alternative' });
+  const x = s.store.get('deliveryRecords', d.id); assert.equal(x.status, 'rejected'); assert.match(x.rejectReason, /Draft/);
+});
+
+test('port allocation never exceeds 88% and can be approved, rejected or modified; scenarios and queued delivery', () => {
+  const { s } = mk();
+  const r2 = s.runScenario(OFF, { n: 2 }); assert.equal(r2.go, 'distribute');
+  const al = s.snapshot(OFF).allocations.filter(a => a.fromPort === 'JED');
+  assert.ok(al.length >= 5);
+  for (const a of al) for (const c of a.calc.filter(c => c.eligible)) assert.ok(c.occAfter <= 88);
+  const prop = al.filter(a => a.status === 'proposed'); s.approveAllocation(OFF, { id: prop[0].id }); s.approveAllocation(OFF, { id: prop[1].id, reject: true, note: 'x' });
+  assert.equal(s.store.get('allocations', prop[0].id).status, 'approved'); assert.equal(s.store.get('allocations', prop[1].id).status, 'rejected');
+  const occ = s.snapshot(OFF).portOccupancy; for (const k in occ) if (k !== 'JED' && k !== 'DMM') assert.ok(occ[k] <= 88 || s.store.get('ports', k).congestionPct > 88);
+  s.runScenario(OFF, { n: 3 }); assert.ok(s.snapshot(OFF).maritimeRisks.some(r => r.type === 'port_congestion'));
+  const r4 = s.runScenario(OFF, { n: 4 }); const dr = s.snapshot(OFF).deliveryRecords.find(d => d.alertId === r4.alertId);
+  assert.equal(dr.status, 'held_outside_ts');
+  s.simulateEnterTerritorialWaters(OFF, { vesselId: r4.vesselId });
+  assert.equal(s.store.get('deliveryRecords', dr.id).status, 'dispatched');
+  s.runScenario(OFF, { n: 1 }); s.runScenario(OFF, { n: 5 });
+  assert.ok(s.snapshot(OFF).auditLogs.filter(a => a.action === 'scenario.run').length === 5);
 });

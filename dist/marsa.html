@@ -441,6 +441,23 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 .panel:empty,.side-list:empty{display:none}
 .cta{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:18px;border:1px dashed var(--line);border-radius:14px;background:var(--panel)}
 .cta b{font-size:16px}.cta p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}
+.ident{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:10px;background:var(--navy);color:#fff;border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.ident div{display:flex;flex-direction:column;gap:2px}.ident b{font-size:15px}.ident span{font-size:12px;color:#a9c1db}.ident div:first-child b{font-size:19px}
+@media (max-width:800px){.ident{grid-template-columns:1fr 1fr}.ident div:first-child{grid-column:1/-1}}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.pcard{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:6px}.pcard.warn{border-color:var(--warn)}
+.pcard .bar{position:relative;height:10px;border-radius:999px;background:var(--line)}.pcard .bar span{display:block;height:100%;border-radius:999px;background:var(--teal)}.pcard .bar span.over{background:var(--crit)}.pcard .bar i{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--crit)}
+.tsearch{max-width:220px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:inherit;font:inherit;font-size:13px}
+.scgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.sccard{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--panel);display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.sccard .scn{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700}
+.sccard b{font-size:16px}.sccard p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6;flex:1}
+.layers{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 2px 8px}
+.mapwrap{position:relative}#mpop:empty{display:none}
+.mpop{position:absolute;top:10px;inset-inline-start:10px;z-index:5;width:min(320px,80%);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.mpop .x{position:absolute;top:6px;inset-inline-end:8px;border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer}
+.mpop p{margin:6px 0}
+.seamap .zone.z-hold{fill:color-mix(in srgb,#2e9e5b 22%,transparent);stroke:#2e9e5b;stroke-dasharray:3 2}
 
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;const h=c.closest('table').rows[0].cells[i];c.dataset.l=h?h.textContent:''}}).observe(document,{childList:true,subtree:true})</script>
@@ -965,7 +982,22 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   };
   const IND = { windKn: tx('سرعة الرياح', 'Wind speed'), waveM: tx('ارتفاع الأمواج', 'Wave height'), visNm: tx('الرؤية الأفقية', 'Visibility'), currentKn: tx('سرعة التيار', 'Current speed') };
   const UNIT = { windKn: 'kn', waveM: 'm', visNm: 'nm', currentKn: 'kn' };
-  const RTYPE = { strong_winds: tx('رياح شديدة', 'Strong winds'), high_waves: tx('أمواج عالية', 'High waves'), reduced_visibility: tx('انخفاض الرؤية', 'Reduced visibility'), strong_currents: tx('تيارات قوية', 'Strong currents'), navigation_hazard: tx('خطر ملاحي', 'Navigation hazard'), operational: tx('قيود تشغيلية', 'Operational restriction'), port_closure: tx('إغلاق ميناء', 'Port closure'), port_restriction: tx('قيود على ميناء', 'Port restriction'), security: tx('تهديد أمني', 'Security threat'), other: tx('خطر آخر', 'Other hazard') };
+  const RTYPE = { severe_weather: tx('طقس شديد', 'Severe weather'), port_congestion: tx('ازدحام ميناء', 'Port congestion'), strong_winds: tx('رياح شديدة', 'Strong winds'), high_waves: tx('أمواج عالية', 'High waves'), reduced_visibility: tx('انخفاض الرؤية', 'Reduced visibility'), strong_currents: tx('تيارات قوية', 'Strong currents'), navigation_hazard: tx('خطر ملاحي', 'Navigation hazard'), operational: tx('قيود تشغيلية', 'Operational restriction'), port_closure: tx('إغلاق ميناء', 'Port closure'), port_restriction: tx('قيود على ميناء', 'Port restriction'), security: tx('تهديد أمني', 'Security threat'), other: tx('خطر آخر', 'Other hazard') };
+  const ACTIONS = {
+    strong_winds: tx('خفض السرعة، تأمين البضائع على السطح، تجنب المنطقة أو الانتظار في منطقة آمنة، ومتابعة النشرات.', 'Reduce speed, secure deck cargo, avoid the area or wait in a safe location, and monitor bulletins.'),
+    high_waves: tx('تجنب المرور بالمنطقة، تعديل الاتجاه لتقليل التدحرج، الانتظار حتى تحسن الأحوال، وتأجيل عمليات الإرشاد.', 'Avoid transiting the area, adjust heading to reduce rolling, wait for improvement, and postpone pilotage.'),
+    severe_weather: tx('تجنب المنطقة كليًا، الانتظار في منطقة آمنة أو التحويل لميناء بديل، وتعليق العمليات البحرية غير الضرورية.', 'Avoid the area entirely, wait in a safe location or divert, and suspend non-essential marine operations.'),
+    reduced_visibility: tx('خفض السرعة، تشغيل الرادار والإشارات الصوتية، زيادة المراقبة، والالتزام بقواعد منع التصادم.', 'Reduce speed, use radar and sound signals, increase lookout, and comply with COLREGs.'),
+    strong_currents: tx('مراعاة الانجراف عند الاقتراب من الشعاب والموانئ، وطلب الإرشاد، وتجنب المناورات القريبة.', 'Allow for set and drift near reefs and ports, request pilotage, and avoid close-quarter manoeuvres.'),
+    navigation_hazard: tx('الابتعاد عن الموقع، مراقبة الجسم الطافي، وإبلاغ الميناء بأي مشاهدة.', 'Keep clear of the position, keep watch for the object, and report sightings to the port.'),
+    operational: tx('التنسيق مع الميناء قبل الوصول وتعديل موعد الوصول.', 'Coordinate with the port before arrival and adjust the arrival time.'),
+    port_closure: tx('عدم الدخول للميناء، الانتظار في منطقة الانتظار المحددة، أو التحويل لميناء بديل.', 'Do not enter the port; wait at the designated waiting area or divert to an alternative port.'),
+    port_restriction: tx('الالتزام بقيود الدخول والتنسيق مع الميناء.', 'Comply with entry restrictions and coordinate with the port.'),
+    port_congestion: tx('تأجيل الوصول أو التحويل لميناء بديل لا يتجاوز إشغاله ٨٨٪.', 'Delay arrival or divert to an alternative port not exceeding 88% occupancy.'),
+    security: tx('اتباع تعليمات الجهات المختصة وتجنب المنطقة.', 'Follow the competent authorities\' instructions and avoid the area.'),
+    other: tx('متابعة تعليمات الميناء.', 'Follow port instructions.')
+  };
+  const confidenceOf = (rel, source) => { const v = source === 'rules' ? (rel >= .85 ? 'high' : rel >= .7 ? 'medium' : 'low') : source === 'port' ? 'high' : 'medium'; return { level: v, label: tx({ high: 'مرتفعة', medium: 'متوسطة', low: 'منخفضة' }[v] + ' – تقدير محاكى قائم على القواعد، وليس احتمالًا إحصائيًا مثبتًا', v + ' – simulated rule-based assessment, not a statistically validated probability') }; };
   const DOMINANT = { waveM: 'high_waves', windKn: 'strong_winds', visNm: 'reduced_visibility', currentKn: 'strong_currents' };
 
   function levelOf(ind, v, rules) {
@@ -1015,15 +1047,18 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     const bil = (o, n = 2000) => ({ ar: str(o && o.ar, n), en: str(o && o.en, n) });
 
     // Audit log: append-only hash chain
-    function audit(actor, action, entity, entityId, summary, details) {
+    let pendingTx = null; // status transition captured by setAlert/setBulletin/setAllocation for the next audit row of the same entity
+    const markTx = (id, prev, next) => { pendingTx = { id, prev, next }; };
+    function audit(actor, action, entity, entityId, summary, details, prevStatus, newStatus) {
       const last = S.all('auditLogs').slice(-1)[0];
-      const row = { id: uid('AU'), seq: (last ? last.seq : 0) + 1, ts: now(), actor: actor.username, action, entity, entityId: entityId || null, summary, details: details || null, prevHash: last ? last.hash : 'GENESIS' };
-      row.hash = C.sha256(row.prevHash + JSON.stringify([row.seq, row.ts, row.actor, row.action, row.entity, row.entityId, row.summary, row.details]));
+      if (pendingTx && pendingTx.id === entityId && prevStatus === undefined) { prevStatus = pendingTx.prev; newStatus = pendingTx.next; pendingTx = null; }
+      const row = { id: uid('AU'), seq: (last ? last.seq : 0) + 1, ts: now(), actor: actor.username, role: actor.role || 'system', action, entity, entityId: entityId || null, summary, details: details || null, prevStatus: prevStatus || null, newStatus: newStatus || null, prevHash: last ? last.hash : 'GENESIS' };
+      row.hash = C.sha256(row.prevHash + JSON.stringify([row.seq, row.ts, row.actor, row.action, row.entity, row.entityId, row.summary, row.details, row.prevStatus, row.newStatus]));
       S.insert('auditLogs', row);
     }
     function verifyAudit() {
       let prev = 'GENESIS', n = 0;
-      for (const r of S.all('auditLogs')) { n++; const h = C.sha256(prev + JSON.stringify([r.seq, r.ts, r.actor, r.action, r.entity, r.entityId, r.summary, r.details])); if (r.prevHash !== prev || r.hash !== h) return { ok: false, brokenAt: r.seq, checked: n }; prev = r.hash; }
+      for (const r of S.all('auditLogs')) { n++; const h = C.sha256(prev + JSON.stringify([r.seq, r.ts, r.actor, r.action, r.entity, r.entityId, r.summary, r.details, r.prevStatus || null, r.newStatus || null])); if (r.prevHash !== prev || r.hash !== h) return { ok: false, brokenAt: r.seq, checked: n }; prev = r.hash; }
       return { ok: true, checked: n, head: prev.slice(0, 16) };
     }
 
@@ -1056,6 +1091,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     }
     const nearestNodes = (p, k = 3) => Object.keys(C.NODES).filter(n => !C.VIRTUAL[n]).map(n => [n, C.gcNm(p, C.NODES[n])]).sort((a, b) => a[1] - b[1]).slice(0, k).map(x => x[0]);
     const destNodeOf = id => { const p = C.PORTS.find(x => x.id === id); return p ? p.node : null; };
+    const portOcc = p => { const extra = S.all('allocations').filter(a => a.toPort === p.id && ['approved', 'modified'].includes(a.status)).length + S.all('alternativeRoutes').filter(x => x.kind === 'divert' && x.alternative && x.alternative.portId === p.id && ['approved', 'modified'].includes(x.status)).length; return Math.round(p.congestionPct + extra * 100 / p.capacityBerths); };
     const geo = v => { v.distCoastNm = r1(C.distToSaudiCoastNm(v.pos)); v.inTerritorialSea = v.distCoastNm <= C.TERRITORIAL_SEA_NM; return v; };
     const coordsOf = v => [v.pos].concat(v.routeNodes.map(n => C.NODES[n]));
     function remainingNm(v) { return v.routeNodes.length ? C.gcNm(v.pos, C.NODES[v.routeNodes[0]]) + C.nodesNm(v.routeNodes) : 0; }
@@ -1067,7 +1103,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 
     // ---------------- Seed: the test dataset
     function seed() {
-      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'bulletinDeliveries', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
+      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'bulletinDeliveries', 'allocations', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
       const T0 = Math.floor(now() / (10 * MIN)) * 10 * MIN; // dataset reference time
       S.insert('meta', { id: 'meta', version: 1, counters: {}, datasetAt: T0, seededAt: now() });
       S.insert('settings', Object.assign({ id: 'rules' }, JSON.parse(JSON.stringify(DEFAULT_RULES))));
@@ -1101,12 +1137,22 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         S.insert('vessels', v);
         S.insert('users', { id: 'B-' + id, username: 'bridge.' + v.mmsi, role: 'bridge', vesselId: id, name: tx('جسر ' + name, name + ' bridge') });
       }
-      for (const r of RISK_RECORDS) S.insert('maritimeRisks', { id: 'R:' + r.key, key: r.key, source: 'record', type: r.type, level: r.level, title: tx(r.ar, r.en), areaName: tx(r.ar, r.en), center: r.p, radiusNm: r.r, poly: C.circlePoly(r.p, r.r, 16), start: T0 + r.start * H, end: T0 + r.end * H, durationH: r.end - r.start, indicators: [{ name: 'report', text: r.ind, level: r.level }], explanation: tx('سجل خطر من بيانات الاختبار: ' + r.ind.ar + '.', 'Risk record from the test dataset: ' + r.ind.en + '.'), createdAt: T0 - H, createdBy: 'test-dataset' });
+      for (const r of RISK_RECORDS) S.insert('maritimeRisks', { id: 'R:' + r.key, key: r.key, source: 'record', type: r.type, level: r.level, title: tx(r.ar, r.en), areaName: tx(r.ar, r.en), center: r.p, radiusNm: r.r, poly: C.circlePoly(r.p, r.r, 16), start: T0 + r.start * H, end: T0 + r.end * H, durationH: r.end - r.start, indicators: [{ name: 'report', text: r.ind, level: r.level }], explanation: tx('سجل خطر من بيانات الاختبار: ' + r.ind.ar + '.', 'Risk record from the test dataset: ' + r.ind.en + '.'), actions: ACTIONS[r.type], confidence: confidenceOf(.8, 'record'), createdAt: T0 - H, createdBy: 'test-dataset' });
       S.insert('dataSources', { id: 'ncm', name: tx('بيانات الأرصاد البحرية', 'Marine weather data'), label: 'Sample Weather Data', kind: 'test', lastReceivedAt: T0 - 20 * MIN, accepted: SEA_AREAS.length, rejected: 0, lastErrors: [] });
       S.insert('dataSources', { id: 'ais', name: tx('مواقع السفن', 'Vessel positions'), label: 'Test AIS Data', kind: 'test', lastReceivedAt: T0 - 3 * MIN, accepted: VESSELS.length, rejected: 0, lastErrors: [] });
       S.insert('dataSources', { id: 'ports', name: tx('بيانات الموانئ', 'Port data'), label: 'Test Port Records', kind: 'test', lastReceivedAt: T0 - 30 * MIN, accepted: 7, rejected: 0, lastErrors: [] });
+      S.insert('dataSources', { id: 'navtex', name: tx('توزيع NAVTEX المعتمد', 'Authorized NAVTEX distribution'), label: 'Proposed Integration', kind: 'not_connected', lastReceivedAt: null, accepted: 0, rejected: 0, lastErrors: [] });
+      S.insert('dataSources', { id: 'navarea', name: tx('تنسيق NAVAREA IX', 'NAVAREA IX coordination'), label: 'Proposed Integration', kind: 'not_connected', lastReceivedAt: null, accepted: 0, rejected: 0, lastErrors: [] });
       audit(SYS, 'data.load', 'dataset', null, tx('تحميل بيانات الاختبار: ' + SEA_AREAS.length + ' مناطق أرصاد، ' + VESSELS.length + ' سفينة، ' + C.PORTS.filter(p => p.country === 'SA').length + ' موانئ، ' + RISK_RECORDS.length + ' سجلات مخاطر، ' + CONSTRAINTS.length + ' قيود ملاحية', 'Test data loaded: ' + SEA_AREAS.length + ' weather areas, ' + VESSELS.length + ' vessels, ' + C.PORTS.filter(p => p.country === 'SA').length + ' ports, ' + RISK_RECORDS.length + ' risk records, ' + CONSTRAINTS.length + ' navigational constraints'));
       analyse('dataset load');
+      // three sample bulletins at different stages
+      const OFFU = { username: 'port.officer', role: 'officer' };
+      const rj = S.all('maritimeRisks').filter(x => x.areaId === 'JED').sort((a, b) => rank(b.level) - rank(a.level))[0];
+      const b1 = api.createBulletin(OFFU, { type: 'weather_bulletin', areaId: 'AGC', title: tx('نشرة بحرية – وسط الخليج العربي', 'Marine bulletin – Central Arabian Gulf'), body: tx(marineForecast('AGC', 24).text.ar, marineForecast('AGC', 24).text.en) });
+      api.submitBulletin(OFFU, { id: b1.id }); api.approveBulletin(OFFU, { id: b1.id }); api.sendBulletin(OFFU, { id: b1.id });
+      const b2 = api.createBulletin(OFFU, { type: 'nav_restriction', riskId: 'R:TR1', title: tx('جسم طافٍ على الممر الملاحي غرب ينبع', 'Floating object on the shipping lane west of Yanbu'), body: S.get('maritimeRisks', 'R:TR1').explanation });
+      api.submitBulletin(OFFU, { id: b2.id });
+      if (rj) api.createBulletin(OFFU, { type: 'wind_wave_warning', riskId: rj.id, title: rj.title, body: rj.explanation });
     }
     function sampleValue(a, h, T0) {
       const hod = (new Date(T0 + h * H).getUTCHours() + 3) % 24, di = Math.sin(2 * Math.PI * (hod - 9) / 24), b = a.b;
@@ -1142,7 +1188,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       const LVA = { low: 'منخفض', medium: 'متوسط', high: 'مرتفع', critical: 'حرج' };
       for (const w of found) {
         const inds = Object.values(w.inds).sort((x, y) => rank(y.level) - rank(x.level));
-        const dom = inds[0] ? DOMINANT[inds[0].name] : 'high_waves';
+        let dom = inds[0] ? DOMINANT[inds[0].name] : 'high_waves'; if (inds.filter(x => rank(x.level) >= 3 && (x.name === 'windKn' || x.name === 'waveM')).length === 2 && w.level === 'critical') dom = 'severe_weather';
         const start = w.f.series[w.fromH].validAt, end = w.f.series[w.toH].validAt + H;
         const th = x => { const tt = R[x.name], i = Math.max(0, rank(x.level) - 1); return (x.name === 'visNm' ? '≤ ' : '≥ ') + tt[i] + ' ' + UNIT[x.name]; };
         const expAr = 'صُنّفت ' + w.a.name.ar + ' بمستوى «' + LVA[w.level] + '» لأن: ' + inds.map(x => IND[x.name].ar + ' ' + x.value + ' ' + UNIT[x.name] + ' (حد مستوى «' + LVA[x.level] + '» ' + th(x) + ')').join('، ') + '. المدة ' + (w.toH - w.fromH + 1) + ' ساعة في بيانات التوقعات التجريبية.';
@@ -1150,13 +1196,19 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         S.insert('maritimeRisks', { id: 'R:' + w.a.id + ':' + Math.round((start - T0) / H), key: w.a.id + ':' + Math.round((start - T0) / H), source: 'rules', type: dom, level: w.level, title: tx(RTYPE[dom].ar + ' – ' + w.a.name.ar, RTYPE[dom].en + ' – ' + w.a.name.en), areaId: w.a.id, areaName: w.a.name, center: w.a.p, radiusNm: w.a.radiusNm, poly: w.a.poly,
           start, end, durationH: w.toH - w.fromH + 1, peak: { at: w.peak.validAt, windKn: w.peak.windKn, gustKn: w.peak.gustKn, waveM: w.peak.waveM, visNm: w.peak.visNm, currentKn: w.peak.currentKn }, indicators: inds.map(x => Object.assign({ name: x.name, label: IND[x.name], value: x.value, unit: UNIT[x.name], level: x.level, threshold: th(x), at: x.at }, x.name === 'windKn' ? { beaufort: beaufort(x.value), wmoWarning: windWarning(x.value) } : {})),
           wmoWindWarning: windWarning(w.peak.windKn) ? { category: windWarning(w.peak.windKn), label: WWARN[windWarning(w.peak.windKn)], beaufort: beaufort(w.peak.windKn), ref: WWMIWS_REF } : null,
-          reliability: w.f.series[w.fromH].reliability, explanation: tx(expAr, expEn), createdAt: t, createdBy: 'rules-engine' });
+          reliability: w.f.series[w.fromH].reliability, explanation: tx(expAr, expEn), actions: ACTIONS[dom], confidence: confidenceOf(w.f.series[w.fromH].reliability, 'rules'), createdAt: t, createdBy: 'rules-engine' });
       }
       for (const p of S.all('ports').filter(p => p.status !== 'open')) {
         const ty = p.status === 'closed' ? 'port_closure' : 'port_restriction';
         S.insert('maritimeRisks', { id: 'R:PORT:' + p.id, key: 'PORT:' + p.id, source: 'port', type: ty, level: p.status === 'closed' ? 'high' : 'medium', title: tx(RTYPE[ty].ar + ' – ' + p.name.ar, RTYPE[ty].en + ' – ' + p.name.en), areaName: p.name, center: p.p, radiusNm: 12, poly: C.circlePoly(p.p, 12, 16), start: p.updatedAt, end: p.statusUntil || p.updatedAt + 24 * H, durationH: Math.round(((p.statusUntil || p.updatedAt + 24 * H) - p.updatedAt) / H),
           indicators: [{ name: 'port', text: tx('حالة الميناء: ' + (p.status === 'closed' ? 'مغلق' : 'مقيّد') + (p.restrictions.ar ? ' – ' + p.restrictions.ar : ''), 'Port status: ' + p.status + (p.restrictions.en ? ' – ' + p.restrictions.en : '')), level: p.status === 'closed' ? 'high' : 'medium' }],
-          explanation: tx('خطر تشغيلي ناتج عن حالة الميناء التي حددها ضابط الميناء.', 'Operational risk derived from the port status set by the port officer.'), createdAt: t, createdBy: 'rules-engine' });
+          explanation: tx('خطر تشغيلي ناتج عن حالة الميناء التي حددها ضابط الميناء.', 'Operational risk derived from the port status set by the port officer.'), actions: ACTIONS[ty], confidence: confidenceOf(1, 'port'), createdAt: t, createdBy: 'rules-engine' });
+      }
+      for (const p of S.all('ports').filter(p => p.status === 'open' && portOcc(p) >= 85)) {
+        const occ = portOcc(p), lvl = occ >= 92 ? 'high' : 'medium';
+        S.insert('maritimeRisks', { id: 'R:CONG:' + p.id, key: 'CONG:' + p.id, source: 'port', type: 'port_congestion', level: lvl, title: tx(RTYPE.port_congestion.ar + ' – ' + p.name.ar, RTYPE.port_congestion.en + ' – ' + p.name.en), areaName: p.name, center: p.p, radiusNm: 12, poly: C.circlePoly(p.p, 12, 16), start: t, end: t + 24 * H, durationH: 24,
+          indicators: [{ name: 'port', text: tx('الإشغال ' + occ + '٪ (حد التنبيه ٨٥٪، الحد الأعلى للتحويل ٨٨٪)', 'Occupancy ' + occ + '% (alert threshold 85%, diversion ceiling 88%)'), level: lvl }],
+          explanation: tx('إشغال الميناء مرتفع؛ السفن القادمة قد تحتاج تأجيل الوصول أو التحويل.', 'Port occupancy is high; incoming vessels may need to delay arrival or divert.'), actions: ACTIONS.port_congestion, confidence: confidenceOf(1, 'port'), createdAt: t, createdBy: 'rules-engine' });
       }
       computeAffected();
       const n = S.all('maritimeRisks').length;
@@ -1210,6 +1262,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       return { nm: Math.round(nm), hours: r1(hours), waitH: r1(waitH), fuelT: r1(fuelT), costSAR: Math.round(costSAR / 100) * 100 };
     }
     function decideOptions(v, r, row, alloc) {
+      row._base = { kind: row.kind, alternative: row.alternative, checks: row.checks, reason: row.reason };
       const t = now(), R = rules(), aff = S.all('affectedVessels').find(a => a.riskId === r.id && a.vesselId === v.id);
       const destP = port(v.destId), destClosed = destP && destP.status === 'closed';
       const arrival = t + (row.current.nm || 0) / Math.max(1, v.sog || 12) * H, beforeRisk = !destClosed && destP && arrival < r.start;
@@ -1223,14 +1276,16 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       for (const p of S.all('ports')) {
         const cp = C.PORTS.find(x => x.id === p.id);
         if (p.id === v.destId || p.status !== 'open' || !cp || cp.region !== region || p.maxDraftM < v.draft + R.ukcM || high.some(x => C.pointInPoly(p.p, x.poly))) continue;
-        const occ = p.congestionPct + ((alloc[p.id] || 0) + 1) * 100 / p.capacityBerths;
+        const occ = portOcc(p) + ((alloc[p.id] || 0) + 1) * 100 / p.capacityBerths;
         const rt = route(v.pos, nearestNodes(v.pos, 4), p.node, { constraints: S.all('constraints'), avoid: high.filter(x => !C.pointInPoly(v.pos, x.poly)).map(x => ({ poly: x.poly })), rough: [], draft: v.draft, ukc: R.ukcM });
         if (!rt) continue;
         opts.push(Object.assign({ kind: 'divert', portId: p.id, label: tx('التحويل إلى ' + p.name.ar, 'Divert to ' + p.name.en), safe: occ <= MAX_OCC, occupancyAfter: Math.round(occ), nodes: rt.nodes }, metrics(v, rt.nm, 0)));
       }
-      const pool = opts.filter(o => o.safe), best = (pool.length ? pool : opts).slice().sort((a, b) => a.costSAR - b.costSAR)[0];
+      const pool = opts.filter(o => o.safe), best = pool.length ? pool.slice().sort((a, b) => a.costSAR - b.costSAR)[0] : (opts.find(o => o.kind === 'wait') || opts[0]);
+      row.needsReview = !pool.length;
       row.options = opts.map(o => Object.assign({}, o, { recommended: o === best, nodes: undefined }));
       row.recommended = { kind: best.kind, portId: best.portId || null, label: best.label };
+      row._nodes = Object.fromEntries(opts.filter(o => o.nodes).map(o => [o.portId, o.nodes]));
       if (best.kind === 'divert') {
         alloc[best.portId] = (alloc[best.portId] || 0) + 1;
         row.kind = 'divert'; row.alternative = { nodes: best.nodes, nm: best.nm, hours: best.hours, portId: best.portId, coords: [v.pos].concat(C.nodesToCoords(best.nodes)) };
@@ -1241,6 +1296,11 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         row.reason = tx('تخفيض السرعة أو الانتظار قبل المنطقة ' + best.waitH + ' ساعة حتى انتهاء الخطر ثم إكمال الرحلة هو الأقل تكلفة.', 'Slowing down or waiting before the area for ' + best.waitH + ' h until the risk ends, then continuing, is the lowest-cost option.');
       } else if (best.kind === 'continue') { row.kind = 'continue'; row.alternative = null; row.checks = []; row.reason = beforeRisk ? tx('السفينة تصل الميناء قبل بداية الخطر؛ يُوصى بإكمال الدخول دون تأخير.', 'The vessel reaches port before the risk starts; completing entry without delay is recommended.') : tx('الاستمرار في المسار الحالي آمن خلال فترة الخطر.', 'Continuing on the current route is safe during the risk window.'); }
       return row;
+    }
+    function genRecs(al) {
+      const r = al.riskId && S.get('maritimeRisks', al.riskId) || { id: 'ALERT:' + al.id, title: al.title, level: al.severity, poly: al.poly, start: al.validFrom, end: al.validTo, areaName: al.areaName };
+      const ae = v => (S.all('affectedVessels').find(x => x.vesselId === v.id && x.riskId === r.id) || {}).etaToZone || 0;
+      const alloc = {}; for (const v of al.targets.map(vessel).filter(v => v && v.status === 'underway').sort((a, b) => ae(a) - ae(b))) proposeRoute(v, r, al.id, SYS, alloc);
     }
     function proposeRoute(v, r, alertId, actor, alloc) {
       const t = now(), R = rules();
@@ -1300,7 +1360,8 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       const row = { id: uid('ALT'), number: num('ALT', 'alt'), vesselId: v.id, riskId: r.id, alertId: alertId || null, kind: alt ? kind : 'none', current: cur, alternative: alt, riskPoly: r.poly, avoided: { title: r.title, level: r.level, start: r.start, end: r.end },
         reason: alt ? why : tx('تعذر إيجاد بديل ضمن بيانات الاختبار والقيود الملاحية المتاحة. يلزم تقييم الضابط والتواصل مع السفينة.', 'No alternative could be found within the test data and available navigational constraints. Officer assessment and contact with the vessel are needed.'),
         checks, validation: 'unverified', validationNote: tx('صلاحية المسار غير متحققة: لا تتوفر خرائط ملاحية معتمدة أو بيانات أعماق موثوقة، والأعماق المستخدمة قيم اختبار. لا يُعد المسار آمنًا أو صالحًا للملاحة الفعلية.', 'Route validity is NOT verified: no approved nautical charts or reliable depth data are available; depths used are test values. The route is not declared safe or fit for actual navigation.'), createdAt: t, createdBy: actor.username };
-      decideOptions(v, r, row, alloc || {});
+      decideOptions(v, r, row, alloc || {}); row.status = 'proposed';
+      if (row.needsReview) row.reason = tx('لا يوجد خيار آمن ضمن القيود؛ يُوصى بالانتظار في منطقة آمنة ويحتاج القرار مراجعة الضابط.', 'No safe option within the constraints; waiting at a safe location is recommended and the case needs officer review.');
       for (const o of S.all('alternativeRoutes').filter(x => x.vesselId === v.id && x.riskId === r.id).slice()) S.remove('alternativeRoutes', o.id);
       S.insert('alternativeRoutes', row);
       audit(actor, 'route.propose', 'alternativeRoute', row.id, tx('توصية ' + row.number + ' للسفينة ' + v.name + ': ' + row.recommended.label.ar, 'Recommendation ' + row.number + ' for ' + v.name + ': ' + row.recommended.label.en));
@@ -1308,7 +1369,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     }
 
     // ---------------- Alerts lifecycle
-    function setAlert(a, status, actor, note, patch = {}) { const cur = S.get('alerts', a.id); S.update('alerts', a.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch)); }
+    function setAlert(a, status, actor, note, patch = {}) { const cur = S.get('alerts', a.id); markTx(a.id, cur.status, status); S.update('alerts', a.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch)); }
     function releaseHeld(vid, actor) {
       const v = vessel(vid); if (!v || !C.inSaudiTerritorialSea(v.pos)) return; const t = now();
       for (const d of S.all('deliveryRecords').filter(x => x.vesselId === vid && x.status === 'held_outside_ts')) {
@@ -1419,9 +1480,55 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     }
 
     // ---------------- Bulletins & navigational notices: routed by WWNWS level to the competent parties (test environment)
+  // ---------------- Structured English navigational-warning draft (prepared by MARSA; issuance remains with the authorized entity)
+  function warningDraft(b) {
+    const w = b.warning || {}, c = b.poly.reduce((a, q) => [a[0] + q[0] / b.poly.length, a[1] + q[1] / b.poly.length], [0, 0]);
+    const rad = Math.round(Math.max(...b.poly.map(q => C.gcNm(c, q))));
+    const cls = { LOCAL: 'LOCAL WARNING', COASTAL: 'COASTAL WARNING', NAVAREA: 'NAVAREA IX WARNING' }[b.scope] || b.scope;
+    return ['MARSA DRAFT - FOR REVIEW BY THE AUTHORIZED ENTITY - NOT AN OFFICIAL WARNING', 'WARNING ID: ' + b.number, 'CLASSIFICATION: ' + cls, 'AREA: ' + String(b.areaName.en || '').toUpperCase(),
+      'POSITION: ' + dm(c[1], 'N', 'S', 2) + ' ' + dm(c[0], 'E', 'W', 3) + ' RADIUS ' + rad + ' NM', 'VALID: ' + dtg(b.validFrom) + ' TO ' + dtg(b.validTo),
+      'HAZARD: ' + String(w.hazard || '').toUpperCase(), 'NAVIGATIONAL IMPACT: ' + String(w.impact || '').toUpperCase(), 'PRECAUTIONS: ' + String(w.precautions || '').toUpperCase(),
+      'SOURCE: ' + String(w.source || '').toUpperCase(), 'RESPONSIBLE AUTHORITY: ' + String(w.authority || '').toUpperCase()].join('\n');
+  }
+  function warningDefaults(r, scope, b) {
+    const auth = { LOCAL: 'Port authority (harbour master)', COASTAL: 'Saudi NAVTEX station (authorized)', NAVAREA: 'NAVAREA IX coordinator (Karachi)' }[scope] || 'Port authority';
+    if (!r) return { hazard: b.title.en, impact: 'Vessels in the area may be affected', precautions: 'Navigate with caution and follow port instructions', source: 'MARSA test data (simulated)', authority: auth };
+    const pk = r.peak || {}, vals = [pk.windKn ? 'winds up to ' + Math.round(pk.windKn) + ' kt' : '', pk.waveM ? 'waves up to ' + pk.waveM + ' m' : '', pk.visNm && pk.visNm < 6 ? 'visibility down to ' + pk.visNm + ' nm' : ''].filter(Boolean).join(', ');
+    return { hazard: RTYPE[r.type].en + (vals ? ': ' + vals : ''), impact: r.type.startsWith('port') ? 'Port entry and berthing affected' : 'Hazardous conditions for navigation in the area', precautions: (r.actions || ACTIONS.other).en, source: r.source === 'rules' ? 'National Center for Meteorology forecast (simulated test data)' : 'MARSA test data (simulated)', authority: auth };
+  }
+  // ---------------- Alternative port allocation for closed or congested ports (88% ceiling)
+  const MAX_ALLOC_OCC = 88;
+  function runAllocationFor(u, portId) {
+    const from = port(portId); if (!from) throw new ValidationError('port');
+    const t = now(), R = rules(), high = S.all('maritimeRisks').filter(x => rank(x.level) >= 3 && x.end > t && x.source !== 'port'), region = (C.PORTS.find(x => x.id === portId) || {}).region;
+    for (const a of S.all('allocations').filter(a => a.fromPort === portId && a.status === 'proposed').slice()) S.remove('allocations', a.id);
+    const incoming = S.all('vessels').filter(v => v.destId === portId && v.status !== 'moored').sort((a, b) => (a.etaAt || 0) - (b.etaAt || 0));
+    const extra = {}, out = [];
+    for (const v of incoming) {
+      const calc = [];
+      for (const p of S.all('ports')) {
+        if (p.id === portId) continue; const cp = C.PORTS.find(x => x.id === p.id), before = portOcc(p) + Math.round((extra[p.id] || 0) * 100 / p.capacityBerths), after = Math.round(before + 100 / p.capacityBerths);
+        let reason = null; if (!cp || cp.region !== region) reason = tx('بحر مختلف', 'Different sea'); else if (p.status !== 'open') reason = tx('الميناء غير متاح', 'Port not open'); else if (p.maxDraftM < v.draft + R.ukcM) reason = tx('الغاطس يتجاوز حد الميناء', 'Draft exceeds port limit'); else if (after > MAX_ALLOC_OCC) reason = tx('الإشغال بعد التحويل ' + after + '٪ > ٨٨٪', 'Occupancy after ' + after + '% > 88%');
+        if (cp && cp.region !== region) continue;
+        const rt = reason ? null : route(v.pos, nearestNodes(v.pos, 4), p.node, { constraints: S.all('constraints'), avoid: high.filter(x => !C.pointInPoly(v.pos, x.poly) && x.start <= t + 6 * H).map(x => ({ poly: x.poly })), rough: [], draft: v.draft, ukc: R.ukcM });
+        if (!reason && !rt) reason = tx('لا يوجد مسار آمن', 'No safe route');
+        if (!reason && rt) { const arr = t + rt.nm / Math.max(1, v.sog || 12) * H, hz = high.find(x => C.pointInPoly(p.p, x.poly) && x.start <= arr && x.end > arr); if (hz) reason = tx('الميناء داخل منطقة خطر عند وصول السفينة', 'Port inside a risk area when the vessel arrives'); }
+        calc.push({ portId: p.id, occBefore: before, occAfter: after, availableBerths: p.availableBerths, nm: rt ? Math.round(rt.nm) : null, eligible: !reason, reason });
+      }
+      const best = calc.filter(c => c.eligible).sort((a, b) => a.nm - b.nm || a.occAfter - b.occAfter)[0];
+      if (best) extra[best.portId] = (extra[best.portId] || 0) + 1;
+      const row = { id: uid('PA'), number: num('PA', 'pa'), vesselId: v.id, fromPort: portId, toPort: best ? best.portId : null, status: best ? 'proposed' : 'no_capacity', calc, createdAt: t, createdBy: u.username, history: [{ s: best ? 'proposed' : 'no_capacity', at: t, by: u.username }],
+        explanation: best ? tx('اختير ' + port(best.portId).name.ar + ': أقرب ميناء آمن (' + best.nm + ' ميل) بإشغال بعد التحويل ' + best.occAfter + '٪ ضمن حد ٨٨٪.', port(best.portId).name.en + ' selected: nearest safe port (' + best.nm + ' nm), occupancy after diversion ' + best.occAfter + '% within the 88% ceiling.') : tx('لا يوجد ميناء بديل آمن ضمن حد ٨٨٪؛ يُوصى بالانتظار في منطقة آمنة ومراجعة الضابط.', 'No safe alternative port within the 88% ceiling; waiting at a safe location and officer review are recommended.') };
+      S.insert('allocations', row); out.push(row);
+    }
+    audit(u, 'allocation.run', 'port', portId, tx('توزيع السفن القادمة إلى ' + from.name.ar + ': ' + out.length + ' سفن، ' + out.filter(a => a.toPort).length + ' لها ميناء بديل', 'Allocation for vessels bound to ' + from.name.en + ': ' + out.length + ' vessels, ' + out.filter(a => a.toPort).length + ' with an alternative port'));
+    return out;
+  }
+  function setAllocation(a, status, actor, note, patch) { markTx(a.id, a.status, status); S.update('allocations', a.id, Object.assign({ status, history: a.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
   function bulletinRecipients(b) {
     const out = [], ports = S.all('ports').filter(p => C.pointInPoly(p.p, b.poly) || (b.portId === p.id)).slice(0, 4);
     if (!ports.length) { const c = b.poly.reduce((a, q) => [a[0] + q[0] / b.poly.length, a[1] + q[1] / b.poly.length], [0, 0]); const n = S.all('ports').slice().sort((x, y) => C.gcNm(x.p, c) - C.gcNm(y.p, c))[0]; if (n) ports.push(n); }
+    if (b.scope === 'LOCAL') for (const p of ports) out.push({ id: 'V:' + p.id, kind: 'vhf', targetId: p.id, name: tx('قناة VHF المحلية – ضابط ' + p.name.ar, 'Local VHF channel – ' + p.name.en + ' officer'), means: tx('بث VHF', 'VHF broadcast'), status: 'pending' });
     for (const p of ports) out.push({ id: 'P:' + p.id, kind: 'port', targetId: p.id, name: tx('إدارة ' + p.name.ar + ' (مأمور الميناء)', p.name.en + ' (harbour master)'), means: tx('VHF والقنوات المحلية', 'VHF and local channels'), status: 'pending' });
     if (b.scope === 'COASTAL' || b.scope === 'NAVAREA') {
       const st = (b.wwnws && b.wwnws.navtexStations || []).map(id => C.STATIONS.find(x => x.id === id)).filter(Boolean);
@@ -1431,7 +1538,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     if (b.scope === 'NAVAREA') { const k = C.STATIONS.find(x => x.id === 'KHI_NAV'); out.push({ id: 'C:KHI_NAV', kind: 'coordinator', targetId: k.id, name: tx(k.ar, k.en), means: tx('تحذير NAVAREA عبر NAVTEX/EGC', 'NAVAREA warning via NAVTEX/EGC'), status: 'pending' }); }
     return out;
   }
-  function setBulletin(b, status, actor, note, patch) { const cur = S.get('bulletins', b.id); S.update('bulletins', b.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
+  function setBulletin(b, status, actor, note, patch) { const cur = S.get('bulletins', b.id); markTx(b.id, cur.status, status); S.update('bulletins', b.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
 
   // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
   function marineForecast(areaId, hours) {
@@ -1462,11 +1569,11 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         const aIds = new Set(dl.map(d => d.alertId));
         const bd = S.all('bulletinDeliveries').filter(d => d.vesselId === user.vesselId), bIds = new Set(bd.map(d => d.bulletinId));
         return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, vessels: v ? [v] : [], bulletinDeliveries: bd, bulletins: S.all('bulletins').filter(b => bIds.has(b.id)).map(b => ({ id: b.id, number: b.number, type: b.type, title: b.title, body: b.body, areaName: b.areaName, validFrom: b.validFrom, validTo: b.validTo, status: b.status })), ports: S.all('ports'), alerts: S.all('alerts').filter(a => aIds.has(a.id)), deliveryRecords: dl,
-          alternativeRoutes: S.all('alternativeRoutes').filter(r => r.vesselId === user.vesselId && r.alertId && aIds.has(r.alertId)), constraints: S.all('constraints'), dataSources: S.all('dataSources').filter(x => x.id === 'ais') };
+          alternativeRoutes: S.all('alternativeRoutes').filter(r => r.vesselId === user.vesselId && r.alertId && aIds.has(r.alertId) && ['approved', 'modified'].includes(r.status)), constraints: S.all('constraints'), dataSources: S.all('dataSources').filter(x => x.id === 'ais') };
       }
       return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, rules: rules(), seaAreas: S.all('seaAreas'), ports: S.all('ports'), vessels: S.all('vessels'), constraints: S.all('constraints'),
         weatherObservations: S.all('weatherObservations'), weatherForecasts: S.all('weatherForecasts'), maritimeRisks: S.all('maritimeRisks'), affectedVessels: S.all('affectedVessels'), alerts: S.all('alerts'), deliveryRecords: S.all('deliveryRecords'),
-        alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), bulletinDeliveries: S.all('bulletinDeliveries'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
+        alternativeRoutes: S.all('alternativeRoutes'), allocations: S.all('allocations'), portOccupancy: Object.fromEntries(S.all('ports').map(p => [p.id, portOcc(p)])), bulletins: S.all('bulletins'), bulletinDeliveries: S.all('bulletinDeliveries'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
         stations: C.STATIONS.filter(s => s.navarea === 'IX').map(s => ({ id: s.id, role: s.role, name: tx(s.ar, s.en), country: s.country, b1: s.b1 })), sampleSystems: SAMPLE_SYSTEMS.map(s => ({ id: s.id, name: tx(s.ar, s.en) })), wwnws: { ref: WWNWS_REF, levels: WW, kingdomWatersNm: KSA_WATERS_NM }, wwmiwsRef: WWMIWS_REF };
     }
 
@@ -1532,7 +1639,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         const t = now(), start = t + clamp(+a.startH || 0, -24, 48) * H, end = start + clamp(+a.durationH || 12, 1, 240) * H;
         const title = bil(a.title, 160); if (!title.ar || !title.en) throw new ValidationError('title');
         const r = { id: 'R:M:' + uid('M'), key: 'M', source: 'manual', type: a.type, level: a.level, title, areaName: title, center: [lon, lat], radiusNm: rad, poly: C.circlePoly([lon, lat], rad, 20), start, end, durationH: Math.round((end - start) / H),
-          indicators: [{ name: 'manual', text: bil(a.indicators && (a.indicators.ar || a.indicators.en) ? a.indicators : tx('مُدخل يدويًا', 'Entered manually'), 300), level: a.level }], explanation: tx('خطر مُدخل من ضابط الميناء في بيئة الاختبار.', 'Risk entered by the port officer in the test environment.'), createdAt: t, createdBy: u.username };
+          indicators: [{ name: 'manual', text: bil(a.indicators && (a.indicators.ar || a.indicators.en) ? a.indicators : tx('مُدخل يدويًا', 'Entered manually'), 300), level: a.level }], explanation: tx('خطر مُدخل من ضابط الميناء في بيئة الاختبار.', 'Risk entered by the port officer in the test environment.'), actions: ACTIONS[a.type] || ACTIONS.other, confidence: confidenceOf(.8, 'manual'), createdAt: t, createdBy: u.username };
         S.insert('maritimeRisks', r); audit(u, 'risk.create', 'risk', r.id, tx('إضافة خطر: ' + title.ar, 'Risk added: ' + title.en)); computeAffected();
         audit(SYS, 'risk.affected', 'risk', r.id, tx('تحديد السفن المتأثرة بالخطر الجديد: ' + (S.get('maritimeRisks', r.id).affectedCount || 0), 'Vessels affected by the new risk: ' + (S.get('maritimeRisks', r.id).affectedCount || 0)));
         touch(); return S.get('maritimeRisks', r.id);
@@ -1548,7 +1655,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         const al = { id: uid('AL'), number: num('MRS-TA', 'al'), wwnws: wc, riskId: r ? r.id : null, riskSnapshot: r ? { title: r.title, type: r.type, level: r.level, start: r.start, end: r.end, explanation: r.explanation } : null, title, body, instructions: instr, poly, areaName,
           priority: ['routine', 'important', 'urgent'].includes(a.priority) ? a.priority : 'important', severity: ['low', 'medium', 'high', 'critical'].includes(a.severity) ? a.severity : (r ? r.level : 'medium'), validFrom: from, validTo: to, targets,
           status: 'draft', history: [{ s: 'draft', at: t, by: u.username }], createdAt: t, createdBy: u.username, approvedBy: null, approvedAt: null, dispatchedAt: null, label: 'Test Maritime Alert' };
-        S.insert('alerts', al); audit(u, 'alert.create', 'alert', al.id, tx('إنشاء إنذار ' + al.number + ' لـ' + targets.length + ' سفن: ' + title.ar, 'Alert ' + al.number + ' created for ' + targets.length + ' vessels: ' + title.en)); touch(); return al;
+        S.insert('alerts', al); genRecs(al); audit(u, 'alert.create', 'alert', al.id, tx('إنشاء إنذار ' + al.number + ' لـ' + targets.length + ' سفن: ' + title.ar, 'Alert ' + al.number + ' created for ' + targets.length + ' vessels: ' + title.en)); touch(); return al;
       },
       editAlert(u, a) {
         needOfficer(u); const al = S.get('alerts', a.id); if (!al || !['draft', 'pending_approval'].includes(al.status)) throw new ValidationError('state');
@@ -1564,9 +1671,9 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         if (a.reject) { setAlert(al, 'draft', u, a.note || 'returned'); audit(u, 'alert.return', 'alert', al.id, tx('إعادة الإنذار ' + al.number + ' للتعديل', 'Alert ' + al.number + ' returned for changes')); touch(); return { ok: true }; }
         setAlert(al, 'approved', u, a.note, { approvedBy: u.username, approvedAt: now(), verification: C.sha256(JSON.stringify([al.number, al.title, al.body, al.instructions, al.targets, al.validFrom, al.validTo])).slice(0, 16).toUpperCase() });
         audit(u, 'alert.approve', 'alert', al.id, tx('اعتماد الإنذار ' + al.number + ' في بيئة الاختبار مع الإقرار بالمسؤولية', 'Alert ' + al.number + ' approved in the test environment with responsibility statement'));
-        const r = al.riskId && S.get('maritimeRisks', al.riskId) || { id: 'ALERT:' + al.id, title: al.title, level: al.severity, poly: al.poly, start: al.validFrom, end: al.validTo, areaName: al.areaName };
-        const alloc = {}, byEta = al.targets.map(vessel).filter(v => v && v.status === 'underway').sort((a, b) => ((S.all('affectedVessels').find(x => x.vesselId === a.id && x.riskId === r.id) || {}).etaToZone || 0) - ((S.all('affectedVessels').find(x => x.vesselId === b.id && x.riskId === r.id) || {}).etaToZone || 0));
-        for (const v of byEta) proposeRoute(v, r, al.id, SYS, alloc);
+        if (!S.all('alternativeRoutes').some(x => x.alertId === al.id)) genRecs(al);
+        for (const x of S.all('alternativeRoutes').filter(x => x.alertId === al.id && x.status === 'proposed')) S.update('alternativeRoutes', x.id, { status: 'approved', approvedBy: u.username, approvedAt: now() });
+        audit(u, 'recommendation.approve', 'alert', al.id, tx('اعتماد توصيات السفن للإنذار ' + al.number + ' وتحويلها إلى تعليمات تشغيلية', 'Vessel recommendations for alert ' + al.number + ' approved as operational instructions'));
         touch(); return { ok: true };
       },
       prepareDispatch(u, { id }) {
@@ -1594,13 +1701,40 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         for (const d of S.all('deliveryRecords').filter(x => (ids || []).includes(x.id) && x.vesselId === u.vesselId && x.status === 'dispatched')) { S.update('deliveryRecords', d.id, { status: 'received', receivedAt: t, history: d.history.concat([{ s: 'received', at: t }]) }); touched.add(d.alertId); audit(u, 'alert.received', 'delivery', d.id, tx('عُرض الإنذار على شاشة جسر ' + vessel(d.vesselId).name, 'Alert shown on the ' + vessel(d.vesselId).name + ' bridge screen')); }
         touched.forEach(aggregateAlert); if (touched.size) touch(); return { ok: true };
       },
-      acknowledge(u, { id, officer, action }) {
+      acknowledge(u, { id, officer, action, reason }) {
         if (!u || u.role !== 'bridge') throw new PermissionError('bridge'); const d = S.get('deliveryRecords', id); if (!d || d.vesselId !== u.vesselId) throw new PermissionError('own');
         if (!officer || str(officer, 80).length < 3) throw new ValidationError('officer'); if (d.ackAt) return { ok: true };
-        const t = now(), rec = S.all('alternativeRoutes').find(x => x.alertId === d.alertId && x.vesselId === d.vesselId); const act = action === 'accepted' && rec ? 'accepted' : 'received_only';
-        S.update('deliveryRecords', d.id, { status: 'acknowledged', action: act, actionLabel: act === 'accepted' ? rec.recommended.label : tx('تأكيد الاستلام فقط', 'Receipt only'), receivedAt: d.receivedAt || t, ackAt: t, ackBy: str(officer, 80), history: d.history.concat([{ s: 'acknowledged', at: t, by: str(officer, 80) }]) });
-        const al = S.get('alerts', d.alertId); audit(u, 'alert.ack', 'delivery', d.id, tx('تأكيد استلام الإنذار ' + al.number + ' من ' + vessel(d.vesselId).name + ' (' + str(officer, 80) + ')', 'Alert ' + al.number + ' acknowledged by ' + vessel(d.vesselId).name + ' (' + str(officer, 80) + ')' + (act === 'accepted' ? ' – recommendation accepted: ' + rec.recommended.label.en : '')));
-        aggregateAlert(al.id); touch(); return { ok: true };
+        const t = now(), rec = S.all('alternativeRoutes').find(x => x.alertId === d.alertId && x.vesselId === d.vesselId);
+        const act = action === 'accepted' && rec ? 'accepted' : action === 'rejected' && rec ? 'rejected' : 'acknowledged';
+        if (act === 'rejected' && (!reason || str(reason, 300).length < 3)) throw new ValidationError('reason');
+        const v = vessel(d.vesselId), al = S.get('alerts', d.alertId);
+        S.update('deliveryRecords', d.id, { status: act === 'rejected' ? 'rejected' : 'acknowledged', action: act, rejectReason: act === 'rejected' ? str(reason, 300) : null, actionLabel: act === 'acknowledged' ? tx('تأكيد الاستلام فقط', 'Acknowledged only') : rec.recommended.label, receivedAt: d.receivedAt || t, ackAt: t, ackBy: str(officer, 80), history: d.history.concat([{ s: act, at: t, by: str(officer, 80) }]) });
+        if (rec) S.update('alternativeRoutes', rec.id, { vesselResponse: act, vesselResponseAt: t, vesselReason: act === 'rejected' ? str(reason, 300) : null });
+        audit(u, act === 'rejected' ? 'recommendation.reject' : act === 'accepted' ? 'recommendation.accept' : 'alert.ack', 'delivery', d.id,
+          tx((act === 'rejected' ? 'رفض توصية' : act === 'accepted' ? 'قبول توصية' : 'تأكيد استلام') + ' الإنذار ' + al.number + ' – ' + v.name + ' (' + str(officer, 80) + ')' + (act === 'rejected' ? ' – السبب: ' + str(reason, 300) : ''), (act === 'rejected' ? 'Recommendation rejected' : act === 'accepted' ? 'Recommendation accepted' : 'Acknowledged') + ' for alert ' + al.number + ' – ' + v.name + ' (' + str(officer, 80) + ')' + (act === 'rejected' ? ' – reason: ' + str(reason, 300) : '')), null, d.status, act === 'rejected' ? 'rejected' : 'acknowledged');
+        aggregateAlert(al.id); touch(); return { ok: true, action: act };
+      },
+      chooseRecommendation(u, { id, kind, portId }) {
+        needOfficer(u); const x = S.get('alternativeRoutes', id); if (!x || !x.options) throw new ValidationError('id');
+        const al = x.alertId && S.get('alerts', x.alertId); if (al && !['draft', 'pending_approval'].includes(al.status)) throw new ValidationError('state');
+        const o = x.options.find(q => q.kind === kind && (kind !== 'divert' || q.portId === portId)); if (!o) throw new ValidationError('option'); if (!o.safe) throw new ValidationError('unsafe_option');
+        const v = vessel(x.vesselId), patch = { recommended: { kind: o.kind, portId: o.portId || null, label: o.label }, status: 'modified', options: x.options.map(q => Object.assign({}, q, { recommended: q === o })) };
+        if (kind === 'divert') Object.assign(patch, { kind: 'divert', alternative: { nodes: x._nodes[portId], nm: o.nm, hours: o.hours, portId, coords: [v.pos].concat(C.nodesToCoords(x._nodes[portId])) } });
+        else if (kind === 'continue') Object.assign(patch, { kind: 'continue', alternative: null, checks: [] });
+        else if (kind === 'delay') Object.assign(patch, { kind: 'delay', alternative: { nodes: x.current.nodes, nm: o.nm, hours: o.hours, waitHours: o.waitH, coords: x.current.coords } });
+        else Object.assign(patch, { kind: x._base.kind, alternative: x._base.alternative, checks: x._base.checks });
+        patch.reason = tx('عدّل ضابط الميناء التوصية إلى: ' + o.label.ar, 'The port officer changed the recommendation to: ' + o.label.en);
+        S.update('alternativeRoutes', id, patch);
+        audit(u, 'recommendation.modify', 'alternativeRoute', id, tx('تعديل توصية ' + v.name + ' إلى: ' + o.label.ar, 'Recommendation for ' + v.name + ' changed to: ' + o.label.en), null, x.recommended.kind, o.kind);
+        touch(); return S.get('alternativeRoutes', id);
+      },
+      simulateEnterTerritorialWaters(u, { vesselId }) {
+        needOfficer(u); const v = vessel(vesselId); if (!v) throw new ValidationError('id'); if (C.inSaudiTerritorialSea(v.pos)) return { ok: true, already: true };
+        const dest = (C.PORTS.find(p => p.id === v.destId) || {}).p; if (!dest) throw new ValidationError('destination');
+        let pos = v.pos; for (let k = 1; k <= 40; k++) { const q = [v.pos[0] + (dest[0] - v.pos[0]) * k / 40, v.pos[1] + (dest[1] - v.pos[1]) * k / 40]; pos = q; if (C.distToSaudiCoastNm(q) <= C.TERRITORIAL_SEA_NM - 2) break; }
+        const before = v.distCoastNm; S.update('vessels', v.id, Object.assign(planVesselRoute(Object.assign({}, v, { pos })), { pos, recordedAt: now() })); geo(S.get('vessels', v.id)); S.update('vessels', v.id, { distCoastNm: S.get('vessels', v.id).distCoastNm, inTerritorialSea: true });
+        audit(u, 'vessel.enter_ts', 'vessel', v.id, tx('محاكاة: دخلت ' + v.name + ' المياه الإقليمية (من ' + before + ' إلى ' + S.get('vessels', v.id).distCoastNm + ' ميل من الساحل)', 'Simulation: ' + v.name + ' entered territorial waters (' + before + ' → ' + S.get('vessels', v.id).distCoastNm + ' nm from coast)'), null, 'outside_ts', 'inside_ts');
+        releaseHeld(v.id, u); computeAffected(); touch(); return { ok: true };
       },
       createBulletin(u, a) {
         needOfficer(u); const types = ['weather_bulletin', 'wind_wave_warning', 'port_closure', 'nav_restriction']; if (!types.includes(a.type)) throw new ValidationError('type');
@@ -1612,38 +1746,56 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         b.checks = [];
         if (b.type === 'weather_bulletin' && b.validTo - b.validFrom < 24 * H) b.checks.push(tx('فترة صلاحية التوقعات أقل من ٢٤ ساعة (' + WWMIWS_REF + '، 4.2.2.2)', 'Forecast valid period is less than 24 h (' + WWMIWS_REF + ', 4.2.2.2)'));
         if (b.scope !== 'LOCAL' && /[^\x20-\x7E\n]/.test(b.body.en)) b.checks.push(tx('النص الإنجليزي يحتوي أحرفًا غير لاتينية؛ الخدمات الدولية (NAVTEX/EGC) بالإنجليزية فقط', 'English text contains non-Latin characters; international services (NAVTEX/EGC) are English only'));
-        b.recipients = bulletinRecipients(b);
+        if (b.scope === 'SUBAREA') b.scope = auto; b.warning = Object.assign(warningDefaults(r, b.scope, b), a.warning || {}); b.recipients = bulletinRecipients(b); b.draftEn = warningDraft(b);
         S.insert('bulletins', b); audit(u, 'bulletin.create', 'bulletin', b.id, tx('إنشاء نشرة ' + b.number + ': ' + title.ar, 'Bulletin ' + b.number + ' created: ' + title.en)); touch(); return b;
       },
-      readyBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); setBulletin(b, 'ready', u); audit(u, 'bulletin.ready', 'bulletin', id, tx('النشرة ' + b.number + ' جاهزة للإرسال', 'Bulletin ' + b.number + ' ready')); touch(); return { ok: true }; },
+      editBulletin(u, a) {
+        needOfficer(u); const b = S.get('bulletins', a.id); if (!b || !['draft', 'under_review'].includes(b.status)) throw new ValidationError('state');
+        const patch = {}; if (a.title) patch.title = bil(a.title, 200); if (a.body) patch.body = bil(a.body);
+        if (a.scope && normScope(a.scope) && normScope(a.scope) !== 'SUBAREA' && normScope(a.scope) !== b.scope) { patch.scope = normScope(a.scope); }
+        for (const k of ['hazard', 'impact', 'precautions', 'source', 'authority']) if (a.warning && a.warning[k] != null) patch.warning = Object.assign({}, b.warning, patch.warning, { [k]: str(a.warning[k], 600) });
+        if (a.draftEn != null) patch.draftEn = str(a.draftEn, 3000);
+        const nb = Object.assign({}, b, patch); if (patch.scope || patch.warning) { nb.recipients = bulletinRecipients(nb); patch.recipients = nb.recipients; if (a.draftEn == null) patch.draftEn = warningDraft(nb); }
+        S.update('bulletins', b.id, patch); audit(u, 'bulletin.edit', 'bulletin', b.id, tx('تعديل النشرة ' + b.number, 'Bulletin ' + b.number + ' edited')); touch(); return S.get('bulletins', b.id);
+      },
+      submitBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); setBulletin(b, 'under_review', u); audit(u, 'bulletin.submit', 'bulletin', id, tx('إرسال النشرة ' + b.number + ' للمراجعة', 'Bulletin ' + b.number + ' submitted for review')); touch(); return { ok: true }; },
+      approveBulletin(u, { id, reject, note }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'under_review') throw new ValidationError('state');
+        if (reject) { setBulletin(b, 'draft', u, note || 'returned'); audit(u, 'bulletin.return', 'bulletin', id, tx('إعادة النشرة ' + b.number + ' للتعديل', 'Bulletin ' + b.number + ' returned for changes')); }
+        else { setBulletin(b, 'approved', u, note); audit(u, 'bulletin.approve', 'bulletin', id, tx('اعتماد النشرة ' + b.number, 'Bulletin ' + b.number + ' approved')); }
+        touch(); return { ok: true };
+      },
+      readyBulletin(u, a) { const b = S.get('bulletins', a.id); if (b && b.status === 'draft') api.submitBulletin(u, a); return api.approveBulletin(u, a); },
       sendBulletin(u, { id }) {
-        needOfficer(u); let b = S.get('bulletins', id); if (!b || !['draft', 'ready'].includes(b.status)) throw new ValidationError('state'); const t = now();
-        const recipients = (b.recipients || []).map(r => Object.assign({}, r, { status: 'sent_test', sentAt: t, endpoint: 'proposed://' + r.kind + '/' + r.targetId + '/test' }));
+        needOfficer(u); let b = S.get('bulletins', id); if (!b || b.status !== 'approved') throw new ValidationError('state'); const t = now();
+        const recipients = (b.recipients || []).map(r => Object.assign({}, r, { status: 'sent', sentAt: t, endpoint: 'proposed://' + r.kind + '/' + r.targetId + '/test' }));
         let n = 0;
         if (b.scope === 'LOCAL' || b.scope === 'COASTAL') for (const v of S.all('vessels').filter(v => C.pointInPoly(v.pos, b.poly) && C.inSaudiTerritorialSea(v.pos) && v.channel === 'bridge')) { S.insert('bulletinDeliveries', { id: uid('BD'), bulletinId: id, vesselId: v.id, status: 'sent', sentAt: t, readAt: null }); n++; }
-        setBulletin(b, 'sent_test', u, recipients.length + ' parties, ' + n + ' ships', { recipients, sentAt: t, shipNotices: n });
+        setBulletin(b, 'sent', u, recipients.length + ' parties, ' + n + ' ships', { recipients, sentAt: t, shipNotices: n });
         for (const r of recipients) S.insert('integrationEvents', { id: uid('IE'), at: t, integration: 'bulletin_' + r.kind, direction: 'out', status: 'test_only', messageId: id, endpoint: r.endpoint, by: u.username });
-        audit(u, 'bulletin.send', 'bulletin', id, tx('إرسال النشرة ' + b.number + ' داخل بيئة الاختبار إلى ' + recipients.map(r => r.name.ar).join('، ') + (n ? ' وإشعار ' + n + ' سفن داخل المياه الإقليمية' : '') + ' – لم تُرسل فعليًا لأي جهة', 'Bulletin ' + b.number + ' sent in the test environment to ' + recipients.map(r => r.name.en).join(', ') + (n ? ' and ' + n + ' ships in territorial waters notified' : '') + ' – not actually sent to any party'));
+        audit(u, 'bulletin.send', 'bulletin', id, tx('تسجيل إحالة النشرة ' + b.number + ' إلى ' + recipients.map(r => r.name.ar).join('، ') + (n ? ' وإشعار ' + n + ' سفن داخل المياه الإقليمية' : '') + ' – بيئة اختبار، لم تُبث رسميًا', 'Bulletin ' + b.number + ' routed to ' + recipients.map(r => r.name.en).join(', ') + (n ? ' and ' + n + ' ships in territorial waters notified' : '') + ' – test environment, not officially broadcast'));
         touch(); return { recipients: recipients.length, ships: n };
       },
-      confirmBulletinRecipient(u, { id, recipientId, by, ref }) {
-        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'receipt_confirmed'].includes(b.status)) throw new ValidationError('state');
+      confirmBulletinRecipient(u, { id, recipientId, by, ref, note }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent', 'recipient_ack'].includes(b.status)) throw new ValidationError('state');
         if (!by || str(by, 80).length < 2) throw new ValidationError('officer'); const t = now();
-        const recipients = b.recipients.map(r => r.id === recipientId ? Object.assign({}, r, { status: 'confirmed', confirmedAt: t, confirmedBy: str(by, 80), ref: str(ref, 60) || null }) : r);
-        const all = recipients.every(r => r.status === 'confirmed');
+        const recipients = b.recipients.map(r => r.id === recipientId ? Object.assign({}, r, { status: 'confirmed', confirmedAt: t, confirmedBy: str(by, 80), ref: str(ref, 60) || null, note: str(note, 200) || null }) : r);
         S.update('bulletins', id, { recipients });
         audit(u, 'bulletin.receipt', 'bulletin', id, tx('تسجيل تأكيد استلام النشرة ' + b.number + ' من ' + recipients.find(r => r.id === recipientId).name.ar + ' (' + str(by, 80) + ')', 'Receipt of bulletin ' + b.number + ' recorded from ' + recipients.find(r => r.id === recipientId).name.en + ' (' + str(by, 80) + ')'));
-        if (all) setBulletin(S.get('bulletins', id), 'awaiting_official', SYS, 'all parties confirmed receipt');
-        touch(); return { ok: true, all };
+        if (recipients.every(r => r.status === 'confirmed') && b.status === 'sent') setBulletin(S.get('bulletins', id), 'recipient_ack', SYS, 'all recipients acknowledged'), audit(SYS, 'bulletin.all_ack', 'bulletin', id, tx('أكدت كل الجهات استلام النشرة ' + b.number, 'All recipients acknowledged bulletin ' + b.number));
+        touch(); return { ok: true };
       },
-      recordOfficialIssue(u, { id, ref }) {
-        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'awaiting_official'].includes(b.status)) throw new ValidationError('state');
-        setBulletin(b, 'issued_official', u, str(ref, 80) || null, { officialRef: str(ref, 80) || null, officialAt: now() });
-        audit(u, 'bulletin.official', 'bulletin', id, tx('تسجيل صدور النشرة ' + b.number + ' رسميًا من الجهة المختصة' + (ref ? ' (مرجع ' + str(ref, 80) + ')' : ''), 'Official issuance of bulletin ' + b.number + ' recorded' + (ref ? ' (ref ' + str(ref, 80) + ')' : '')));
+      recordOfficialIssue(u, { id, ref, confirmedBy, authorityId }) {
+        // Official issuance is recorded only on confirmation from the authorized entity for this level (port for LOCAL, NAVTEX station for COASTAL, NAVAREA IX coordinator for NAVAREA)
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'recipient_ack') throw new ValidationError('not_acknowledged');
+        const need = b.scope === 'NAVAREA' ? 'coordinator' : b.scope === 'COASTAL' ? 'navtex' : 'port', auth = b.recipients.find(r => r.id === authorityId && r.kind === need && r.status === 'confirmed');
+        if (!auth) throw new ValidationError('authority_required'); if (!ref || str(ref, 80).length < 3) throw new ValidationError('reference_required'); if (!confirmedBy || str(confirmedBy, 80).length < 2) throw new ValidationError('officer');
+        setBulletin(b, 'issued_official', u, str(ref, 80), { officialRef: str(ref, 80), officialAt: now(), officialBy: { authority: auth.name, person: str(confirmedBy, 80) } });
+        audit(u, 'bulletin.official', 'bulletin', id, tx('تسجيل صدور النشرة ' + b.number + ' رسميًا بتأكيد ' + auth.name.ar + ' (' + str(confirmedBy, 80) + ') – المرجع ' + str(ref, 80), 'Official issuance of bulletin ' + b.number + ' recorded on confirmation by ' + auth.name.en + ' (' + str(confirmedBy, 80) + ') – ref ' + str(ref, 80)));
         touch(); return { ok: true };
       },
       markBulletinRead(u, { id }) { if (!u || u.role !== 'bridge') throw new PermissionError('bridge'); const d = S.get('bulletinDeliveries', id); if (!d || d.vesselId !== u.vesselId) throw new PermissionError('own'); if (!d.readAt) { S.update('bulletinDeliveries', id, { status: 'read', readAt: now() }); audit(u, 'bulletin.read', 'bulletin', d.bulletinId, tx('اطلعت ' + vessel(d.vesselId).name + ' على الإشعار الملاحي', vessel(d.vesselId).name + ' read the navigational notice')); touch(); } return { ok: true }; },
-      issueBulletin(u, a) { return api.sendBulletin(u, a); },
+      issueBulletin(u, a) { const b = S.get('bulletins', a.id); if (b && b.status === 'draft') api.submitBulletin(u, a); if (S.get('bulletins', a.id).status === 'under_review') api.approveBulletin(u, a); return api.sendBulletin(u, a); },
       cancelBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status === 'cancelled') throw new ValidationError('state'); S.update('bulletins', id, { status: 'cancelled', history: b.history.concat([{ s: 'cancelled', at: now(), by: u.username }]) }); audit(u, 'bulletin.cancel', 'bulletin', id, tx('إلغاء النشرة ' + b.number, 'Bulletin ' + b.number + ' cancelled')); touch(); return { ok: true }; },
       saveNavtex(u, a) {
         needOfficer(u); const t = now(); const ex = a.id && S.get('navtexMessages', a.id);
@@ -1670,11 +1822,43 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       tick() {
         const t = now(); let ch = false;
         for (const a of S.all('alerts')) if (!['expired', 'cancelled'].includes(a.status) && a.validTo <= t) { setAlert(a, 'expired', SYS); audit(SYS, 'alert.expire', 'alert', a.id, tx('انتهاء صلاحية الإنذار ' + a.number, 'Alert ' + a.number + ' expired')); ch = true; }
-        for (const b of S.all('bulletins')) if (['sent_test', 'awaiting_official', 'issued_official'].includes(b.status) && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
+        for (const b of S.all('bulletins')) if (['sent', 'recipient_ack', 'issued_official'].includes(b.status) && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
         if (ch) touch();
       },
       classifyArea: (u, { poly }) => warningClass(poly),
       marineForecast: (u, { areaId, hours }) => { needOfficer(u); return marineForecast(areaId, hours); },
+      runAllocation(u, { portId }) { needOfficer(u); const out = runAllocationFor(u, portId); touch(); return out; },
+      approveAllocation(u, { id, reject, note }) {
+        needOfficer(u); const a = S.get('allocations', id); if (!a || a.status !== 'proposed') throw new ValidationError('state');
+        if (reject) { setAllocation(a, 'rejected', u, note); audit(u, 'allocation.reject', 'allocation', id, tx('رفض تحويل ' + vessel(a.vesselId).name, 'Allocation for ' + vessel(a.vesselId).name + ' rejected')); }
+        else { const p = port(a.toPort); if (portOcc(p) + 100 / p.capacityBerths > MAX_ALLOC_OCC + .5) throw new ValidationError('capacity'); setAllocation(a, 'approved', u, note, { approvedAt: now() }); audit(u, 'allocation.approve', 'allocation', id, tx('اعتماد تحويل ' + vessel(a.vesselId).name + ' إلى ' + p.name.ar, 'Diversion of ' + vessel(a.vesselId).name + ' to ' + p.name.en + ' approved')); }
+        analyse('allocation'); touch(); return { ok: true };
+      },
+      modifyAllocation(u, { id, toPort }) {
+        needOfficer(u); const a = S.get('allocations', id); if (!a || !['proposed', 'no_capacity'].includes(a.status)) throw new ValidationError('state');
+        const c = a.calc.find(x => x.portId === toPort); if (!c || !c.eligible) throw new ValidationError('port_not_eligible'); const p = port(toPort);
+        if (portOcc(p) + 100 / p.capacityBerths > MAX_ALLOC_OCC + .5) throw new ValidationError('capacity');
+        setAllocation(a, 'modified', u, 'manual', { toPort, approvedAt: now() }); audit(u, 'allocation.modify', 'allocation', id, tx('تعديل يدوي: تحويل ' + vessel(a.vesselId).name + ' إلى ' + p.name.ar, 'Manual change: ' + vessel(a.vesselId).name + ' to ' + p.name.en));
+        analyse('allocation'); touch(); return { ok: true };
+      },
+      recalculate(u) {
+        needOfficer(u); analyse('manual recalculation');
+        for (const al of S.all('alerts').filter(a => ['draft', 'pending_approval'].includes(a.status))) { for (const x of S.all('alternativeRoutes').filter(x => x.alertId === al.id).slice()) S.remove('alternativeRoutes', x.id); genRecs(al); }
+        audit(u, 'recommendation.recalculate', 'analysis', null, tx('إعادة حساب المخاطر والتوصيات', 'Risks and recommendations recalculated')); touch(); return { ok: true };
+      },
+      runScenario(u, { n }) {
+        needOfficer(u); const OFFU = u, res = { n: +n };
+        const topBy = pred => S.all('maritimeRisks').filter(pred).sort((a, b) => rank(b.level) - rank(a.level))[0];
+        const targetsOf = r => S.all('affectedVessels').filter(a => a.riskId === r.id && a.relation !== 'crossing').map(a => a.vesselId);
+        const mkAlert = (r, targets) => api.createAlert(OFFU, { riskId: r.id, targets, priority: 'urgent', title: tx(RTYPE[r.type].ar + ' – ' + r.areaName.ar, RTYPE[r.type].en + ' – ' + r.areaName.en), body: r.explanation, instructions: r.actions });
+        if (+n === 1) { api.editWeather(OFFU, { areaId: 'LTH', fromH: 6, toH: 22, values: { windKn: 38, waveM: 4.2, visNm: 1.5 } }); const r = topBy(x => x.areaId === 'LTH'); const al = mkAlert(r, targetsOf(r).length ? targetsOf(r) : ['V5', 'V17']); api.submitAlert(OFFU, { id: al.id }); res.alertId = al.id; res.go = 'alerts'; }
+        else if (+n === 2) { api.updatePort(OFFU, { id: 'JED', status: 'closed', untilH: 24, restrictions: tx('مغلق بسبب الطقس (محاكاة)', 'Closed due to weather (simulation)') }); runAllocationFor(OFFU, 'JED'); res.go = 'distribute'; }
+        else if (+n === 3) { api.updatePort(OFFU, { id: 'DMM', congestionPct: 93 }); runAllocationFor(OFFU, 'DMM'); res.go = 'distribute'; }
+        else if (+n === 4) { const r = topBy(x => x.areaId === 'JED'); const out = S.all('vessels').find(v => v.channel === 'bridge' && v.status === 'underway' && !C.inSaudiTerritorialSea(v.pos) && targetsOf(r).includes(v.id)); const al = mkAlert(r, [out.id]); api.submitAlert(OFFU, { id: al.id }); api.approveAlert(OFFU, { id: al.id, disclaimer: true }); api.prepareDispatch(OFFU, { id: al.id }); api.dispatchAlert(OFFU, { id: al.id }); res.alertId = al.id; res.vesselId = out.id; res.go = 'alerts'; }
+        else if (+n === 5) { const r = topBy(x => x.areaId === 'JED'); const b = api.createBulletin(OFFU, { type: 'wind_wave_warning', riskId: r.id, scope: 'NAVAREA', title: r.title, body: r.explanation }); api.submitBulletin(OFFU, { id: b.id }); res.bulletinId = b.id; res.go = 'bulletins'; }
+        else throw new ValidationError('scenario');
+        audit(u, 'scenario.run', 'scenario', String(n), tx('تشغيل سيناريو العرض ' + n, 'Demo scenario ' + n + ' run')); touch(); return res;
+      },
       ingestWeather(payload) { const res = validateWeather(payload); applyWeather({ username: 'integration:ncm-test', role: 'integration' }, res, 'test_api'); touch(); return { accepted: res.accepted.length, rejected: res.rejected, warnings: res.warnings }; },
       validateWeather,
       onChange(f) { listeners.push(f); },
@@ -2141,16 +2325,16 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   const lv = l => T(...(LV[l] || [l, l]));
   const lvB = l => B('lv-' + (l === 'medium' ? 'moderate' : l), lv(l));
   const RANK = l => ['none', 'low', 'medium', 'high', 'critical'].indexOf(l);
-  const RTYPE = { strong_winds: ['رياح شديدة', 'Strong winds'], high_waves: ['أمواج عالية', 'High waves'], reduced_visibility: ['انخفاض الرؤية', 'Reduced visibility'], strong_currents: ['تيارات قوية', 'Strong currents'], navigation_hazard: ['خطر ملاحي', 'Navigation hazard'], operational: ['قيود تشغيلية', 'Operational restriction'], port_closure: ['إغلاق ميناء', 'Port closure'], port_restriction: ['قيود على ميناء', 'Port restriction'], security: ['تهديد أمني', 'Security threat'], other: ['خطر آخر', 'Other hazard'] };
+  const RTYPE = { severe_weather: ['طقس شديد', 'Severe weather'], port_congestion: ['ازدحام ميناء', 'Port congestion'], strong_winds: ['رياح شديدة', 'Strong winds'], high_waves: ['أمواج عالية', 'High waves'], reduced_visibility: ['انخفاض الرؤية', 'Reduced visibility'], strong_currents: ['تيارات قوية', 'Strong currents'], navigation_hazard: ['خطر ملاحي', 'Navigation hazard'], operational: ['قيود تشغيلية', 'Operational restriction'], port_closure: ['إغلاق ميناء', 'Port closure'], port_restriction: ['قيود على ميناء', 'Port restriction'], security: ['تهديد أمني', 'Security threat'], other: ['خطر آخر', 'Other hazard'] };
   const rtype = k => T(...(RTYPE[k] || [k, k]));
   const RSRC = { rules: ['محسوب من قواعد التحليل', 'Computed by analysis rules'], record: ['سجل خطر في بيانات الاختبار', 'Risk record in test data'], manual: ['مُدخل يدويًا', 'Entered manually'], port: ['من حالة الميناء', 'From port status'] };
   const REL = { inside: ['داخل المنطقة الآن', 'Inside now'], entering: ['يدخل المنطقة خلال ٤٨ ساعة', 'Enters within 48 h'], crossing: ['مساره يتقاطع (خارج فترة الخطر)', 'Route crosses (outside risk window)'] };
-  const AST = { draft: ['مسودة', 'Draft'], pending_approval: ['بانتظار الاعتماد', 'Pending Approval'], approved: ['معتمد', 'Approved'], ready_for_dispatch: ['جاهز للإرسال', 'Ready for Dispatch'], dispatched_test: ['أُرسل في بيئة الاختبار', 'Dispatched in Test Environment'], received: ['تم الاستلام', 'Received'], acknowledged: ['تم التأكيد', 'Acknowledged'], expired: ['منتهي', 'Expired'], cancelled: ['ملغى', 'Cancelled'] };
+  const AST = { draft: ['مسودة', 'Draft'], pending_approval: ['بانتظار الاعتماد', 'Pending Approval'], approved: ['معتمد', 'Approved'], ready_for_dispatch: ['جاهز للإرسال', 'Ready for Dispatch'], dispatched_test: ['أُرسل', 'Sent'], received: ['تم التسليم', 'Delivered'], acknowledged: ['تم التأكيد', 'Acknowledged'], expired: ['منتهي', 'Expired'], cancelled: ['ملغى', 'Cancelled'] };
   const ASTC = { draft: 'muted', pending_approval: 'warn', approved: 'info', ready_for_dispatch: 'info', dispatched_test: 'info', received: 'warn', acknowledged: 'ok', expired: 'muted', cancelled: 'muted' };
   const astB = s => B(ASTC[s] || 'muted', T(...(AST[s] || [s, s])));
   const FLOW = ['draft', 'pending_approval', 'approved', 'ready_for_dispatch', 'dispatched_test', 'received', 'acknowledged', 'expired'];
-  const DST = { queued: ['بانتظار الإرسال', 'Queued'], dispatched: ['أُرسل (اختبار)', 'Dispatched (test)'], received: ['تم الاستلام', 'Received'], acknowledged: ['تم التأكيد', 'Acknowledged'], failed: ['تعذر الإرسال', 'Failed'], held_outside_ts: ['محجوز – خارج المياه الإقليمية', 'Held – outside territorial waters'] };
-  const DSTC = { held_outside_ts: 'warn', queued: 'muted', dispatched: 'info', received: 'warn', acknowledged: 'ok', failed: 'crit' };
+  const DST = { queued: ['جاهز للإرسال', 'Ready'], dispatched: ['أُرسل', 'Sent'], received: ['تم التسليم', 'Delivered'], acknowledged: ['تم التأكيد', 'Acknowledged'], rejected: ['رفضت التوصية', 'Rejected'], failed: ['تعذر الإرسال', 'Failed'], held_outside_ts: ['في الانتظار – خارج المياه الإقليمية', 'Queued outside territorial waters'] };
+  const DSTC = { held_outside_ts: 'warn', queued: 'muted', dispatched: 'info', received: 'info', acknowledged: 'ok', rejected: 'crit', failed: 'crit' };
   const dstB = d => B(DSTC[d.status] || 'muted', T(...(DST[d.status] || [d.status, d.status])));
   const CH = { test_bridge_screen: ['شاشة جسر السفينة (اختبار)', 'Ship Bridge screen (test)'], test_vhf_broadcast: ['بث VHF محلي (اختبار – بلا تأكيد آلي)', 'Local VHF broadcast (test – no automatic confirmation)'], test_ais_message: ['رسالة AIS (اختبار – بلا تأكيد)', 'AIS message (test – no confirmation)'], none: ['لا توجد قناة', 'No channel'] };
   const BTYPE = { weather_bulletin: ['نشرة جوية بحرية', 'Marine weather bulletin'], wind_wave_warning: ['تحذير رياح وأمواج', 'Wind & wave warning'], port_closure: ['إغلاق تشغيلي لميناء', 'Port operational closure'], nav_restriction: ['قيد ملاحي', 'Navigational restriction'] };
@@ -2210,7 +2394,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   const client = window.MARSA_SERVER ? serverClient() : localClient();
 
   // ---------- State ----------
-  const state = { snap: null, view: 'home', sec: 'map', sel: {}, f: { region: '', vtype: '', risk: '' }, maps: {}, seenDeliv: null, sentReceived: new Set(), verify: null, dataTab: 'vessels', intTab: 'ncm' };
+  const state = { snap: null, view: 'home', sec: 'map', sel: {}, f: { region: '', vtype: '', risk: '' }, maps: {}, seenDeliv: null, sentReceived: new Set(), verify: null, dataTab: 'vessels', intTab: 'sources', lay: {}, pop: null };
   try { const l = localStorage.getItem('marsa.lang'); if (l === 'en' || l === 'ar') I.lang = l; } catch (e) { /* ignore */ }
   const S = () => state.snap;
   const port = id => S().ports.find(p => p.id === id);
@@ -2288,6 +2472,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       '<button class="hcard" data-a="enterOfficer">' + OFFICER_ICON + '<b>' + T('ضابط الميناء', 'Port Officer') + '</b><span>' + T('يرصد ويتوقع ويقرر ويوزّع، ويرسل الإنذارات للسفن والنشرات للجهات المختصة', 'Monitor, predict, decide and distribute; send alerts to vessels and bulletins to competent parties') + '</span></button>' +
       '</div></main></div><div id="toasts"></div>';
   }
+  A.switchRole = () => { if (state.view === 'officer') A.enterBridge(); else { client.leave(); Sound.stopRepeat(); $$('.alarm-wrap').forEach(x => x.remove()); A.enterOfficer(); } };
   A.enterOfficer = async () => { try { const s = await client.enter('OFFICER'); state.view = 'officer'; state.snap = s; renderView(); } catch (e) { toast(String(e.message || e), 'bad'); } };
   A.enterBridge = async () => {
     const list = await client.bridges();
@@ -2308,9 +2493,10 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     ['alerts', 'الإنذار المباشر', 'Direct alerts', 'للسفن داخل المياه الإقليمية', 'Ships in territorial waters'],
     ['bulletins', 'النشرات والإشعارات', 'Bulletins & notices', 'للجهات المختصة', 'To competent parties'],
     ['g', 'الإدارة', 'Administration'],
+    ['scenarios', 'سيناريوهات العرض', 'Demo scenarios'],
     ['data', 'بيانات الاختبار', 'Test data'], ['integrations', 'التكاملات المقترحة', 'Proposed integrations'], ['audit', 'سجل العمليات', 'Operations log']];
   function header(title, sub, extra) {
-    return '<header class="top v3"><button class="btn ghost light sm homebtn" data-a="home">' + ic(I_HOME) + '<span>' + T('الرئيسية', 'Home') + '</span></button>' + LOGO + '<div class="ttl"><b>' + esc(title) + '</b><span>' + sub + '</span></div><div class="grow"></div>' + envBadge() + '<div class="clock" id="clock"></div>' + (extra || '') + '<button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>';
+    return '<header class="top v3"><button class="btn ghost light sm homebtn" data-a="home">' + ic(I_HOME) + '<span>' + T('الرئيسية', 'Home') + '</span></button>' + LOGO + '<div class="ttl"><b>' + esc(title) + '</b><span>' + sub + '</span></div><div class="grow"></div>' + envBadge() + '<div class="clock" id="clock"></div>' + (extra || '') + '<button class="btn ghost light sm" data-a="switchRole">' + (state.view === 'officer' ? T('التبديل إلى جسر السفينة', 'Switch to Ship Bridge') : T('التبديل إلى ضابط الميناء', 'Switch to Port Officer')) + '</button>' + '<button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>';
   }
   function renderView() {
     applyLang(); for (const k in state.maps) state.maps[k].destroy(); state.maps = {};
@@ -2324,6 +2510,8 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     }
     update();
   }
+  function applyFilters() { $$('input.tsearch[data-t]').forEach(inp => { const q = inp.value.trim().toLowerCase(), box = $(inp.dataset.t); if (!box) return; $$('tbody tr, .vlist > li, .nxcard', box).forEach(el => { el.hidden = !!q && !el.textContent.toLowerCase().includes(q); }); }); }
+  document.addEventListener('input', e => { if (e.target.matches('input.tsearch[data-t]')) applyFilters(); });
   A.sec = d => { state.sec = d.id; renderView(); };
   function update() {
     const s = S(); if (!s) return;
@@ -2331,7 +2519,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     if (state.view === 'officer') {
       const cnt = { risks: s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now).length, alerts: s.alerts.filter(a => ['draft', 'pending_approval', 'approved', 'ready_for_dispatch'].includes(a.status)).length, routes: s.alternativeRoutes.length };
       $$('.oside i[data-c]').forEach(el => { const n = cnt[el.dataset.c]; el.textContent = n ? String(n) : ''; });
-      OFF[state.sec].upd($('#main'));
+      OFF[state.sec].upd($('#main')); applyFilters();
     } else BR.upd($('#main'));
   }
 
@@ -2343,6 +2531,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   }
   function onMapSelect(type, id) {
     if (state.view !== 'officer') return;
+    if (state.sec === 'map' && ['vessel', 'risk', 'port'].includes(type)) { state.pop = { type, id }; if (type === 'vessel') state.sel.vessel = id; update(); return; }
     if (type === 'vessel') { state.sel.vessel = id; if (state.sec !== 'map') { state.sec = 'map'; renderView(); } else update(); }
     if (type === 'risk') { state.sel.risk = id; if (state.sec !== 'risks') { state.sec = 'risks'; renderView(); } else update(); }
   }
@@ -2377,7 +2566,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   OFF.map = {
     mount: () => sechead(T('يرصد: السفن والطقس والموانئ', 'Monitor: vessels, weather and ports'), srcLine('ais') + ' ' + srcLine('ncm')) + '<div id="ovr"></div>' +
       '<div class="panel filters row"><label class="sm">' + T('المنطقة', 'Region') + '<select data-f="region">' + opts([['', T('الكل', 'All')], ['RS', T('البحر الأحمر', 'Red Sea')], ['AG', T('الخليج العربي', 'Arabian Gulf')]], state.f.region) + '</select></label><label class="sm">' + T('نوع السفينة', 'Vessel type') + '<select data-f="vtype">' + opts([['', T('الكل', 'All')]].concat(Object.keys(VTYPE).map(k => [k, vtype(k)])), state.f.vtype) + '</select></label><label class="sm">' + T('مستوى الخطر', 'Risk level') + '<select data-f="risk">' + opts([['', T('الكل', 'All')], ['medium', T('متوسط فأعلى', 'Medium+')], ['high', T('مرتفع فأعلى', 'High+')], ['critical', T('حرج', 'Critical')]], state.f.risk) + '</select></label></div>' +
-      '<div class="split"><div class="panel mapp"><div class="mapbox tall" id="omap"></div><div class="maplegend"><span class="lg ves"></span>' + T('سفينة (Test AIS Data)', 'Vessel (Test AIS Data)') + ' <span class="lg ves risk"></span>' + T('متأثرة بخطر مرتفع/حرج', 'Affected by high/critical risk') + ' <span class="lg z rk-high"></span>' + T('منطقة خطر', 'Risk area') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Navigational constraints (test)') + ' <span class="lg ln alt"></span>' + T('مسار بديل', 'Alternative route') + '</div></div><aside class="panel side-list" id="vside"></aside></div>',
+      '<div class="split"><div class="panel mapp"><div class="layers">' + [['vessels', 'السفن', 'Vessels'], ['ports', 'الموانئ', 'Ports'], ['risks', 'مناطق الخطر', 'Risk zones'], ['constraints', 'القيود الملاحية', 'Constraints'], ['routes', 'المسارات', 'Routes'], ['waiting', 'مناطق الانتظار الآمنة', 'Safe waiting areas']].map(([k, ar, en]) => '<label class="chk sm"><input type="checkbox" data-layer="' + k + '"' + (state.lay[k] !== false ? ' checked' : '') + '>' + T(ar, en) + '</label>').join('') + '</div><div class="mapwrap"><div class="mapbox tall" id="omap"></div><div id="mpop"></div></div><div class="maplegend"><span class="lg ves"></span>' + T('سفينة (Test AIS Data)', 'Vessel (Test AIS Data)') + ' <span class="lg ves risk"></span>' + T('متأثرة بخطر مرتفع/حرج', 'Affected by high/critical risk') + ' <span class="lg z rk-high"></span>' + T('منطقة خطر', 'Risk area') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Navigational constraints (test)') + ' <span class="lg ln alt"></span>' + T('مسار بديل', 'Alternative route') + '</div></div><aside class="panel side-list" id="vside"></aside></div>',
     bind: m => ensureMap('omap', $('#omap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
       const s = S(), f = state.f, aff = affectedSet();
@@ -2393,7 +2582,14 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       const routes = [];
       if (sel && sel.routeNodes.length) routes.push({ kind: 'current', start: sel.pos, nodes: sel.routeNodes, color: '#0b2545', label: T('المسار الحالي', 'Current route') });
       for (const ar of s.alternativeRoutes.filter(x => !sel || x.vesselId === sel.id)) if (ar.alternative && ar.alternative.nodes.length && ar.kind === 'reroute') routes.push({ kind: 'rec', start: ar.alternative.coords[0], nodes: ar.alternative.nodes, color: ALT_C, label: T('بديل: ', 'Alt: ') + vname(ar.vesselId) });
-      if (state.maps.omap) state.maps.omap.setData(baseMap({ vessels: vs.map(v => mapV(v, { affected: aff.has(v.id) })), zones: constraintZones().concat(riskZones(rs)), routes }));
+      const Ly = state.lay, waits = Object.keys(C.WAITING_AREAS || {}).filter(k => C.NODES[k]).map(k => ({ poly: C.circlePoly(C.NODES[k], 6, 12), cls: 'hold', label: C.WAITING_AREAS[k], tag: { ar: 'انتظار', en: 'Wait' } }));
+      if (sel && sel.status === 'underway') { const dp = C.PORTS.find(p => p.id === sel.destId); if (dp) routes.push({ kind: 'alt', coords: [sel.pos, dp.p], color: '#8a96a8', dim: true, label: T('الوجهة', 'Destination') }); }
+      if (state.maps.omap) state.maps.omap.setData(baseMap({ vessels: Ly.vessels === false ? [] : vs.map(v => mapV(v, { affected: aff.has(v.id) })), ports: Ly.ports === false ? [] : baseMap().ports, zones: (Ly.constraints === false ? [] : constraintZones()).concat(Ly.risks === false ? [] : riskZones(rs)).concat(Ly.waiting === false ? [] : waits), routes: Ly.routes === false ? [] : routes }));
+      const pp = state.pop; let pop = '';
+      if (pp && pp.type === 'risk') { const r = risk(pp.id); if (r) pop = '<b>' + esc(L(r.title)) + '</b> ' + lvB(r.level) + '<div class="sm">' + fT(r.start) + ' – ' + fT(r.end) + ' · ' + N(r.affectedCount || 0) + T(' سفن', ' vessels') + '</div><p class="sm">' + esc(L(r.explanation)).slice(0, 220) + '</p><div class="row"><button class="btn sm" data-a="popRisk" data-id="' + esc(r.id) + '">' + T('التفاصيل', 'Details') + '</button><button class="btn sm ghost" data-a="alertForm" data-r="' + esc(r.id) + '">' + T('إنذار', 'Alert') + '</button></div>'; }
+      if (pp && pp.type === 'port') { const p = port(pp.id); if (p) pop = '<b>' + esc(L(p.name)) + '</b> ' + pstB(p.status) + '<div class="kv sm"><span>' + T('الإشغال', 'Occupancy') + '</span><b>' + ((s.portOccupancy || {})[p.id] != null ? s.portOccupancy[p.id] : p.congestionPct) + '%</b><span>' + T('الأرصفة المتاحة', 'Free berths') + '</span><b>' + p.availableBerths + ' / ' + p.capacityBerths + '</b><span>' + T('سفن قادمة', 'Incoming') + '</span><b>' + s.vessels.filter(v => v.destId === p.id && v.status !== 'moored').length + '</b></div><div class="row"><button class="btn sm ghost" data-a="portForm" data-id="' + p.id + '">' + T('تحديث الحالة', 'Update status') + '</button></div>'; }
+      if (pp && pp.type === 'vessel') { const v = vessel(pp.id); if (v) pop = '<b>' + esc(v.name) + '</b><div class="sm">' + vtype(v.type) + ' · ' + T(...VST[v.status]) + (v.status === 'underway' ? ' · ' + N(v.sog, 1) + ' kn → ' + esc(pname(v.destId)) : '') + '</div><div class="sm muted">' + ll(v.pos) + ' · ' + (v.inTerritorialSea ? T('داخل المياه الإقليمية', 'Inside territorial waters') : T('خارج المياه الإقليمية', 'Outside territorial waters')) + '</div>'; }
+      fill('#mpop', pop ? '<div class="mpop"><button class="x" data-a="popClose">×</button>' + pop + '</div>' : '');
       if (!sel) {
         fill('#vside', '<h3>' + T('السفن', 'Vessels') + ' (' + vs.length + ')</h3><ul class="vlist">' + vs.map(v => '<li><button class="' + (aff.has(v.id) ? 'risk' : '') + '" data-a="selVessel" data-id="' + v.id + '"><b>' + esc(v.name) + '</b><span>' + vtype(v.type) + ' · ' + T(...VST[v.status]) + (v.status === 'underway' ? ' · ' + N(v.sog, 1) + ' kn → ' + esc(pname(v.destId)) : '') + '</span></button></li>').join('') + '</ul>');
         return;
@@ -2407,16 +2603,19 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         '<div class="row"><button class="btn sm ghost" data-a="vesselForm" data-id="' + sel.id + '">' + T('تعديل السجل', 'Edit record') + '</button></div></div>');
     }
   };
+  A.popClose = () => { state.pop = null; update(); };
+  A.popRisk = d => { state.pop = null; state.sel.risk = d.id; state.sec = 'risks'; renderView(); };
+  document.addEventListener('change', e => { const el = e.target.closest('[data-layer]'); if (!el) return; state.lay[el.dataset.layer] = el.checked; update(); });
   A.selVessel = d => { state.sel.vessel = d.id || null; update(); const v = d.id && vessel(d.id); if (v && state.maps.omap) state.maps.omap.fitPoints([v.pos].concat(v.routeNodes.slice(0, 3).map(n => C.NODES[n])), 1); };
   A.propose = async d => { const r = await act('proposeRoute', { vesselId: d.v, riskId: d.r }, T('تم اقتراح مسار بديل', 'Alternative route proposed')); if (r) { state.sel.route = r.id; state.sec = 'routes'; renderView(); } };
 
   // 2) Risk analysis
   OFF.risks = {
-    mount: () => sechead(T('يتوقع: المخاطر خلال ٤٨ ساعة', 'Predict: risks over the next 48 h'), T('محرك قواعد واضحة وقابلة للتعديل يحلل بيانات الأرصاد التجريبية وحالة الموانئ وسجلات المخاطر. ليس نموذج ذكاء اصطناعي مدرّبًا ولا تُدّعى له دقة مثبتة.', 'Explicit, editable rules analyse the sample weather data, port status and risk records. Not a trained AI model; no proven accuracy is claimed.') + '<br>' + srcLine('ncm'), '<button class="btn sm ghost" data-a="secData" data-t="rules">' + T('تعديل القواعد', 'Edit rules') + '</button><button class="btn sm" data-a="riskForm">' + T('إضافة خطر', 'Add risk') + '</button>') +
+    mount: () => sechead(T('يتوقع: المخاطر خلال ٤٨ ساعة', 'Predict: risks over the next 48 h'), T('محرك قواعد واضحة وقابلة للتعديل يحلل بيانات الأرصاد التجريبية وحالة الموانئ وسجلات المخاطر. ليس نموذج ذكاء اصطناعي مدرّبًا ولا تُدّعى له دقة مثبتة.', 'Explicit, editable rules analyse the sample weather data, port status and risk records. Not a trained AI model; no proven accuracy is claimed.') + '<br>' + srcLine('ncm'), '<select data-f="rsev" class="tsearch">' + opts([['', T('كل المستويات', 'All levels')], ['critical', lv('critical')], ['high', lv('high')], ['medium', lv('medium')], ['low', lv('low')]], state.f.rsev || '') + '</select><button class="btn sm ghost" data-a="recalc">' + T('إعادة الحساب', 'Recalculate') + '</button><button class="btn sm ghost" data-a="secData" data-t="rules">' + T('تعديل القواعد', 'Edit rules') + '</button><button class="btn sm" data-a="riskForm">' + T('إضافة خطر', 'Add risk') + '</button>') +
       '<div class="split"><aside class="panel side-list" id="rlist"></aside><div><div class="panel" id="rdet"></div><div class="panel mapp"><div class="mapbox mid" id="rmap"></div></div></div></div>',
     bind: m => ensureMap('rmap', $('#rmap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
-      const s = S(), list = s.maritimeRisks.slice().sort((a, b) => RANK(b.level) - RANK(a.level) || a.start - b.start);
+      const s = S(), list = s.maritimeRisks.filter(r => !state.f.rsev || r.level === state.f.rsev).sort((a, b) => RANK(b.level) - RANK(a.level) || a.start - b.start);
       if (!state.sel.risk || !risk(state.sel.risk)) state.sel.risk = list[0] && list[0].id;
       fill('#rlist', '<h3>' + T('المخاطر', 'Risks') + ' (' + list.length + ')</h3><ul class="vlist">' + list.map(r => '<li><button class="' + (r.id === state.sel.risk ? 'on' : '') + '" data-a="selRisk" data-id="' + esc(r.id) + '"><b>' + esc(L(r.title)) + '</b><span>' + lvB(r.level) + ' ' + fT(r.start) + ' · ' + N(r.durationH) + T(' س', ' h') + ' · ' + N(r.affectedCount || 0) + T(' سفن', ' vessels') + ((r.affectedPorts || []).length ? ' · ' + T('الموانئ: ', 'Ports: ') + r.affectedPorts.map(pname).join(T('، ', ', ')) : '') + '</span></button></li>').join('') + '</ul>');
       const r = risk(state.sel.risk);
@@ -2425,13 +2624,14 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       const order = ['inside', 'entering', 'crossing'];
       const av = s.affectedVessels.filter(a => a.riskId === r.id).sort((a, b) => order.indexOf(a.relation) - order.indexOf(b.relation));
       fill('#rdet', '<div class="row between"><h2>' + esc(L(r.title)) + '</h2>' + lvB(r.level) + '</div><div class="kv">' +
-        [[T('نوع الخطر', 'Type'), rtype(r.type)], [T('المصدر', 'Source'), T(...RSRC[r.source]) + (r.source === 'rules' ? ' ' + TAG('Sample Weather Data') : r.source === 'record' ? ' ' + TAG('Test record') : '')], [T('الموقع', 'Location'), esc(L(r.areaName)) + ' · ' + ll(r.center) + ' · ' + T('نصف قطر ', 'radius ') + N(r.radiusNm) + ' nm'], [T('البداية المتوقعة', 'Expected start'), fT(r.start) + ' (' + rel(r.start) + ')'], [T('الانتهاء المتوقع', 'Expected end'), fT(r.end)], [T('المدة', 'Duration'), N(r.durationH) + T(' ساعة', ' h')], [T('السفن المتأثرة', 'Affected vessels'), N(r.affectedCount || 0)], [T('الموانئ المتأثرة', 'Affected ports'), (r.affectedPorts || []).length ? r.affectedPorts.map(pname).join(T('، ', ', ')) : '—']].concat(r.reliability != null ? [[T('موثوقية بيانات الاختبار', 'Test data reliability'), N(r.reliability * 100) + '%']] : []).map(([k, v]) => '<span>' + k + '</span><b>' + v + '</b>').join('') + '</div>' +
+        [[T('رقم الخطر', 'Risk ID'), '<code>RSK-' + esc(String(r.key || r.id).replace(/[^A-Za-z0-9]+/g, '-')) + '</code>'], [T('نوع الخطر', 'Type'), rtype(r.type)], [T('المصدر', 'Source'), T(...RSRC[r.source]) + (r.source === 'rules' ? ' ' + TAG('Sample Weather Data') : r.source === 'record' ? ' ' + TAG('Test record') : '')], [T('الموقع', 'Location'), esc(L(r.areaName)) + ' · ' + ll(r.center) + ' · ' + T('نصف قطر ', 'radius ') + N(r.radiusNm) + ' nm'], [T('البداية المتوقعة', 'Expected start'), fT(r.start) + ' (' + rel(r.start) + ')'], [T('الانتهاء المتوقع', 'Expected end'), fT(r.end)], [T('المدة', 'Duration'), N(r.durationH) + T(' ساعة', ' h')], [T('السفن المتأثرة', 'Affected vessels'), N(r.affectedCount || 0)], [T('الموانئ المتأثرة', 'Affected ports'), (r.affectedPorts || []).length ? r.affectedPorts.map(pname).join(T('، ', ', ')) : '—'], [T('الإجراءات الوقائية', 'Preventive actions'), esc(L(r.actions))], [T('درجة الثقة', 'Confidence'), r.confidence ? esc(L(r.confidence.label)) : '—']].concat(r.reliability != null ? [[T('موثوقية بيانات الاختبار', 'Test data reliability'), N(r.reliability * 100) + '%']] : []).map(([k, v]) => '<span>' + k + '</span><b>' + v + '</b>').join('') + '</div>' +
         '<h4>' + T('المؤشرات التي أدت إلى التصنيف', 'Indicators behind the rating') + '</h4>' + (r.indicators[0] && r.indicators[0].value != null ? tbl([T('المؤشر', 'Indicator'), T('القيمة', 'Value'), T('الحد', 'Threshold'), T('المستوى', 'Level'), T('الوقت', 'Time')], r.indicators.map(x => tr([esc(L(x.label)), N(x.value, 1) + ' ' + x.unit + (x.beaufort ? '<div class="sm muted">' + T('بوفورت ', 'Beaufort ') + x.beaufort + '</div>' : ''), esc(x.threshold), lvB(x.level), fT(x.at)]))) : '<ul class="sm">' + r.indicators.map(x => '<li>' + esc(L(x.text)) + '</li>').join('') + '</ul>') +
         '<p class="expl">' + esc(L(r.explanation)) + '</p>' + (r.wmoWindWarning ? '<p class="note sm warn"><b>' + esc(L(r.wmoWindWarning.label)) + '</b></p>' : '') + (r.type === 'navigation_hazard' ? '<p class="note sm warn">' + T('SOLAS V/4: يُبلّغ المعنيون بالخطر فورًا ويُحال إلى الحكومات المعنية (منسق NAVAREA IX) عند الحاجة لنشر أوسع.', 'SOLAS V/4: those concerned are informed promptly and the danger is passed to interested Governments (NAVAREA IX coordinator) where wider promulgation is needed.') + '</p>' : '') +
         '<h4>' + T('السفن المتأثرة', 'Affected vessels') + '</h4>' + (av.length ? tbl([T('السفينة', 'Vessel'), T('العلاقة', 'Relation'), T('السبب', 'Reason'), T('الوصول للمنطقة', 'Reaches area'), ''], av.map(a => tr(['<b>' + esc(vname(a.vesselId)) + '</b>', T(...REL[a.relation]), '<span class="sm">' + esc(L(a.reason)) + '</span>', a.relation === 'inside' ? T('الآن', 'Now') : fT(a.etaToZone), a.relation !== 'crossing' && (vessel(a.vesselId) || {}).status === 'underway' ? '<button class="btn sm ghost" data-a="propose" data-v="' + a.vesselId + '" data-r="' + esc(r.id) + '">' + T('مسار بديل', 'Alt. route') + '</button>' : '']))) : empty(T('لا توجد سفن داخل المنطقة أو متجهة إليها.', 'No vessels inside or heading into the area.'))) +
         '<div class="row"><button class="btn" data-a="alertForm" data-r="' + esc(r.id) + '">' + T('إنشاء إنذار من هذا الخطر', 'Create alert from this risk') + '</button><button class="btn ghost" data-a="bulletinForm" data-r="' + esc(r.id) + '">' + T('إنشاء نشرة', 'Create bulletin') + '</button>' + (['manual', 'record'].includes(r.source) ? '<button class="btn ghost danger sm" data-a="delRisk" data-id="' + esc(r.id) + '">' + T('حذف الخطر', 'Delete risk') + '</button>' : '') + '</div>');
     }
   };
+  A.recalc = () => act('recalculate', {}, T('أُعيد حساب المخاطر والتوصيات', 'Risks and recommendations recalculated'));
   A.selRisk = d => { state.sel.risk = d.id; update(); };
   A.delRisk = async d => { if (confirm(T('حذف هذا الخطر من بيانات الاختبار؟', 'Delete this risk from the test data?'))) { await act('deleteRisk', { id: d.id }, T('حُذف', 'Deleted')); state.sel.risk = null; } };
   A.secData = d => { state.sec = 'data'; state.dataTab = d.t || 'vessels'; renderView(); };
@@ -2447,7 +2647,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     mount: () => sechead(T('الإنذار المباشر للسفن', 'Direct alerts to vessels'), T('إنذارات اختبار (Test Maritime Alerts): تُنشأ وتُراجع وتُعتمد وتُرسل داخل بيئة الاختبار إلى شاشات جسر السفن المستهدفة فقط.', 'Test Maritime Alerts: created, reviewed, approved and dispatched inside the test environment to the targeted vessels\' bridge screens only.'), '<button class="btn sm" data-a="alertForm">' + T('إنذار جديد', 'New alert') + '</button>') + '<div class="split"><aside class="panel side-list" id="alist"></aside><div class="panel" id="adet"></div></div>',
     upd: () => {
       const s = S(), list = s.alerts.slice().reverse();
-      if (!state.sel.alert || !alertById(state.sel.alert)) state.sel.alert = list[0] && list[0].id;
+      if (!state.sel.alert || (!alertById(state.sel.alert) && !(state.holdSel > Date.now()))) state.sel.alert = list[0] && list[0].id;
       fill('#alist', list.length ? '<ul class="vlist">' + list.map(a => { const d = s.deliveryRecords.filter(x => x.alertId === a.id); return '<li><button class="' + (a.id === state.sel.alert ? 'on' : '') + '" data-a="selAlert" data-id="' + a.id + '"><b>' + esc(a.number) + ' · ' + esc(L(a.title)) + '</b><span>' + astB(a.status) + ' ' + lvB(a.severity) + (d.length ? ' · ' + N(d.filter(x => x.ackAt).length) + '/' + N(d.length) + T(' أكدت', ' ack') : '') + '</span></button></li>'; }).join('') + '</ul>' : cta(T('لا توجد إنذارات بعد', 'No alerts yet'), T('ابدأ بأخطر خطر حاليًا؛ السفن المتأثرة تُحدد تلقائيًا.', 'Start with the most severe current risk; affected vessels are selected automatically.'), ctaAlert()));
       const a = alertById(state.sel.alert); if (!a) { fill('#adet', ''); return; }
       const d = s.deliveryRecords.filter(x => x.alertId === a.id);
@@ -2458,12 +2658,23 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       fill('#adet', '<div class="row between"><h2>' + esc(a.number) + '</h2><div class="row">' + astB(a.status) + ' ' + lvB(a.severity) + ' ' + B('muted', T(...PRIO[a.priority])) + ' ' + TAG(a.label) + '</div></div>' + flow +
         '<div class="kv">' + [[T('العنوان', 'Title'), esc(a.title.ar) + '<br><span dir="ltr">' + esc(a.title.en) + '</span>'], [T('النص', 'Text'), esc(L(a.body))], [T('التعليمات', 'Instructions'), esc(L(a.instructions)) || '—'], [T('الخطر المرتبط', 'Linked risk'), a.riskSnapshot ? esc(L(a.riskSnapshot.title)) + ' ' + lvB(a.riskSnapshot.level) : T('منطقة محددة يدويًا', 'Manually defined area')], [T('المنطقة', 'Area'), esc(L(a.areaName))], [T('الصلاحية', 'Validity'), fT(a.validFrom) + ' – ' + fT(a.validTo)]].concat(a.wwnws ? [[T('مستوى التحذير (WWNWS)', 'Warning level (WWNWS)'), '<b>' + esc(L(a.wwnws.name)) + '</b> · ' + esc(L(a.wwnws.means)) + ' ' + (a.wwnws.reachesTerritorialSea ? B('ok', T('تصل للمياه الإقليمية', 'Reaches territorial waters')) : B('crit', T('لا تصل للمياه الإقليمية', 'Does not reach territorial waters'))) + '<div class="sm muted">' + esc(L(a.wwnws.note)) + '</div>']] : []).concat([[T('السفن المستهدفة', 'Target vessels'), a.targets.map(id => esc(vname(id))).join(T('، ', ', '))], [T('الاعتماد', 'Approval'), a.approvedBy ? esc(a.approvedBy) + ' · ' + fT(a.approvedAt) + ' · <code>' + esc(a.verification) + '</code>' : '—']]).map(([k, v]) => '<span>' + k + '</span><b>' + v + '</b>').join('') + '</div>' +
         '<div class="row">' + actions + (!['expired', 'cancelled', 'acknowledged'].includes(a.status) ? btn('alertCancel', T('إلغاء الإنذار', 'Cancel alert'), 'ghost danger sm') : '') + '</div>' +
+        recReview(a, s) +
         (d.length ? '<h3>' + T('سجلات التسليم', 'Delivery records') + '</h3>' + tbl([T('السفينة', 'Vessel'), 'MMSI', T('القناة', 'Channel'), T('الحالة', 'Status'), T('أُرسل', 'Dispatched'), T('استُلم', 'Received'), T('أُكد', 'Acknowledged'), ''],
-          d.map(x => tr(['<b>' + esc(vname(x.vesselId)) + '</b>', '<code>' + esc(x.mmsi) + '</code>', T(...CH[x.channel]), dstB(x) + (x.failReason ? '<div class="sm bad">' + esc(L(x.failReason)) + '</div>' : '') + (x.holdReason && x.status === 'held_outside_ts' ? '<div class="sm muted">' + esc(L(x.holdReason)) + '</div>' : ''), fTs(x.dispatchedAt), fTs(x.receivedAt), x.ackAt ? fTs(x.ackAt) + '<div class="sm">' + esc(x.ackBy) + '</div>' + (x.actionLabel ? '<div class="sm ' + (x.action === 'accepted' ? 'okline' : 'muted') + '">' + (x.action === 'accepted' ? T('قبلت: ', 'Accepted: ') : '') + esc(L(x.actionLabel)) + '</div>' : '') : '—', x.channel === 'test_bridge_screen' && ['dispatched', 'received'].includes(x.status) ? '<button class="btn sm ghost" data-a="openBridge" data-id="' + x.vesselId + '">' + T('فتح شاشة السفينة', 'Open ship screen') + '</button>' : '']))) : '') +
+          d.map(x => tr(['<b>' + esc(vname(x.vesselId)) + '</b>', '<code>' + esc(x.mmsi) + '</code>', T(...CH[x.channel]), dstB(x) + (x.failReason ? '<div class="sm bad">' + esc(L(x.failReason)) + '</div>' : '') + (x.holdReason && x.status === 'held_outside_ts' ? '<div class="sm muted">' + esc(L(x.holdReason)) + '</div>' : ''), fTs(x.dispatchedAt), fTs(x.receivedAt), x.ackAt ? fTs(x.ackAt) + '<div class="sm">' + esc(x.ackBy) + '</div>' + (x.actionLabel ? '<div class="sm ' + (x.action === 'accepted' ? 'okline' : 'muted') + '">' + (x.action === 'accepted' ? T('قبلت: ', 'Accepted: ') : '') + esc(L(x.actionLabel)) + '</div>' : '') : '—', (x.rejectReason ? '<div class="sm bad">' + T('سبب الرفض: ', 'Reason: ') + esc(x.rejectReason) + '</div>' : '') + (x.status === 'held_outside_ts' ? '<button class="btn sm ghost" data-a="enterTS" data-id="' + x.vesselId + '">' + T('محاكاة دخول المياه الإقليمية', 'Simulate entering territorial waters') + '</button>' : x.channel === 'test_bridge_screen' && ['dispatched', 'received'].includes(x.status) ? '<button class="btn sm ghost" data-a="openBridge" data-id="' + x.vesselId + '">' + T('فتح شاشة السفينة', 'Open ship screen') + '</button>' : '')]))) : '') +
         '<h4>' + T('سجل الحالة', 'Status history') + '</h4><ul class="events">' + a.history.slice().reverse().map(h => '<li><time>' + fTs(h.at) + '</time><span>' + T(...(AST[h.s] || [h.s, h.s])) + ' · ' + esc(h.by) + '</span>' + (h.note ? '<i>' + esc(h.note) + '</i>' : '') + '</li>').join('') + '</ul>');
     }
   };
   A.goAlerts = () => { state.sec = 'alerts'; renderView(); };
+  function recReview(a, s) {
+    const recs = s.alternativeRoutes.filter(x => x.alertId === a.id); if (!recs.length) return '';
+    const editable = ['draft', 'pending_approval'].includes(a.status);
+    return '<h3>' + T('توصيات السفن', 'Vessel recommendations') + ' <span class="sm muted">' + (editable ? T('(تصبح تعليمات تشغيلية بعد اعتمادك)', '(become operational instructions after your approval)') : '') + '</span></h3>' +
+      tbl([T('السفينة', 'Vessel'), T('التوصية', 'Recommendation'), T('السبب', 'Reason'), T('زمن إضافي', 'Extra time'), T('أثر الوقود', 'Fuel impact'), T('الحالة', 'Status')], recs.map(x => { const o = (x.options || []).find(q => q.recommended) || {}, c = (x.options || []).find(q => q.kind === 'continue') || o;
+        const sel = editable && x.options ? '<select data-rec="' + x.id + '">' + x.options.map(q => '<option value="' + q.kind + '|' + (q.portId || '') + '"' + (q.recommended ? ' selected' : '') + (q.safe ? '' : ' disabled') + '>' + esc(L(q.label)) + (q.safe ? '' : T(' (غير آمن)', ' (unsafe)')) + '</option>').join('') + '</select>' : '<b>' + esc(x.recommended ? L(x.recommended.label) : '—') + '</b>';
+        return tr(['<b>' + esc(vname(x.vesselId)) + '</b>' + (x.needsReview ? '<div>' + B('warn', T('تحتاج مراجعة الضابط', 'Needs officer review')) + '</div>' : ''), sel, '<span class="sm">' + esc(L(x.reason)) + '</span>', o.hours != null && c.hours != null ? (o.hours - c.hours >= 0 ? '+' : '') + N(o.hours - c.hours, 1) + T(' س', ' h') : '—', o.fuelT != null && c.fuelT != null ? (o.fuelT - c.fuelT >= 0 ? '+' : '') + N(o.fuelT - c.fuelT, 1) + T(' طن', ' t') : '—', ({ proposed: B('warn', T('مقترحة', 'Proposed')), modified: B('info', T('معدّلة', 'Modified')), approved: B('ok', T('معتمدة', 'Approved')) }[x.status] || '') + (x.vesselResponse ? '<div class="sm">' + ({ accepted: T('قبلتها السفينة', 'Accepted by vessel'), rejected: T('رفضتها السفينة', 'Rejected by vessel'), acknowledged: T('أكدت الاستلام', 'Acknowledged') }[x.vesselResponse]) + '</div>' : '')]); }));
+  }
+  document.addEventListener('change', e => { const el = e.target.closest('[data-rec]'); if (!el) return; const [kind, portId] = el.value.split('|'); act('chooseRecommendation', { id: el.dataset.rec, kind, portId: portId || null }, T('عُدلت التوصية', 'Recommendation changed')); });
+  A.enterTS = d => act('simulateEnterTerritorialWaters', { vesselId: d.id }, T('دخلت السفينة المياه الإقليمية وأُرسل الإنذار المحجوز', 'Vessel entered territorial waters; queued alert sent'));
   A.selAlert = d => { state.sel.alert = d.id; update(); };
   A.openBridge = d => { if (confirm(T('الانتقال إلى شاشة جسر هذه السفينة؟ ارجع بزر «الرئيسية».', 'Switch to this vessel\'s bridge screen? Return with “Home”.'))) { client.leave(); A.pickBridge({ id: 'B-' + d.id }); } };
   function alertEditor(riskId, al) {
@@ -2505,25 +2716,28 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   A.alertCancel = async d => { const n = prompt(T('سبب الإلغاء', 'Reason')); if (n != null) await act('cancelAlert', { id: d.id, note: n }, T('أُلغي', 'Cancelled')); };
 
   // 4) Bulletins & NAVTEX
-  const BST = { draft: ['muted', 'قيد الإنشاء', 'Draft'], ready: ['info', 'جاهزة', 'Ready'], sent_test: ['info', 'أُرسلت للجهات (اختبار)', 'Sent to parties (test)'], awaiting_official: ['warn', 'بانتظار الإصدار الرسمي', 'Awaiting official issue'], issued_official: ['ok', 'صدرت رسميًا', 'Officially issued'], issued_test: ['info', 'أُرسلت (اختبار)', 'Sent (test)'], cancelled: ['muted', 'ملغاة', 'Cancelled'], expired: ['muted', 'منتهية', 'Expired'] };
-  const BFLOW = [['draft', 'قيد الإنشاء', 'Draft'], ['ready', 'جاهزة', 'Ready'], ['sent_test', 'أُرسلت للجهات', 'Sent to parties'], ['awaiting_official', 'تأكيد الاستلام', 'Receipt confirmed'], ['issued_official', 'صدرت رسميًا', 'Officially issued']];
-  const RKIND = { port: ['ميناء', 'Port'], navtex: ['محطة NAVTEX', 'NAVTEX station'], coordinator: ['منسق NAVAREA IX', 'NAVAREA IX coordinator'] };
+  const BST = { draft: ['muted', 'مسودة', 'Draft'], under_review: ['warn', 'قيد المراجعة', 'Under review'], approved: ['info', 'معتمدة', 'Approved'], sent: ['info', 'أُحيلت للجهات', 'Sent to authorities'], recipient_ack: ['ok', 'أكدت الجهات الاستلام', 'Recipients acknowledged'], issued_official: ['ok', 'صدرت رسميًا', 'Officially issued'], cancelled: ['muted', 'ملغاة', 'Cancelled'], expired: ['muted', 'منتهية', 'Expired'] };
+  const BFLOW = [['draft', 'مسودة', 'Draft'], ['under_review', 'قيد المراجعة', 'Under review'], ['approved', 'معتمدة', 'Approved'], ['sent', 'أُحيلت للجهات', 'Sent to authorities'], ['recipient_ack', 'تأكيد الاستلام', 'Recipient acknowledgement'], ['issued_official', 'صدرت رسميًا', 'Officially issued']];
+  const RKIND = { port: ['إدارة الميناء', 'Port administration'], vhf: ['قناة VHF محلية', 'Local VHF channel'], navtex: ['محطة NAVTEX معتمدة', 'Authorized NAVTEX station'], coordinator: ['منسق NAVAREA IX', 'NAVAREA IX coordinator'] };
+  const AUTH_KIND = { LOCAL: 'port', COASTAL: 'navtex', NAVAREA: 'coordinator' };
   function bulletinCard(b, s) {
     const idx = BFLOW.findIndex(x => x[0] === b.status), st = BST[b.status] || ['muted', b.status, b.status];
     const shipsN = (s.bulletinDeliveries || []).filter(d => d.bulletinId === b.id), readN = shipsN.filter(d => d.readAt).length;
     const btn = (a, label, cls, extra) => '<button class="btn sm ' + (cls || '') + '" data-a="' + a + '" data-id="' + b.id + '"' + (extra || '') + '>' + label + '</button>';
-    const act = { draft: btn('bReady', T('جاهزة للإرسال', 'Mark ready')), ready: btn('bSend', T('إرسال للجهات المختصة', 'Send to competent parties')), awaiting_official: btn('bOfficial', T('تسجيل الإصدار الرسمي', 'Record official issue')), sent_test: btn('bOfficial', T('تسجيل الإصدار الرسمي', 'Record official issue'), 'ghost') }[b.status] || '';
-    return '<div class="nxcard"><div class="row between"><div><b>' + esc(b.number) + ' · ' + esc(L(b.title)) + '</b><div class="sm muted">' + T(...BTYPE[b.type]) + ' · ' + T(...SCOPE[b.scope]) + ' · ' + esc(L(b.areaName)) + ' · ' + fT(b.validFrom) + ' – ' + fT(b.validTo) + '</div></div>' + B(st[0], T(st[1], st[2])) + '</div>' +
-      (idx >= 0 ? '<div class="flow wrap small">' + BFLOW.map((x, i) => (i ? '<span class="arr"></span>' : '') + '<div class="fstep' + (i === idx ? ' on' : i < idx ? ' done' : '') + '"><b>' + T(x[1], x[2]) + '</b></div>').join('') + '</div>' : '') +
+    const act = { draft: btn('bEdit', T('تعديل', 'Edit'), 'ghost') + btn('bSubmit', T('إرسال للمراجعة', 'Submit for review')), under_review: btn('bReturn', T('إعادة للتعديل', 'Return'), 'ghost') + btn('bApprove', T('اعتماد النشرة', 'Approve')), approved: btn('bSend', T('تسجيل الإحالة للجهات المختصة', 'Mark as sent to authorities')), recipient_ack: btn('bOfficial', T('تسجيل الإصدار الرسمي', 'Record official issuance')) }[b.status] || '';
+    const w = b.warning || {}, last = b.history[b.history.length - 1];
+    return '<div class="nxcard"><div class="row between"><div><b>' + esc(b.number) + ' · ' + esc(L(b.title)) + '</b><div class="sm muted">' + T(...BTYPE[b.type]) + ' · <b>' + T(...SCOPE[b.scope]) + '</b> · ' + esc(L(b.areaName)) + ' · ' + fT(b.validFrom) + ' – ' + fT(b.validTo) + '</div></div>' + B(st[0], T(st[1], st[2])) + '</div>' +
+      (idx >= 0 ? '<div class="flow wrap small">' + BFLOW.map((x, i) => { const h = b.history.filter(q => q.s === x[0]).slice(-1)[0]; return (i ? '<span class="arr"></span>' : '') + '<div class="fstep' + (i === idx ? ' on' : i < idx ? ' done' : '') + '"><b>' + T(x[1], x[2]) + '</b><span>' + (h ? fH(h.at) + ' · ' + esc(h.by) : '') + '</span></div>'; }).join('') + '</div>' : '') +
       (b.checks && b.checks.length ? b.checks.map(c => '<div class="sm bad">! ' + esc(L(c)) + '</div>').join('') : '') +
-      tbl([T('الجهة', 'Party'), T('النوع', 'Type'), T('وسيلة النشر', 'Dissemination'), T('الحالة', 'Status'), ''], (b.recipients || []).map(r => tr(['<b>' + esc(L(r.name)) + '</b>', T(...RKIND[r.kind]), esc(L(r.means)), r.status === 'confirmed' ? B('ok', T('أكدت الاستلام', 'Receipt confirmed')) + '<div class="sm muted">' + esc(r.confirmedBy) + ' · ' + fH(r.confirmedAt) + (r.ref ? ' · ' + esc(r.ref) : '') + '</div>' : r.status === 'sent_test' ? B('info', T('أُرسلت (اختبار)', 'Sent (test)')) + '<div class="sm muted"><code>' + esc(r.endpoint) + '</code></div>' : B('muted', T('بانتظار الإرسال', 'Pending')), r.status === 'sent_test' ? '<button class="btn sm ghost" data-a="bConfirm" data-id="' + b.id + '" data-r="' + esc(r.id) + '">' + T('تسجيل تأكيد الاستلام', 'Record receipt') + '</button>' : '']))) +
-      (shipsN.length ? '<p class="sm">' + T('إشعار السفن داخل المياه الإقليمية في المنطقة: ', 'Ships notified inside territorial waters in the area: ') + '<b>' + shipsN.length + '</b> · ' + T('اطلعت: ', 'read: ') + '<b>' + readN + '</b></p>' : '') +
-      (b.officialRef ? '<p class="sm okline">' + T('المرجع الرسمي: ', 'Official reference: ') + esc(b.officialRef) + '</p>' : '') +
+      '<h4>' + T('الجهات المستلمة حسب مستوى التحذير', 'Recipients by warning level') + '</h4>' + tbl([T('الجهة', 'Recipient'), T('النوع', 'Type'), T('وسيلة النشر', 'Dissemination'), T('الحالة', 'Status'), ''], (b.recipients || []).map(r => tr(['<b>' + esc(L(r.name)) + '</b>' + (r.kind === AUTH_KIND[b.scope] ? ' ' + B('info', T('الجهة المخولة بالإصدار', 'Issuing authority')) : ''), T(...RKIND[r.kind]), esc(L(r.means)), r.status === 'confirmed' ? B('ok', T('أكدت الاستلام', 'Acknowledged')) + '<div class="sm muted">' + esc(r.confirmedBy) + ' · ' + fH(r.confirmedAt) + (r.ref ? ' · ' + esc(r.ref) : '') + '</div>' : r.status === 'sent' ? B('info', T('أُحيلت (اختبار)', 'Sent (test)')) : B('muted', T('لم تُحل بعد', 'Not sent yet')), r.status === 'sent' ? '<button class="btn sm ghost" data-a="bConfirm" data-id="' + b.id + '" data-r="' + esc(r.id) + '">' + T('تسجيل الاستلام', 'Record receipt') + '</button>' : '']))) +
+      '<details class="more"><summary>' + T('مسودة التحذير بالإنجليزية والشرح العربي', 'English warning draft & Arabic explanation') + '</summary><p class="sm">' + T('شرح للضابط: ', 'Officer note: ') + esc(L(b.body)) + '</p><textarea class="mono" dir="ltr" rows="11" id="dr-' + b.id + '"' + (['draft', 'under_review'].includes(b.status) ? '' : ' readonly') + '>' + esc(b.draftEn || '') + '</textarea><div class="row">' + btn('bCopy', T('نسخ', 'Copy'), 'ghost') + (['draft', 'under_review'].includes(b.status) ? btn('bSaveDraft', T('حفظ النص', 'Save text'), 'ghost') : '') + '</div><p class="sm muted">' + T('مسودة يعدّها مَرسى للمراجعة؛ لا تُعد معتمدة أو مطابقة لكل متطلبات البث الرسمي.', 'Draft prepared by MARSA for review; not approved or guaranteed compliant with every official transmission requirement.') + '</p></details>' +
+      (shipsN.length ? '<p class="sm">' + T('إشعار السفن داخل المياه الإقليمية في المنطقة: ', 'Ships notified inside territorial waters: ') + '<b>' + shipsN.length + '</b> · ' + T('أكدت الاطلاع: ', 'acknowledged: ') + '<b>' + readN + '</b></p>' : '') +
+      (b.officialRef ? '<p class="sm okline">' + T('صدرت رسميًا – المرجع: ', 'Officially issued – ref: ') + esc(b.officialRef) + (b.officialBy ? ' · ' + esc(L(b.officialBy.authority)) + ' (' + esc(b.officialBy.person) + ')' : '') + '</p>' : '') +
+      (last && last.note ? '<p class="sm muted">' + T('آخر ملاحظة: ', 'Last note: ') + esc(last.note) + '</p>' : '') +
       '<div class="row">' + act + (b.scope === 'LOCAL' ? '' : btn('navtexForm', 'NAVTEX', 'ghost', ' data-b="' + b.id + '"')) + (!['cancelled', 'expired', 'issued_official'].includes(b.status) ? btn('bCancel', T('إلغاء', 'Cancel'), 'ghost danger') : '') + '</div></div>';
   }
-  const NST = { invalid: ['crit', 'حقول غير صالحة', 'Validation errors'], formatted: ['info', 'منسّقة', 'Formatted'], test_dispatched: ['ok', 'مُررت لنقطة اختبار', 'Passed to test endpoint'] };
   OFF.bulletins = {
-    mount: () => sechead(T('النشرات والإشعارات الملاحية', 'Bulletins & navigational notices'), T('نشرات اختبار (Test Bulletin) مع أداة لإعداد رسالة بصيغة NAVTEX للاختبار والتكامل المستقبلي. لا تبث مَرسى أي رسالة رسميًا ولا ترسلها إلى محطة كراتشي.', 'Test Bulletins with a tool to prepare NAVTEX-format messages for testing and future integration. MARSA does not broadcast any message officially or send it to the Karachi station.'), '<button class="btn sm ghost" data-a="navtexForm">' + T('رسالة NAVTEX جديدة', 'New NAVTEX message') + '</button><button class="btn sm" data-a="bulletinForm">' + T('نشرة جديدة', 'New bulletin') + '</button>') +
+    mount: () => sechead(T('النشرات والإشعارات الملاحية', 'Bulletins & navigational notices'), T('نشرات اختبار (Test Bulletin) مع أداة لإعداد رسالة بصيغة NAVTEX للاختبار والتكامل المستقبلي. لا تبث مَرسى أي رسالة رسميًا ولا ترسلها إلى محطة كراتشي.', 'Test Bulletins with a tool to prepare NAVTEX-format messages for testing and future integration. MARSA does not broadcast any message officially or send it to the Karachi station.'), '<input class="tsearch" data-t="#blist" placeholder="' + T('بحث', 'Search') + '">' + '<button class="btn sm ghost" data-a="navtexForm">' + T('رسالة NAVTEX جديدة', 'New NAVTEX message') + '</button><button class="btn sm" data-a="bulletinForm">' + T('نشرة جديدة', 'New bulletin') + '</button>') +
       '<div class="panel"><h3>' + T('النشرات', 'Bulletins') + '</h3><div id="bcomp"></div><div id="blist"></div></div><div class="panel"><h3>' + T('رسائل NAVTEX التجريبية', 'Test NAVTEX messages') + '</h3><div id="nlist"></div></div>',
     upd: () => {
       const s = S();
@@ -2535,15 +2749,33 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         '<div class="row"><button class="btn sm ghost" data-a="navtexForm" data-id="' + m.id + '">' + T('تعديل', 'Edit') + '</button><button class="btn sm ghost" data-a="nxTxt" data-id="' + m.id + '">' + T('تصدير TXT', 'Export TXT') + '</button><button class="btn sm ghost" data-a="nxJson" data-id="' + m.id + '">' + T('تصدير JSON', 'Export JSON') + '</button>' + (m.status !== 'invalid' ? '<button class="btn sm" data-a="nxDispatch" data-id="' + m.id + '">' + T('تمرير لنقطة تكامل اختبارية', 'Pass to test integration endpoint') + '</button>' : '') + '</div></div>'; }).join('') : empty(T('تُنشأ رسائل NAVTEX من النشرات الساحلية أو NAVAREA.', 'NAVTEX messages are prepared from coastal or NAVAREA bulletins.')));
     }
   };
+  const bul = id => S().bulletins.find(x => x.id === id);
+  A.bSubmit = d => act('submitBulletin', { id: d.id }, T('أُرسلت للمراجعة', 'Submitted for review'));
+  A.bApprove = d => act('approveBulletin', { id: d.id }, T('اعتُمدت النشرة', 'Bulletin approved'));
+  A.bReturn = d => { const n = prompt(T('سبب الإعادة', 'Reason'), ''); if (n != null) act('approveBulletin', { id: d.id, reject: true, note: n }, T('أُعيدت للتعديل', 'Returned')); };
+  A.bSend = async d => { const r = await act('sendBulletin', { id: d.id }, false); if (r) toast(T('سُجلت الإحالة إلى ' + r.recipients + ' جهات' + (r.ships ? ' وأُشعرت ' + r.ships + ' سفن' : '') + ' (بيئة اختبار)', 'Routed to ' + r.recipients + ' recipients' + (r.ships ? ', ' + r.ships + ' ships notified' : '') + ' (test)'), 'ok'); };
   A.bIssue = d => A.bSend(d);
-  A.bReady = d => act('readyBulletin', { id: d.id }, T('النشرة جاهزة', 'Bulletin ready'));
-  A.bSend = async d => { const r = await act('sendBulletin', { id: d.id }, false); if (r) toast(T('أُرسلت داخل بيئة الاختبار إلى ' + r.recipients + ' جهات' + (r.ships ? ' و' + r.ships + ' سفن' : ''), 'Sent in the test environment to ' + r.recipients + ' parties' + (r.ships ? ' and ' + r.ships + ' ships' : '')), 'ok'); };
-  A.bConfirm = d => { const by = prompt(T('اسم من أكد الاستلام لدى الجهة', 'Name of the person who confirmed receipt'), T('المناوب', 'Duty officer')); if (by == null) return; const ref = prompt(T('رقم مرجعي (اختياري)', 'Reference number (optional)'), '') || ''; act('confirmBulletinRecipient', { id: d.id, recipientId: d.r, by, ref }, T('سُجل تأكيد الاستلام', 'Receipt recorded')); };
-  A.bOfficial = d => { const ref = prompt(T('المرجع الرسمي للنشرة الصادرة (مثل رقم تحذير NAVTEX أو NAVAREA)', 'Official reference of the issued warning (e.g. NAVTEX or NAVAREA number)'), ''); if (ref == null) return; act('recordOfficialIssue', { id: d.id, ref }, T('سُجل الإصدار الرسمي', 'Official issue recorded')); };
+  A.bCopy = async d => { const t = ($('#dr-' + d.id) || {}).value || ''; try { await navigator.clipboard.writeText(t); toast(T('نُسخ النص', 'Copied'), 'ok'); } catch (e) { const ta = $('#dr-' + d.id); ta.select(); document.execCommand('copy'); toast(T('نُسخ النص', 'Copied'), 'ok'); } };
+  A.bSaveDraft = d => act('editBulletin', { id: d.id, draftEn: $('#dr-' + d.id).value }, T('حُفظ النص', 'Saved'));
+  A.bConfirm = d => {
+    const b = bul(d.id), r = b.recipients.find(x => x.id === d.r);
+    const m = modal('<h3>' + T('تسجيل استلام: ', 'Record receipt: ') + esc(L(r.name)) + '</h3><form class="form" id="rcf">' + field(T('اسم من أكد الاستلام', 'Confirmed by'), '<input name="by" required minlength="2">') + field(T('رقم مرجعي', 'Reference'), '<input name="ref">') + field(T('ملاحظات', 'Notes'), '<input name="note">') + '<div class="row end"><button type="button" class="btn ghost" data-x>' + T('إلغاء', 'Cancel') + '</button><button class="btn">' + T('تسجيل', 'Record') + '</button></div></form>');
+    $('#rcf', m).onsubmit = async e => { e.preventDefault(); const f = e.target; if (await act('confirmBulletinRecipient', { id: b.id, recipientId: r.id, by: val(f, 'by'), ref: val(f, 'ref'), note: val(f, 'note') }, T('سُجل الاستلام', 'Receipt recorded'))) closeModal(); };
+  };
+  A.bOfficial = d => {
+    const b = bul(d.id), auths = b.recipients.filter(r => r.kind === AUTH_KIND[b.scope] && r.status === 'confirmed');
+    const m = modal('<h3>' + T('تسجيل الإصدار الرسمي – ', 'Record official issuance – ') + esc(b.number) + '</h3><p class="note sm">' + T('يُسجل فقط بعد تأكيد الجهة المخولة بالإصدار. مَرسى لا يصدر التحذير بنفسه.', 'Recorded only on confirmation by the authorized issuing entity. MARSA does not issue the warning itself.') + '</p><form class="form" id="off">' + field(T('الجهة المخولة', 'Authorized entity'), '<select name="auth">' + opts(auths.map(r => [r.id, L(r.name)])) + '</select>') + field(T('اسم من أكد الإصدار', 'Confirmed by'), '<input name="by" required minlength="2">') + field(T('المرجع الرسمي (رقم التحذير)', 'Official reference (warning number)'), '<input name="ref" required minlength="3" dir="ltr">') + '<div class="row end"><button type="button" class="btn ghost" data-x>' + T('إلغاء', 'Cancel') + '</button><button class="btn">' + T('تسجيل', 'Record') + '</button></div></form>');
+    $('#off', m).onsubmit = async e => { e.preventDefault(); const f = e.target; if (await act('recordOfficialIssue', { id: b.id, authorityId: val(f, 'auth'), confirmedBy: val(f, 'by'), ref: val(f, 'ref') }, T('سُجل الإصدار الرسمي', 'Official issuance recorded'))) closeModal(); };
+  };
+  A.bEdit = d => {
+    const b = bul(d.id), w = b.warning || {};
+    const m = modal('<h3>' + T('تعديل النشرة ', 'Edit bulletin ') + esc(b.number) + '</h3><form class="form" id="bef"><div class="grid2f">' + field(T('مستوى التحذير', 'Warning level'), '<select name="scope">' + opts(['LOCAL', 'COASTAL', 'NAVAREA'].map(k => [k, T(...SCOPE[k])]), b.scope) + '</select>') + '</div><div class="bil">' + field(T('العنوان (عربي)', 'Title (Arabic)'), '<input name="tar" dir="rtl" value="' + esc(b.title.ar) + '">') + field(T('العنوان (إنجليزي)', 'Title (English)'), '<input name="ten" dir="ltr" value="' + esc(b.title.en) + '">') + field(T('الشرح (عربي)', 'Explanation (Arabic)'), '<textarea name="bar" dir="rtl">' + esc(b.body.ar) + '</textarea>') + field(T('الشرح (إنجليزي)', 'Explanation (English)'), '<textarea name="ben" dir="ltr">' + esc(b.body.en) + '</textarea>') + '</div><fieldset><legend>' + T('حقول التحذير الملاحي (إنجليزي)', 'Navigational warning fields (English)') + '</legend><div class="grid2f">' + [['hazard', T('وصف الخطر', 'Hazard')], ['impact', T('الأثر الملاحي', 'Navigational impact')], ['precautions', T('الاحتياطات', 'Precautions')], ['source', T('مصدر المعلومات', 'Source')], ['authority', T('الجهة المسؤولة', 'Responsible authority')]].map(([k, l]) => field(l, '<input name="w_' + k + '" dir="ltr" value="' + esc(w[k] || '') + '">')).join('') + '</div></fieldset><div class="row end"><button type="button" class="btn ghost" data-x>' + T('إلغاء', 'Cancel') + '</button><button class="btn">' + T('حفظ وتحديث المسودة', 'Save & refresh draft') + '</button></div></form>', 'wide');
+    $('#bef', m).onsubmit = async e => { e.preventDefault(); const f = e.target, warning = {}; for (const k of ['hazard', 'impact', 'precautions', 'source', 'authority']) warning[k] = val(f, 'w_' + k); if (await act('editBulletin', { id: b.id, scope: val(f, 'scope'), title: { ar: val(f, 'tar'), en: val(f, 'ten') }, body: { ar: val(f, 'bar'), en: val(f, 'ben') }, warning }, T('حُفظت النشرة', 'Bulletin saved'))) closeModal(); };
+  };
   A.bCancel = d => act('cancelBulletin', { id: d.id }, T('أُلغيت', 'Cancelled'));
   A.bulletinForm = d => {
     const s = S(), r = d.r ? risk(d.r) : null, type = r ? (['port_closure', 'port_restriction'].includes(r.type) ? 'port_closure' : ['navigation_hazard', 'operational', 'security'].includes(r.type) ? 'nav_restriction' : 'wind_wave_warning') : 'weather_bulletin';
-    const m = modal('<h3>' + T('نشرة جديدة', 'New bulletin') + '</h3><form class="form" id="bf"><div class="grid2f">' + field(T('النوع', 'Type'), '<select name="type">' + opts(Object.keys(BTYPE).map(k => [k, T(...BTYPE[k])]), type) + '</select>') + field(T('النطاق', 'Scope'), '<select name="scope">' + opts([['', T('تلقائي حسب امتداد المنطقة', 'Automatic by area extent')]].concat(Object.keys(SCOPE).map(k => [k, T(...SCOPE[k])]))) + '</select>') +
+    const m = modal('<h3>' + T('نشرة جديدة', 'New bulletin') + '</h3><form class="form" id="bf"><div class="grid2f">' + field(T('النوع', 'Type'), '<select name="type">' + opts(Object.keys(BTYPE).map(k => [k, T(...BTYPE[k])]), type) + '</select>') + field(T('النطاق', 'Scope'), '<select name="scope">' + opts([['', T('تلقائي حسب امتداد المنطقة', 'Automatic by area extent')]].concat(['LOCAL', 'COASTAL', 'NAVAREA'].map(k => [k, T(...SCOPE[k])]))) + '</select>') +
       field(T('الخطر المرتبط', 'Linked risk'), '<select name="riskId">' + opts([['', T('بدون', 'None')]].concat(s.maritimeRisks.map(x => [x.id, L(x.title)])), r ? r.id : '') + '</select>') + field(T('أو منطقة بحرية', 'or sea area'), '<select name="areaId">' + opts([['', '—']].concat(s.seaAreas.map(a => [a.id, L(a.name)]))) + '</select>') + field(T('أو ميناء', 'or port'), '<select name="portId">' + opts([['', '—']].concat(s.ports.map(p => [p.id, L(p.name)]))) + '</select>') + field(T('صالحة حتى', 'Valid until'), '<input name="validTo" type="datetime-local" value="' + toLocalInput(r ? r.end : s.now + 24 * H) + '">') + '</div>' +
       '<div class="bil">' + field(T('العنوان (عربي)', 'Title (Arabic)'), '<input name="tar" dir="rtl" required value="' + esc(r ? r.title.ar : '') + '">') + field(T('العنوان (إنجليزي)', 'Title (English)'), '<input name="ten" dir="ltr" required value="' + esc(r ? r.title.en : '') + '">') + field(T('النص (عربي)', 'Text (Arabic)'), '<textarea name="bar" dir="rtl" required>' + esc(r ? r.explanation.ar : '') + '</textarea>') + field(T('النص (إنجليزي)', 'Text (English)'), '<textarea name="ben" dir="ltr" required>' + esc(r ? r.explanation.en : '') + '</textarea>') + '</div><div class="row"><button type="button" class="btn sm ghost" id="genfc">' + T('توليد نص توقعات بحرية بصيغة WWMIWS للمنطقة المختارة', 'Generate WWMIWS-format marine forecast for the selected area') + '</button></div><div class="row end"><button type="button" class="btn ghost" data-x>' + T('إلغاء', 'Cancel') + '</button><button class="btn">' + T('إنشاء', 'Create') + '</button></div></form>', 'wide');
     $('#genfc', m).onclick = async () => { const f = $('#bf', m), aid = val(f, 'areaId'); if (!aid) { toast(T('اختر منطقة بحرية أولًا', 'Select a sea area first'), 'bad'); return; } const r = await act('marineForecast', { areaId: aid, hours: 24 }, false); if (!r) return; f.querySelector('[name=type]').value = 'weather_bulletin'; f.querySelector('[name=riskId]').value = ''; f.querySelector('[name=bar]').value = r.text.ar; f.querySelector('[name=ben]').value = r.text.en; f.querySelector('[name=validTo]').value = toLocalInput(r.validTo); const an = S().seaAreas.find(x => x.id === aid).name; f.querySelector('[name=tar]').value = 'توقعات بحرية – ' + an.ar; f.querySelector('[name=ten]').value = 'Marine forecast – ' + an.en; };
@@ -2601,22 +2833,31 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   // 4) Distribute: diversions across alternative ports, capped at 88 % occupancy
   NAVI.distribute = 'M4 20V10m8 10V4m8 16v-7M2 20h20';
   OFF.distribute = {
-    mount: () => sechead(T('يوزّع: السفن على الموانئ البديلة', 'Distribute: vessels across alternative ports'), srcLine('ports')) + '<div class="split"><div class="panel" id="dist"></div><div class="panel mapp"><div class="mapbox mid" id="dmap"></div></div></div>',
+    mount: () => sechead(T('يوزّع: السفن على الموانئ البديلة', 'Distribute: vessels across alternative ports'), srcLine('ports')) + '<div class="panel"><h3>' + T('الموانئ', 'Ports') + '</h3><div id="pgrid" class="pgrid"></div></div><div class="panel"><div class="row between"><h3>' + T('مقترحات التحويل', 'Diversion proposals') + '</h3><input class="tsearch" data-t="#atbl" placeholder="' + T('بحث', 'Search') + '"></div><div id="atbl"></div></div><div class="panel mapp"><div class="mapbox mid" id="dmap"></div></div>',
     bind: m => ensureMap('dmap', $('#dmap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
-      const s = S(), div = s.alternativeRoutes.filter(x => x.kind === 'divert' && x.alternative && x.alternative.portId), by = {};
-      for (const x of div) (by[x.alternative.portId] = by[x.alternative.portId] || []).push(x);
-      const high = s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now);
-      const rows = s.ports.map(p => { const n = (by[p.id] || []).length, after = Math.round(p.congestionPct + n * 100 / p.capacityBerths), risky = high.some(r => C.pointInPoly(p.p, r.poly)), w = Math.min(100, after);
-        return '<div class="occ"><div class="row between"><b>' + esc(L(p.name)) + '</b><span>' + pstB(p.status) + (risky ? ' ' + B('crit', T('داخل منطقة خطر', 'In a risk area')) : '') + '</span></div><div class="bar"><span style="width:' + Math.min(100, p.congestionPct) + '%"></span>' + (n ? '<em style="width:' + Math.max(0, w - p.congestionPct) + '%"></em>' : '') + '<i style="inset-inline-start:88%"></i></div><div class="sm">' + T('الإشغال الحالي ', 'Current ') + N(p.congestionPct) + '% · ' + (n ? T('بعد التحويل ', 'After diversions ') + '<b class="' + (after > 88 ? 'bad' : 'okline') + '">' + after + '%</b> · ' + T('سفن محوّلة: ', 'Diverted: ') + by[p.id].map(x => esc(vname(x.vesselId))).join(T('، ', ', ')) : T('لا توجد سفن محوّلة', 'No diverted vessels')) + '</div></div>'; });
-      fill('#dist', '<p class="lead">' + N(div.length) + T(' سفن محوّلة على ', ' vessels diverted to ') + N(Object.keys(by).length) + T(' موانئ · الحد الأعلى للإشغال ٨٨٪', ' ports · occupancy limit 88%') + '</p>' + rows.join('') + (div.length ? '' : cta(T('لا توجد تحويلات بعد', 'No diversions yet'), T('تظهر هنا عند اعتماد إنذار تكون التوصية فيه التحويل لميناء بديل.', 'They appear here when an approved alert recommends diverting to an alternative port.'), ctaAlert())));
-      if (state.maps.dmap) state.maps.dmap.setData(baseMap({ zones: riskZones(high), routes: div.map(x => ({ kind: 'rec', start: x.alternative.coords[0], nodes: x.alternative.nodes, color: ALT_C, label: vname(x.vesselId) + ' → ' + pname(x.alternative.portId) })), vessels: s.vessels.filter(v => div.some(x => x.vesselId === v.id)).map(v => Object.assign({ status: 'underway' }, v, { affected: true, speedKn: v.sog })) }));
+      const s = S(), occ = s.portOccupancy || {}, high = s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now);
+      const wx = p => { const a = s.seaAreas.slice().sort((x, y) => C.gcNm(x.p, p.p) - C.gcNm(y.p, p.p))[0], o = a && s.weatherObservations.find(w => w.areaId === a.id); return o ? N(o.windKn) + ' kn · ' + N(o.waveM, 1) + ' m · ' + T('رؤية ', 'vis ') + N(o.visNm, 1) + ' nm' : '—'; };
+      fill('#pgrid', s.ports.map(p => { const o = occ[p.id] != null ? occ[p.id] : p.congestionPct, risky = high.some(r => C.pointInPoly(p.p, r.poly)), needs = p.status !== 'open' || o >= 85, incoming = s.vessels.filter(v => v.destId === p.id && v.status !== 'moored').length;
+        return '<div class="pcard' + (needs ? ' warn' : '') + '"><div class="row between"><b>' + esc(L(p.name)) + '</b>' + pstB(p.status) + '</div><div class="bar"><span style="width:' + Math.min(100, o) + '%" class="' + (o > 88 ? 'over' : '') + '"></span><i style="inset-inline-start:88%"></i></div><div class="kv sm"><span>' + T('الإشغال', 'Occupancy') + '</span><b>' + o + '%</b><span>' + T('الطاقة القصوى', 'Max capacity') + '</span><b>' + p.capacityBerths + T(' رصيف', ' berths') + '</b><span>' + T('المتاح', 'Available') + '</span><b>' + p.availableBerths + T(' رصيف', ' berths') + '</b><span>' + T('الطقس', 'Weather') + '</span><b>' + wx(p) + (risky ? ' ' + B('crit', T('منطقة خطر', 'Risk area')) : '') + '</b><span>' + T('سفن قادمة', 'Incoming') + '</span><b>' + incoming + '</b></div>' + (needs && incoming ? '<button class="btn sm" data-a="runAlloc" data-id="' + p.id + '">' + T('توزيع السفن القادمة', 'Allocate incoming vessels') + '</button>' : '') + '</div>'; }).join(''));
+      const al = (s.allocations || []).slice().reverse();
+      const ST = { proposed: ['warn', 'مقترح', 'Proposed'], approved: ['ok', 'معتمد', 'Approved'], modified: ['ok', 'معدّل يدويًا', 'Manually modified'], rejected: ['muted', 'مرفوض', 'Rejected'], no_capacity: ['crit', 'لا يوجد ميناء بديل مناسب – انتظار ومراجعة', 'No suitable port – wait & review'] };
+      fill('#atbl', al.length ? tbl([T('السفينة', 'Vessel'), T('من', 'From'), T('إلى', 'To'), T('الإشغال بعد', 'Occupancy after'), T('الحالة', 'Status'), ''], al.map(a => { const c = a.calc.find(x => x.portId === a.toPort) || {}, st = ST[a.status];
+        const sel = ['proposed', 'no_capacity'].includes(a.status) ? '<select data-alloc="' + a.id + '"><option value="">' + T('تعديل يدوي…', 'Change…') + '</option>' + a.calc.filter(x => x.eligible && x.portId !== a.toPort).map(x => '<option value="' + x.portId + '">' + esc(pname(x.portId)) + ' (' + x.occAfter + '%)</option>').join('') + '</select>' : '';
+        return tr(['<b>' + esc(vname(a.vesselId)) + '</b>', esc(pname(a.fromPort)), a.toPort ? '<b>' + esc(pname(a.toPort)) + '</b><div class="sm muted">' + (c.nm != null ? N(c.nm) + ' nm' : '') + '</div>' : '—', c.occAfter != null ? c.occAfter + '%' : '—', B(st[0], T(st[1], st[2])) + '<details class="more"><summary>' + T('الحساب', 'Calculation') + '</summary><p class="sm">' + esc(L(a.explanation)) + '</p>' + tbl([T('الميناء', 'Port'), T('قبل', 'Before'), T('بعد', 'After'), T('المسافة', 'Distance'), T('النتيجة', 'Result')], a.calc.map(x => tr([esc(pname(x.portId)), x.occBefore + '%', x.occAfter + '%', x.nm != null ? N(x.nm) + ' nm' : '—', x.eligible ? B('ok', T('مؤهل', 'Eligible')) : '<span class="sm bad">' + esc(L(x.reason)) + '</span>']))) + '</details>',
+          '<div class="row nowrap">' + (a.status === 'proposed' ? '<button class="btn sm" data-a="allocOk" data-id="' + a.id + '">' + T('اعتماد', 'Approve') + '</button><button class="btn sm ghost danger" data-a="allocNo" data-id="' + a.id + '">' + T('رفض', 'Reject') + '</button>' : '') + sel + '</div>']); })) : cta(T('لا توجد مقترحات تحويل بعد', 'No diversion proposals yet'), T('عند إغلاق ميناء أو ازدحامه، اضغط «توزيع السفن القادمة» على بطاقته.', 'When a port is closed or congested, press “Allocate incoming vessels” on its card.'), ''));
+      const lines = (s.allocations || []).filter(a => a.toPort && a.status !== 'rejected').map(a => { const v = vessel(a.vesselId), p = port(a.toPort); return v && p ? { kind: 'rec', coords: [v.pos, p.p], color: a.status === 'proposed' ? '#f39c12' : ALT_C, label: v.name + ' → ' + L(p.name) } : null; }).filter(Boolean);
+      if (state.maps.dmap) state.maps.dmap.setData(baseMap({ zones: riskZones(high), routes: lines }));
     }
   };
+  A.runAlloc = async d => { const r = await act('runAllocation', { portId: d.id }, false); if (r) toast(T('اقترح مَرسى ' + r.filter(x => x.toPort).length + ' تحويلات من ' + r.length + ' سفن', 'MARSA proposed ' + r.filter(x => x.toPort).length + ' diversions for ' + r.length + ' vessels'), 'ok'); };
+  A.allocOk = d => act('approveAllocation', { id: d.id }, T('اعتُمد التحويل', 'Diversion approved'));
+  A.allocNo = d => { const n = prompt(T('سبب الرفض', 'Reason'), ''); if (n != null) act('approveAllocation', { id: d.id, reject: true, note: n }, T('رُفض التحويل', 'Diversion rejected')); };
+  document.addEventListener('change', e => { const el = e.target.closest('[data-alloc]'); if (!el || !el.value) return; act('modifyAllocation', { id: el.dataset.alloc, toPort: el.value }, T('عُدل التحويل يدويًا', 'Allocation modified')); });
 
   // 6) Test data management
   OFF.data = {
-    mount: () => sechead(T('بيانات الاختبار', 'Test data'), T('سجلات منظمة قابلة للتعديل والإضافة والحذف. أي تعديل يعيد تشغيل التحليل ويُسجل في سجل العمليات.', 'Structured records you can edit, add and delete. Any change re-runs the analysis and is written to the operations log.'), '<button class="btn sm ghost danger" data-a="resetData">' + T('إعادة تهيئة بيانات الاختبار', 'Reset test data') + '</button>') +
+    mount: () => sechead(T('بيانات الاختبار', 'Test data'), T('سجلات منظمة قابلة للتعديل والإضافة والحذف. أي تعديل يعيد تشغيل التحليل ويُسجل في سجل العمليات.', 'Structured records you can edit, add and delete. Any change re-runs the analysis and is written to the operations log.'), '<input class="tsearch" data-t="#dbody" placeholder="' + T('بحث', 'Search') + '">' + '<button class="btn sm ghost danger" data-a="resetData">' + T('إعادة تهيئة بيانات الاختبار', 'Reset test data') + '</button>') +
       '<div class="tabs">' + [['vessels', 'السفن', 'Vessels'], ['ports', 'الموانئ', 'Ports'], ['weather', 'الأرصاد', 'Weather'], ['constraints', 'القيود الملاحية', 'Constraints'], ['rules', 'قواعد التحليل', 'Analysis rules']].map(([k, ar, en]) => '<button class="' + (state.dataTab === k ? 'on' : '') + '" data-a="dataTab" data-id="' + k + '">' + T(ar, en) + '</button>').join('') + '</div><div class="panel" id="dbody"></div>',
     upd: () => {
       const s = S(), t = state.dataTab;
@@ -2667,10 +2908,19 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   const NCM_SAMPLE = () => JSON.stringify({ source: 'TEST', records: [{ areaId: 'JED', recordedAt: new Date(S().now - 5 * 60e3).toISOString(), reliability: 0.85, observation: { windKn: 24, windDir: 310, waveM: 2.2, waveDir: 315, currentKn: 1.2, currentDir: 150, visNm: 4, tempC: 27 }, forecast: [{ h: 3, windKn: 29, waveM: 3.0 }, { h: 6, windKn: 33, waveM: 3.8 }] }, { areaId: 'XXX', recordedAt: 'not-a-date', observation: { windKn: 500 } }] }, null, 2);
   OFF.integrations = {
     mount: () => sechead(T('التكاملات المقترحة (Proposed Integration)', 'Proposed integrations'), T('بنية جاهزة للتكامل المستقبلي. لا يوجد اتصال فعلي مع أي جهة؛ كل التبادلات هنا داخل بيئة الاختبار.', 'Architecture ready for future integration. There is no actual connection with any party; all exchanges here are inside the test environment.')) +
-      '<div class="tabs">' + [['ncm', 'المركز الوطني للأرصاد', 'National Center for Meteorology'], ['navarea', 'الامتثال الدولي وNAVAREA/NAVTEX', 'Compliance & NAVAREA/NAVTEX'], ['ship', 'شاشة السفينة والميناء', 'Ship & port screens']].map(([k, ar, en]) => '<button class="' + (state.intTab === k ? 'on' : '') + '" data-a="intTab" data-id="' + k + '">' + T(ar, en) + '</button>').join('') + '</div><div id="ibody"></div>',
+      '<div class="tabs">' + [['sources', 'حالة مصادر البيانات', 'Data sources'], ['ncm', 'المركز الوطني للأرصاد', 'National Center for Meteorology'], ['navarea', 'الامتثال الدولي وNAVAREA/NAVTEX', 'Compliance & NAVAREA/NAVTEX'], ['ship', 'شاشة السفينة والميناء', 'Ship & port screens']].map(([k, ar, en]) => '<button class="' + (state.intTab === k ? 'on' : '') + '" data-a="intTab" data-id="' + k + '">' + T(ar, en) + '</button>').join('') + '</div><div id="ibody"></div>',
     upd: () => {
       const s = S(), t = state.intTab;
-      if (t === 'ncm') {
+      if (t === 'sources') {
+        const SRC = [
+          ['ncm', T('المركز الوطني للأرصاد (NCM)', 'National Center for Meteorology (NCM)'), 'windKn, windDir, gustKn, waveM, waveDir, currentKn, currentDir, visNm, tempC, forecast 0–48 h', 'MARSA_NCM_API_URL, MARSA_NCM_API_KEY'],
+          ['ais', T('تتبع السفن AIS', 'AIS vessel tracking'), 'MMSI, IMO, name, type, lat/lon, SOG, COG, draft, destination, ETA', 'MARSA_AIS_API_URL, MARSA_AIS_API_KEY'],
+          ['ports', T('بيانات تشغيل الموانئ', 'Port operational data'), 'status, occupancy %, berths available, max draft, restrictions', 'MARSA_PORTS_API_URL'],
+          ['navtex', T('توزيع NAVTEX المعتمد', 'Authorized NAVTEX distribution'), 'warning id, subject indicator, B1, text, validity, receipt', 'MARSA_NAVTEX_ENDPOINT'],
+          ['navarea', T('تنسيق NAVAREA IX', 'NAVAREA IX coordination'), 'warning id, area, position, text, validity, acknowledgement', 'MARSA_NAVAREA_ENDPOINT']];
+        fill('#ibody', '<div class="panel">' + tbl([T('المصدر', 'Source'), T('حالة التكامل', 'Integration status'), T('آخر تحديث', 'Last update'), T('الحقول المتاحة', 'Available fields'), T('حالة التحقق', 'Validation'), T('متغيرات البيئة', 'Env variables')], SRC.map(([id, name, fields, env]) => { const d = src(id), sim = d.kind === 'test';
+          return tr(['<b>' + name + '</b>', sim ? B('info', 'Simulated') : B('muted', 'Not Connected'), d.lastReceivedAt ? fT(d.lastReceivedAt) + '<div class="sm muted">' + rel(d.lastReceivedAt) + '</div>' : '—', '<code class="sm">' + esc(fields) + '</code>', sim ? (d.rejected ? B('warn', T('مقبول ', 'Accepted ') + d.accepted + ' / ' + T('مرفوض ', 'rejected ') + d.rejected) : B('ok', T('صالحة', 'Valid'))) : B('muted', T('لا يوجد استقبال', 'No data received')), '<code class="sm">' + esc(env) + '</code>']); })) + '<p class="sm muted">' + T('لا توجد اتصالات فعلية أو مفاتيح حقيقية. كل مصدر مصمم ليُربط لاحقًا عبر محوّل خاص به ومتغيرات البيئة أعلاه (انظر .env.example).', 'No live connections or real credentials. Each source is designed to be connected later through its own adapter and the environment variables above (see .env.example).') + '</p></div>');
+      } else if (t === 'ncm') {
         const d = src('ncm'), age = (s.now - d.lastReceivedAt) / H;
         if (!$('#ncmImport')) fill('#ibody', '<div class="grid2"><div class="panel"><h3>' + T('حالة مصدر البيانات', 'Data source status') + '</h3><div id="ncmStatus"></div></div><div class="panel"><h3>' + T('نموذج البيانات الموحد', 'Unified data model') + '</h3><pre class="msg sm" dir="ltr">{\n  "source": "NCM | TEST",\n  "records": [{\n    "areaId": "JED",\n    "recordedAt": "ISO-8601",\n    "reliability": 0.0–1.0,\n    "observation": { "windKn", "windDir", "gustKn", "waveM",\n      "waveDir", "currentKn", "currentDir", "visNm", "tempC" },\n    "forecast": [{ "h": 0–48, ...same fields }]\n  }]\n}</pre><p class="sm"><code>POST /api/integrations/ncm/weather</code> ' + T('(على الخادم، بمفتاح تكامل)', '(on the server, with an integration key)') + '</p></div></div>' +
           '<div class="panel" id="ncmImport"><h3>' + T('واجهة API تجريبية: استقبال بيانات اختبار', 'Test API: receive test data') + '</h3><textarea id="ncmJson" dir="ltr" rows="12" class="mono">' + esc(NCM_SAMPLE()) + '</textarea><div class="row"><button class="btn" data-a="ncmImport">' + T('تحقق واستقبال', 'Validate & receive') + '</button><button class="btn ghost sm" data-a="ncmSample">' + T('إعادة المثال', 'Reset example') + '</button></div><div id="ncmResult"></div></div><div class="panel"><h3>' + T('سجل الاستقبال', 'Receive log') + '</h3><div id="ncmLog"></div></div>');
@@ -2697,22 +2947,39 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   };
 
   // 8) Audit
+  const ENT = { alert: ['إنذار', 'Alert'], bulletin: ['نشرة', 'Bulletin'], risk: ['خطر', 'Risk'], vessel: ['سفينة', 'Vessel'], port: ['ميناء', 'Port'], allocation: ['تحويل', 'Allocation'], delivery: ['تسليم', 'Delivery'], alternativeRoute: ['توصية', 'Recommendation'], weather: ['طقس', 'Weather'], navtex: ['NAVTEX', 'NAVTEX'], scenario: ['سيناريو', 'Scenario'], analysis: ['تحليل', 'Analysis'], dataset: ['بيانات', 'Dataset'], user: ['مستخدم', 'User'], settings: ['إعدادات', 'Settings'] };
   OFF.audit = {
-    mount: () => sechead(T('سجل العمليات', 'Operations log'), T('سجل تلقائي لكل عملية، متسلسل بالتجزئة SHA-256 بحيث يكشف أي تعديل لاحق.', 'Automatic log of every operation, SHA-256 hash-chained so later edits are detectable.'), '<button class="btn sm ghost" data-a="verify">' + T('التحقق من سلامة السجل', 'Verify log integrity') + '</button><button class="btn sm ghost" data-a="auditCsv">CSV</button>') + '<div id="vres"></div><div class="panel"><div id="alog"></div></div>',
+    mount: () => sechead(T('سجل العمليات', 'Operations log'), '', '<button class="btn sm ghost" data-a="verify">' + T('التحقق من سلامة السجل', 'Verify log integrity') + '</button><button class="btn sm ghost" data-a="auditCsv">' + T('تصدير CSV', 'Export CSV') + '</button>') + '<div id="vres"></div><div class="panel"><div class="row"><select data-f="aent" class="tsearch">' + opts([['', T('كل الأنواع', 'All types')]].concat(Object.keys(ENT).map(k => [k, T(...ENT[k])])), state.f.aent || '') + '</select><select data-f="arole" class="tsearch">' + opts([['', T('كل الأدوار', 'All roles')], ['officer', T('ضابط الميناء', 'Port officer')], ['bridge', T('جسر السفينة', 'Ship bridge')], ['system', T('النظام', 'System')]], state.f.arole || '') + '</select><input class="tsearch" data-t="#alog" placeholder="' + T('بحث في السجل', 'Search the log') + '"></div><div id="alog"></div></div>',
     upd: () => {
       const s = S();
       fill('#vres', state.verify ? '<p class="note ' + (state.verify.ok ? 'ok' : 'bad') + '">' + (state.verify.ok ? T('السجل سليم: ', 'Log intact: ') + N(state.verify.checked) + T(' عملية', ' operations') + ' · <code>' + esc(state.verify.head) + '</code>' : T('انكسر السجل عند العملية ', 'Log broken at #') + state.verify.brokenAt) + '</p>' : '');
-      fill('#alog', tbl(['#', T('الوقت', 'Time'), T('المنفذ', 'Actor'), T('العملية', 'Operation'), T('الوصف', 'Summary')], s.auditLogs.slice().reverse().map(a => tr([N(a.seq), fTs(a.ts) + '<div class="sm muted">' + fD(a.ts) + '</div>', esc(a.actor), '<code class="sm">' + esc(a.action) + '</code>', esc(L(a.summary))]))));
+      const rows = s.auditLogs.filter(a => (!state.f.aent || a.entity === state.f.aent) && (!state.f.arole || (a.role || (a.actor === 'marsa-engine' ? 'system' : '')) === state.f.arole)).slice().reverse();
+      fill('#alog', tbl([T('المعرّف', 'ID'), T('الوقت', 'Time'), T('المنفذ / الدور', 'User / role'), T('العملية', 'Action'), T('مرتبط بـ', 'Related'), T('الحالة السابقة', 'Previous'), T('الحالة الجديدة', 'New'), T('الوصف', 'Summary')], rows.map(a => tr(['<code class="sm">#' + a.seq + '</code>', fTs(a.ts) + '<div class="sm muted">' + fD(a.ts) + '</div>', esc(a.actor) + '<div class="sm muted">' + esc(a.role || '') + '</div>', '<code class="sm">' + esc(a.action) + '</code>', (ENT[a.entity] ? T(...ENT[a.entity]) : esc(a.entity)) + (a.entityId ? '<div class="sm muted"><code>' + esc(a.entityId) + '</code></div>' : ''), a.prevStatus ? '<code class="sm">' + esc(a.prevStatus) + '</code>' : '—', a.newStatus ? '<code class="sm">' + esc(a.newStatus) + '</code>' : '—', esc(L(a.summary))]))));
     }
   };
   A.verify = async () => { const r = await act('verifyAudit', {}, false); if (r) { state.verify = r; update(); } };
-  A.auditCsv = () => { const q = v => { const s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }; download('marsa-operations-log.csv', '﻿' + [['seq', 'time', 'actor', 'action', 'summary_ar', 'summary_en', 'hash']].concat(S().auditLogs.map(a => [a.seq, new Date(a.ts).toISOString(), a.actor, a.action, a.summary.ar, a.summary.en, a.hash])).map(r => r.map(q).join(',')).join('\r\n'), 'text/csv;charset=utf-8'); };
+  A.auditCsv = () => { const q = v => { const s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }; download('marsa-operations-log.csv', '﻿' + [['id', 'seq', 'time', 'user', 'role', 'action', 'entity', 'entity_id', 'previous_status', 'new_status', 'summary_ar', 'summary_en', 'hash']].concat(S().auditLogs.map(a => [a.id, a.seq, new Date(a.ts).toISOString(), a.actor, a.role || '', a.action, a.entity, a.entityId || '', a.prevStatus || '', a.newStatus || '', a.summary.ar, a.summary.en, a.hash])).map(r => r.map(q).join(',')).join('\r\n'), 'text/csv;charset=utf-8'); };
+
+  // Demo scenarios (one click each) and reset
+  const SCN = [
+    [1, 'طقس شديد في البحر الأحمر', 'Severe weather in the Red Sea', 'منخفض جوي حاد على ساحل الليث خلال ٢٤ ساعة: يحدد مَرسى السفن المتأثرة ويجهّز إنذارًا مع توصية لكل سفينة بانتظار اعتمادك.', 'A severe low off Al Lith within 24 h: MARSA identifies affected vessels and prepares an alert with a recommendation per vessel, awaiting your approval.'],
+    [2, 'إغلاق ميناء جدة', 'Jeddah port closure', 'إغلاق ميناء جدة الإسلامي مؤقتًا بسبب الطقس: تحديد السفن القادمة واقتراح موانئ بديلة دون تجاوز ٨٨٪.', 'Jeddah Islamic Port temporarily closed for weather: incoming vessels identified and alternative ports proposed within 88%.'],
+    [3, 'ازدحام ميناء الدمام', 'Dammam port congestion', 'إشغال ميناء الملك عبدالعزيز يصل ٩٣٪: إعادة توزيع السفن القادمة مع احترام حد ٨٨٪.', 'King Abdulaziz Port reaches 93% occupancy: incoming vessels redistributed respecting the 88% ceiling.'],
+    [4, 'سفينة خارج المياه الإقليمية', 'Vessel outside territorial waters', 'سفينة تتجه لخطر وهي خارج حد الإنذار المباشر: يُحجز إنذارها، ثم حاكِ دخولها لتستلمه.', 'A vessel approaching a risk is outside the direct-alert boundary: its alert is queued; then simulate its entry to deliver it.'],
+    [5, 'تحذير NAVAREA', 'NAVAREA warning', 'تجهيز مسودة تحذير NAVAREA IX وتحديد الجهات (الميناء، محطة NAVTEX، منسق كراتشي) وعرضها للمراجعة والاعتماد.', 'Prepare a NAVAREA IX warning draft, identify recipients (port, NAVTEX station, Karachi coordinator) and send it for review and approval.']];
+  OFF.scenarios = {
+    mount: () => sechead(T('سيناريوهات العرض', 'Demo scenarios'), '', '<button class="btn sm ghost danger" data-a="resetData">' + T('إعادة ضبط العرض', 'Reset demo') + '</button>') + '<div class="scgrid">' + SCN.map(([n, ar, en, dar, den]) => '<div class="sccard"><span class="scn">' + n + '</span><b>' + T(ar, en) + '</b><p>' + T(dar, den) + '</p><button class="btn" data-a="runScn" data-id="' + n + '">' + T('تشغيل', 'Run') + '</button></div>').join('') + '</div>',
+    upd: () => {}
+  };
+  NAVI.scenarios = 'M5 3l14 9-14 9V3z';
+  A.runScn = async d => { const r = await act('runScenario', { n: +d.id }, T('شُغّل السيناريو ' + d.id, 'Scenario ' + d.id + ' run')); if (!r) return; state.holdSel = Date.now() + 5000; if (r.alertId) state.sel.alert = r.alertId; if (r.bulletinId) state.sel.bulletin = r.bulletinId; state.sec = r.go; renderView(); };
 
   // ---------- Ship Bridge ----------
   const BR = {
-    mount: () => '<div id="sndhint"></div><div id="bstatus"></div><div id="bnotice"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
+    mount: () => '<div id="bident"></div><div id="sndhint"></div><div id="bstatus"></div><div id="bnotice"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
     upd: () => {
       const s = S(), v = s.vessels[0]; if (!v) { fill('#bstatus', empty(T('حُذف سجل هذه السفينة.', 'This vessel record was deleted.'))); return; }
+      fill('#bident', '<div class="ident"><div><b>' + esc(v.name) + '</b><span>IMO ' + esc(v.imo) + ' · MMSI ' + esc(v.mmsi) + ' · ' + vtype(v.type) + '</span></div><div><span>' + T('الموقع', 'Position') + '</span><b>' + ll(v.pos) + '</b></div><div><span>' + T('الوجهة', 'Destination') + '</span><b>' + esc(pname(v.destId)) + '</b></div><div><span>' + T('الوصول المتوقع', 'ETA') + '</span><b>' + (v.etaAt ? fT(v.etaAt) : '—') + '</b></div><div><span>' + T('المياه الإقليمية', 'Territorial waters') + '</span><b>' + (v.inTerritorialSea ? T('داخلها', 'Inside') : T('خارجها', 'Outside')) + ' · ' + N(v.distCoastNm, 1) + ' nm</b></div></div>');
       fill('#sndhint', Sound.on && !Sound.unlocked ? '<button class="sndhint" data-a="enableSound">' + ic(I_SOUND) + T('اضغط هنا لتفعيل صوت الإنذار على هذا الجهاز', 'Tap here to enable the alarm sound on this device') + '</button>' : '');
       const dls = s.deliveryRecords.slice().sort((a, b) => (b.dispatchedAt || 0) - (a.dispatchedAt || 0));
       const open = dls.filter(d => !d.ackAt && ['dispatched', 'received'].includes(d.status) && !['cancelled', 'expired'].includes((alertById(d.alertId) || {}).status));
@@ -2721,7 +2988,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       fill('#bstatus', open.length ? open.map(d => { const a = alertById(d.alertId) || {}; return '<div class="bigalert lv-critical"><div class="ba-head"><span class="ba-icon">!</span><div><b>' + esc(L(a.title)) + '</b><span>' + T('إنذار من مَرسى (اختبار)', 'MARSA alert (test)') + ' · ' + esc(a.number) + ' · ' + lv(a.severity) + '</span></div></div><div class="ba-body"><p>' + esc(L(a.body)) + '</p><p><b>' + T('التعليمات: ', 'Instructions: ') + '</b>' + esc(L(a.instructions)) + '</p><p class="sm">' + T('موقع الخطر: ', 'Hazard location: ') + esc(L(a.areaName)) + ' · ' + T('الوقت المتوقع: ', 'Expected: ') + (a.riskSnapshot ? fT(a.riskSnapshot.start) + ' – ' + fT(a.riskSnapshot.end) : fT(a.validFrom) + ' – ' + fT(a.validTo)) + '</p></div><button class="btn big light" data-a="ackAlert" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button></div>'; }).join('')
         : '<div class="calmline">' + T('لا توجد إنذارات بانتظار التأكيد.', 'No alerts awaiting confirmation.') + '</div>');
       const bd = (s.bulletinDeliveries || []).slice().sort((a, b) => b.sentAt - a.sentAt);
-      fill('#bnotice', bd.length ? '<div class="panel"><h2>' + T('الإشعارات الملاحية', 'Navigational notices') + '</h2>' + bd.map(d => { const b = (s.bulletins || []).find(x => x.id === d.bulletinId) || {}; return '<div class="notice' + (d.readAt ? ' read' : '') + '"><div><b>' + esc(L(b.title)) + '</b><span class="sm muted">' + esc(b.number) + ' · ' + T(...(BTYPE[b.type] || ['', ''])) + ' · ' + T('صالحة حتى ', 'valid until ') + fT(b.validTo) + '</span><p>' + esc(L(b.body)) + '</p></div>' + (d.readAt ? B('ok', T('تم الاطلاع ', 'Read ') + fH(d.readAt)) : '<button class="btn sm" data-a="bRead" data-id="' + d.id + '">' + T('تم الاطلاع', 'Mark as read') + '</button>') + '</div>'; }).join('') + '</div>' : '');
+      fill('#bnotice', bd.length ? '<div class="panel"><h2>' + T('الإشعارات الملاحية', 'Navigational notices') + '</h2>' + bd.map(d => { const b = (s.bulletins || []).find(x => x.id === d.bulletinId) || {}; return '<div class="notice' + (d.readAt ? ' read' : '') + '"><div><b>' + esc(L(b.title)) + '</b><span class="sm muted">' + esc(b.number) + ' · ' + T(...(BTYPE[b.type] || ['', ''])) + ' · ' + T('صالحة حتى ', 'valid until ') + fT(b.validTo) + '</span><p>' + esc(L(b.body)) + '</p></div>' + (d.readAt ? B('ok', T('تم الاطلاع ', 'Read ') + fH(d.readAt)) : '<button class="btn sm" data-a="bRead" data-id="' + d.id + '">' + T('تأكيد الاطلاع', 'Acknowledge') + '</button>') + '</div>'; }).join('') + '</div>' : '');
       if (state.seenNotices) { const fresh = bd.filter(d => !state.seenNotices.has(d.id)); if (fresh.length) toast(T('إشعار ملاحي جديد', 'New navigational notice'), 'ok'); }
       state.seenNotices = new Set(bd.map(d => d.id));
       const ar = s.alternativeRoutes.slice(-1)[0];
@@ -2732,7 +2999,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         fill('#rinfo', routeDetail(ar));
       } else fill('#broute', '<p class="muted">' + T('لا يوجد مسار بديل مقترح.', 'No alternative route suggested.') + '</p>');
       fill('#bvessel', '<div class="kv">' + [['MMSI', '<code>' + esc(v.mmsi) + '</code>'], ['IMO', '<code>' + esc(v.imo) + '</code>'], [T('الموقع', 'Position'), ll(v.pos) + ' ' + TAG('Test AIS Data')], [T('السرعة / الاتجاه', 'Speed / course'), N(v.sog, 1) + ' kn / ' + N(v.cog) + '°'], [T('الغاطس', 'Draft'), N(v.draft, 1) + ' m'], [T('الوجهة', 'Destination'), esc(pname(v.destId)) + (v.etaAt ? ' · ' + fT(v.etaAt) : '')]].map(([k, x]) => '<span>' + k + '</span><b>' + x + '</b>').join('') + '</div>');
-      fill('#blog', dls.length ? tbl([T('الإنذار', 'Alert'), T('الخطورة', 'Severity'), T('وقت الاستلام', 'Received'), T('حالة التأكيد', 'Confirmation'), T('مسار بديل', 'Alt. route')], dls.map(d => { const a = alertById(d.alertId) || {}, rr = s.alternativeRoutes.find(x => x.alertId === d.alertId); return tr(['<b>' + esc(a.number) + '</b><div class="sm">' + esc(L(a.title)) + '</div>', lvB(a.severity), fT(d.receivedAt || d.dispatchedAt), d.ackAt ? B('ok', T('مؤكد ', 'Confirmed ') + fH(d.ackAt)) : ['cancelled', 'expired'].includes(a.status) ? B('muted', T(...AST[a.status])) : B('crit', T('بانتظار التأكيد', 'Awaiting')), rr ? esc(decName(rr)) : '—']); })) : empty(T('لا توجد إنذارات سابقة.', 'No previous alerts.')));
+      fill('#blog', dls.length ? tbl([T('الإنذار', 'Alert'), T('الخطورة', 'Severity'), T('وقت الاستلام', 'Received'), T('حالة التأكيد', 'Confirmation'), T('مسار بديل', 'Alt. route')], dls.map(d => { const a = alertById(d.alertId) || {}, rr = s.alternativeRoutes.find(x => x.alertId === d.alertId); return tr(['<b>' + esc(a.number) + '</b><div class="sm">' + esc(L(a.title)) + '</div>', lvB(a.severity), fT(d.receivedAt || d.dispatchedAt), d.ackAt ? B(d.action === 'rejected' ? 'crit' : 'ok', (d.action === 'rejected' ? T('رُفضت التوصية ', 'Rejected ') : d.action === 'accepted' ? T('قُبلت التوصية ', 'Accepted ') : T('مؤكد ', 'Confirmed ')) + fH(d.ackAt)) : ['cancelled', 'expired'].includes(a.status) ? B('muted', T(...AST[a.status])) : B('crit', T('بانتظار التأكيد', 'Awaiting')), rr ? esc(decName(rr)) : '—']); })) : empty(T('لا توجد إنذارات سابقة.', 'No previous alerts.')));
       const ids = new Set(dls.map(d => d.id));
       if (state.seenDeliv === null) { state.seenDeliv = ids; if (open.length) showAlarm(open[0]); }
       else { const fresh = dls.filter(d => !state.seenDeliv.has(d.id)); fresh.forEach(d => state.seenDeliv.add(d.id)); const f0 = fresh.find(d => ['dispatched', 'received'].includes(d.status)); if (f0) showAlarm(f0); }
@@ -2747,13 +3014,14 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     const el = document.createElement('div'); el.className = 'alarm-wrap';
     el.innerHTML = '<div class="alarm lv-critical" role="alertdialog" aria-modal="true"><div class="al-head"><span class="al-icon">!</span><div><b>' + (test ? T('اختبار', 'TEST') : T('إنذار من مَرسى', 'MARSA ALERT')) + '</b><span>' + T('الخطورة: ', 'Severity: ') + lv(a.severity) + ' · ' + esc(a.number) + ' · TEST DATA</span></div></div><h2>' + esc(L(a.title)) + '</h2><p>' + esc(L(a.body)) + '</p>' +
       '<div class="kv"><span>' + T('موقع الخطر', 'Hazard location') + '</span><b>' + esc(L(a.areaName)) + '</b><span>' + T('الوقت المتوقع', 'Expected time') + '</span><b>' + (a.riskSnapshot ? fT(a.riskSnapshot.start) + ' – ' + fT(a.riskSnapshot.end) : fT(a.validFrom) + ' – ' + fT(a.validTo)) + '</b><span>' + T('التعليمات', 'Instructions') + '</span><b>' + esc(L(a.instructions)) + '</b><span>' + T('صدر', 'Issued') + '</span><b>' + fT(a.dispatchedAt || S().now) + ' · ' + T('ضابط الميناء – مَرسى', 'Port Officer – MARSA') + '</b></div>' +
-      (!test && rec && rec.recommended ? '<div class="recbox">' + T('توصية مَرسى لسفينتك: ', 'MARSA recommendation for your vessel: ') + '<b>' + esc(L(rec.recommended.label)) + '</b><span>' + esc(L(rec.reason)) + '</span></div>' : '') + (test ? '<button class="btn big light" data-a="closeAlarm">' + T('إغلاق الاختبار', 'Close test') + '</button>' : '<label class="offname">' + T('اسم الضابط المناوب', 'Officer of the watch') + '<input id="alof" value="' + esc(T('ضابط المناوبة', 'Officer of the watch')) + '"></label>' + (rec && rec.recommended ? '<button class="btn big light" data-a="ackFromAlarm" data-act="accepted" data-id="' + d.id + '">' + T('قبول التوصية', 'Accept recommendation') + '</button><button class="btn ghost light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد الاستلام فقط', 'Confirm receipt only') + '</button>' : '<button class="btn big light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button>') + '<button class="btn ghost light sm" data-a="closeAlarm">' + T('عرض لاحقًا', 'Later') + '</button>') + '</div>';
+      (!test && rec && rec.recommended ? '<div class="recbox">' + T('توصية مَرسى لسفينتك: ', 'MARSA recommendation for your vessel: ') + '<b>' + esc(L(rec.recommended.label)) + '</b><span>' + esc(L(rec.reason)) + '</span>' + recImpact(rec) + '</div>' : '') + (test ? '<button class="btn big light" data-a="closeAlarm">' + T('إغلاق الاختبار', 'Close test') + '</button>' : '<label class="offname">' + T('اسم الضابط المناوب', 'Officer of the watch') + '<input id="alof" value="' + esc(T('ضابط المناوبة', 'Officer of the watch')) + '"></label>' + (rec && rec.recommended ? '<button class="btn big light" data-a="ackFromAlarm" data-act="accepted" data-id="' + d.id + '">' + T('قبول التوصية', 'Accept recommendation') + '</button><button class="btn ghost light" data-a="ackFromAlarm" data-act="rejected" data-id="' + d.id + '">' + T('رفض التوصية', 'Reject recommendation') + '</button><button class="btn ghost light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Acknowledge alert') + '</button>' : '<button class="btn big light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button>') + '<button class="btn ghost light sm" data-a="closeAlarm">' + T('عرض لاحقًا', 'Later') + '</button>') + '</div>';
     document.body.appendChild(el); Sound.ring(); if (!test) Sound.repeat();
   }
   A.enableSound = () => { Sound.unlock(); setTimeout(() => { Sound.ring(true); update(); }, 150); toast(T('تم تفعيل صوت الإنذار', 'Alarm sound enabled'), 'ok'); };
   A.testAlarm = () => { Sound.unlock(); showAlarm(null, true); };
   A.closeAlarm = () => { $$('.alarm-wrap').forEach(x => x.remove()); Sound.stopRepeat(); };
-  A.ackFromAlarm = async d => { const name = ($('#alof') || {}).value || T('ضابط المناوبة', 'Officer of the watch'); if (await act('acknowledge', { id: d.id, officer: name, action: d.act || null }, T('أُرسل تأكيد الاستلام', 'Receipt confirmed'))) A.closeAlarm(); };
+  function recImpact(rec) { const o = (rec.options || []).find(q => q.recommended), c = (rec.options || []).find(q => q.kind === 'continue'); if (!o) return ''; const v = S().vessels[0] || {}; return '<span>' + T('الوصول المتوقع: ', 'ETA: ') + fT(S().now + o.hours * H) + ' · ' + T('زمن إضافي: ', 'Extra time: ') + (c ? (o.hours - c.hours >= 0 ? '+' : '') + N(o.hours - c.hours, 1) : '—') + T(' س', ' h') + ' · ' + T('أثر الوقود: ', 'Fuel impact: ') + (c ? (o.fuelT - c.fuelT >= 0 ? '+' : '') + N(o.fuelT - c.fuelT, 1) : '—') + T(' طن (تقدير)', ' t (estimate)') + '</span>'; }
+  A.ackFromAlarm = async d => { const name = ($('#alof') || {}).value || T('ضابط المناوبة', 'Officer of the watch'); let reason = null; if (d.act === 'rejected') { reason = prompt(T('سبب رفض التوصية (مطلوب)', 'Reason for rejecting the recommendation (required)'), ''); if (!reason || reason.trim().length < 3) { toast(T('سبب الرفض مطلوب', 'A reason is required'), 'bad'); return; } } if (await act('acknowledge', { id: d.id, officer: name, action: d.act || null, reason }, T('أُرسل تأكيد الاستلام', 'Receipt confirmed'))) A.closeAlarm(); };
   A.bRead = d => act('markBulletinRead', { id: d.id }, false);
   A.ackAlert = d => showAlarm(S().deliveryRecords.find(x => x.id === d.id));
 

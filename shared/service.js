@@ -74,7 +74,22 @@
   };
   const IND = { windKn: tx('سرعة الرياح', 'Wind speed'), waveM: tx('ارتفاع الأمواج', 'Wave height'), visNm: tx('الرؤية الأفقية', 'Visibility'), currentKn: tx('سرعة التيار', 'Current speed') };
   const UNIT = { windKn: 'kn', waveM: 'm', visNm: 'nm', currentKn: 'kn' };
-  const RTYPE = { strong_winds: tx('رياح شديدة', 'Strong winds'), high_waves: tx('أمواج عالية', 'High waves'), reduced_visibility: tx('انخفاض الرؤية', 'Reduced visibility'), strong_currents: tx('تيارات قوية', 'Strong currents'), navigation_hazard: tx('خطر ملاحي', 'Navigation hazard'), operational: tx('قيود تشغيلية', 'Operational restriction'), port_closure: tx('إغلاق ميناء', 'Port closure'), port_restriction: tx('قيود على ميناء', 'Port restriction'), security: tx('تهديد أمني', 'Security threat'), other: tx('خطر آخر', 'Other hazard') };
+  const RTYPE = { severe_weather: tx('طقس شديد', 'Severe weather'), port_congestion: tx('ازدحام ميناء', 'Port congestion'), strong_winds: tx('رياح شديدة', 'Strong winds'), high_waves: tx('أمواج عالية', 'High waves'), reduced_visibility: tx('انخفاض الرؤية', 'Reduced visibility'), strong_currents: tx('تيارات قوية', 'Strong currents'), navigation_hazard: tx('خطر ملاحي', 'Navigation hazard'), operational: tx('قيود تشغيلية', 'Operational restriction'), port_closure: tx('إغلاق ميناء', 'Port closure'), port_restriction: tx('قيود على ميناء', 'Port restriction'), security: tx('تهديد أمني', 'Security threat'), other: tx('خطر آخر', 'Other hazard') };
+  const ACTIONS = {
+    strong_winds: tx('خفض السرعة، تأمين البضائع على السطح، تجنب المنطقة أو الانتظار في منطقة آمنة، ومتابعة النشرات.', 'Reduce speed, secure deck cargo, avoid the area or wait in a safe location, and monitor bulletins.'),
+    high_waves: tx('تجنب المرور بالمنطقة، تعديل الاتجاه لتقليل التدحرج، الانتظار حتى تحسن الأحوال، وتأجيل عمليات الإرشاد.', 'Avoid transiting the area, adjust heading to reduce rolling, wait for improvement, and postpone pilotage.'),
+    severe_weather: tx('تجنب المنطقة كليًا، الانتظار في منطقة آمنة أو التحويل لميناء بديل، وتعليق العمليات البحرية غير الضرورية.', 'Avoid the area entirely, wait in a safe location or divert, and suspend non-essential marine operations.'),
+    reduced_visibility: tx('خفض السرعة، تشغيل الرادار والإشارات الصوتية، زيادة المراقبة، والالتزام بقواعد منع التصادم.', 'Reduce speed, use radar and sound signals, increase lookout, and comply with COLREGs.'),
+    strong_currents: tx('مراعاة الانجراف عند الاقتراب من الشعاب والموانئ، وطلب الإرشاد، وتجنب المناورات القريبة.', 'Allow for set and drift near reefs and ports, request pilotage, and avoid close-quarter manoeuvres.'),
+    navigation_hazard: tx('الابتعاد عن الموقع، مراقبة الجسم الطافي، وإبلاغ الميناء بأي مشاهدة.', 'Keep clear of the position, keep watch for the object, and report sightings to the port.'),
+    operational: tx('التنسيق مع الميناء قبل الوصول وتعديل موعد الوصول.', 'Coordinate with the port before arrival and adjust the arrival time.'),
+    port_closure: tx('عدم الدخول للميناء، الانتظار في منطقة الانتظار المحددة، أو التحويل لميناء بديل.', 'Do not enter the port; wait at the designated waiting area or divert to an alternative port.'),
+    port_restriction: tx('الالتزام بقيود الدخول والتنسيق مع الميناء.', 'Comply with entry restrictions and coordinate with the port.'),
+    port_congestion: tx('تأجيل الوصول أو التحويل لميناء بديل لا يتجاوز إشغاله ٨٨٪.', 'Delay arrival or divert to an alternative port not exceeding 88% occupancy.'),
+    security: tx('اتباع تعليمات الجهات المختصة وتجنب المنطقة.', 'Follow the competent authorities\' instructions and avoid the area.'),
+    other: tx('متابعة تعليمات الميناء.', 'Follow port instructions.')
+  };
+  const confidenceOf = (rel, source) => { const v = source === 'rules' ? (rel >= .85 ? 'high' : rel >= .7 ? 'medium' : 'low') : source === 'port' ? 'high' : 'medium'; return { level: v, label: tx({ high: 'مرتفعة', medium: 'متوسطة', low: 'منخفضة' }[v] + ' – تقدير محاكى قائم على القواعد، وليس احتمالًا إحصائيًا مثبتًا', v + ' – simulated rule-based assessment, not a statistically validated probability') }; };
   const DOMINANT = { waveM: 'high_waves', windKn: 'strong_winds', visNm: 'reduced_visibility', currentKn: 'strong_currents' };
 
   function levelOf(ind, v, rules) {
@@ -124,15 +139,18 @@
     const bil = (o, n = 2000) => ({ ar: str(o && o.ar, n), en: str(o && o.en, n) });
 
     // Audit log: append-only hash chain
-    function audit(actor, action, entity, entityId, summary, details) {
+    let pendingTx = null; // status transition captured by setAlert/setBulletin/setAllocation for the next audit row of the same entity
+    const markTx = (id, prev, next) => { pendingTx = { id, prev, next }; };
+    function audit(actor, action, entity, entityId, summary, details, prevStatus, newStatus) {
       const last = S.all('auditLogs').slice(-1)[0];
-      const row = { id: uid('AU'), seq: (last ? last.seq : 0) + 1, ts: now(), actor: actor.username, action, entity, entityId: entityId || null, summary, details: details || null, prevHash: last ? last.hash : 'GENESIS' };
-      row.hash = C.sha256(row.prevHash + JSON.stringify([row.seq, row.ts, row.actor, row.action, row.entity, row.entityId, row.summary, row.details]));
+      if (pendingTx && pendingTx.id === entityId && prevStatus === undefined) { prevStatus = pendingTx.prev; newStatus = pendingTx.next; pendingTx = null; }
+      const row = { id: uid('AU'), seq: (last ? last.seq : 0) + 1, ts: now(), actor: actor.username, role: actor.role || 'system', action, entity, entityId: entityId || null, summary, details: details || null, prevStatus: prevStatus || null, newStatus: newStatus || null, prevHash: last ? last.hash : 'GENESIS' };
+      row.hash = C.sha256(row.prevHash + JSON.stringify([row.seq, row.ts, row.actor, row.action, row.entity, row.entityId, row.summary, row.details, row.prevStatus, row.newStatus]));
       S.insert('auditLogs', row);
     }
     function verifyAudit() {
       let prev = 'GENESIS', n = 0;
-      for (const r of S.all('auditLogs')) { n++; const h = C.sha256(prev + JSON.stringify([r.seq, r.ts, r.actor, r.action, r.entity, r.entityId, r.summary, r.details])); if (r.prevHash !== prev || r.hash !== h) return { ok: false, brokenAt: r.seq, checked: n }; prev = r.hash; }
+      for (const r of S.all('auditLogs')) { n++; const h = C.sha256(prev + JSON.stringify([r.seq, r.ts, r.actor, r.action, r.entity, r.entityId, r.summary, r.details, r.prevStatus || null, r.newStatus || null])); if (r.prevHash !== prev || r.hash !== h) return { ok: false, brokenAt: r.seq, checked: n }; prev = r.hash; }
       return { ok: true, checked: n, head: prev.slice(0, 16) };
     }
 
@@ -165,6 +183,7 @@
     }
     const nearestNodes = (p, k = 3) => Object.keys(C.NODES).filter(n => !C.VIRTUAL[n]).map(n => [n, C.gcNm(p, C.NODES[n])]).sort((a, b) => a[1] - b[1]).slice(0, k).map(x => x[0]);
     const destNodeOf = id => { const p = C.PORTS.find(x => x.id === id); return p ? p.node : null; };
+    const portOcc = p => { const extra = S.all('allocations').filter(a => a.toPort === p.id && ['approved', 'modified'].includes(a.status)).length + S.all('alternativeRoutes').filter(x => x.kind === 'divert' && x.alternative && x.alternative.portId === p.id && ['approved', 'modified'].includes(x.status)).length; return Math.round(p.congestionPct + extra * 100 / p.capacityBerths); };
     const geo = v => { v.distCoastNm = r1(C.distToSaudiCoastNm(v.pos)); v.inTerritorialSea = v.distCoastNm <= C.TERRITORIAL_SEA_NM; return v; };
     const coordsOf = v => [v.pos].concat(v.routeNodes.map(n => C.NODES[n]));
     function remainingNm(v) { return v.routeNodes.length ? C.gcNm(v.pos, C.NODES[v.routeNodes[0]]) + C.nodesNm(v.routeNodes) : 0; }
@@ -176,7 +195,7 @@
 
     // ---------------- Seed: the test dataset
     function seed() {
-      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'bulletinDeliveries', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
+      for (const t of ['meta', 'settings', 'users', 'seaAreas', 'ports', 'vessels', 'constraints', 'weatherObservations', 'weatherForecasts', 'maritimeRisks', 'affectedVessels', 'alerts', 'deliveryRecords', 'alternativeRoutes', 'bulletins', 'bulletinDeliveries', 'allocations', 'navtexMessages', 'integrationEvents', 'dataSources', 'auditLogs']) clear(t);
       const T0 = Math.floor(now() / (10 * MIN)) * 10 * MIN; // dataset reference time
       S.insert('meta', { id: 'meta', version: 1, counters: {}, datasetAt: T0, seededAt: now() });
       S.insert('settings', Object.assign({ id: 'rules' }, JSON.parse(JSON.stringify(DEFAULT_RULES))));
@@ -210,12 +229,22 @@
         S.insert('vessels', v);
         S.insert('users', { id: 'B-' + id, username: 'bridge.' + v.mmsi, role: 'bridge', vesselId: id, name: tx('جسر ' + name, name + ' bridge') });
       }
-      for (const r of RISK_RECORDS) S.insert('maritimeRisks', { id: 'R:' + r.key, key: r.key, source: 'record', type: r.type, level: r.level, title: tx(r.ar, r.en), areaName: tx(r.ar, r.en), center: r.p, radiusNm: r.r, poly: C.circlePoly(r.p, r.r, 16), start: T0 + r.start * H, end: T0 + r.end * H, durationH: r.end - r.start, indicators: [{ name: 'report', text: r.ind, level: r.level }], explanation: tx('سجل خطر من بيانات الاختبار: ' + r.ind.ar + '.', 'Risk record from the test dataset: ' + r.ind.en + '.'), createdAt: T0 - H, createdBy: 'test-dataset' });
+      for (const r of RISK_RECORDS) S.insert('maritimeRisks', { id: 'R:' + r.key, key: r.key, source: 'record', type: r.type, level: r.level, title: tx(r.ar, r.en), areaName: tx(r.ar, r.en), center: r.p, radiusNm: r.r, poly: C.circlePoly(r.p, r.r, 16), start: T0 + r.start * H, end: T0 + r.end * H, durationH: r.end - r.start, indicators: [{ name: 'report', text: r.ind, level: r.level }], explanation: tx('سجل خطر من بيانات الاختبار: ' + r.ind.ar + '.', 'Risk record from the test dataset: ' + r.ind.en + '.'), actions: ACTIONS[r.type], confidence: confidenceOf(.8, 'record'), createdAt: T0 - H, createdBy: 'test-dataset' });
       S.insert('dataSources', { id: 'ncm', name: tx('بيانات الأرصاد البحرية', 'Marine weather data'), label: 'Sample Weather Data', kind: 'test', lastReceivedAt: T0 - 20 * MIN, accepted: SEA_AREAS.length, rejected: 0, lastErrors: [] });
       S.insert('dataSources', { id: 'ais', name: tx('مواقع السفن', 'Vessel positions'), label: 'Test AIS Data', kind: 'test', lastReceivedAt: T0 - 3 * MIN, accepted: VESSELS.length, rejected: 0, lastErrors: [] });
       S.insert('dataSources', { id: 'ports', name: tx('بيانات الموانئ', 'Port data'), label: 'Test Port Records', kind: 'test', lastReceivedAt: T0 - 30 * MIN, accepted: 7, rejected: 0, lastErrors: [] });
+      S.insert('dataSources', { id: 'navtex', name: tx('توزيع NAVTEX المعتمد', 'Authorized NAVTEX distribution'), label: 'Proposed Integration', kind: 'not_connected', lastReceivedAt: null, accepted: 0, rejected: 0, lastErrors: [] });
+      S.insert('dataSources', { id: 'navarea', name: tx('تنسيق NAVAREA IX', 'NAVAREA IX coordination'), label: 'Proposed Integration', kind: 'not_connected', lastReceivedAt: null, accepted: 0, rejected: 0, lastErrors: [] });
       audit(SYS, 'data.load', 'dataset', null, tx('تحميل بيانات الاختبار: ' + SEA_AREAS.length + ' مناطق أرصاد، ' + VESSELS.length + ' سفينة، ' + C.PORTS.filter(p => p.country === 'SA').length + ' موانئ، ' + RISK_RECORDS.length + ' سجلات مخاطر، ' + CONSTRAINTS.length + ' قيود ملاحية', 'Test data loaded: ' + SEA_AREAS.length + ' weather areas, ' + VESSELS.length + ' vessels, ' + C.PORTS.filter(p => p.country === 'SA').length + ' ports, ' + RISK_RECORDS.length + ' risk records, ' + CONSTRAINTS.length + ' navigational constraints'));
       analyse('dataset load');
+      // three sample bulletins at different stages
+      const OFFU = { username: 'port.officer', role: 'officer' };
+      const rj = S.all('maritimeRisks').filter(x => x.areaId === 'JED').sort((a, b) => rank(b.level) - rank(a.level))[0];
+      const b1 = api.createBulletin(OFFU, { type: 'weather_bulletin', areaId: 'AGC', title: tx('نشرة بحرية – وسط الخليج العربي', 'Marine bulletin – Central Arabian Gulf'), body: tx(marineForecast('AGC', 24).text.ar, marineForecast('AGC', 24).text.en) });
+      api.submitBulletin(OFFU, { id: b1.id }); api.approveBulletin(OFFU, { id: b1.id }); api.sendBulletin(OFFU, { id: b1.id });
+      const b2 = api.createBulletin(OFFU, { type: 'nav_restriction', riskId: 'R:TR1', title: tx('جسم طافٍ على الممر الملاحي غرب ينبع', 'Floating object on the shipping lane west of Yanbu'), body: S.get('maritimeRisks', 'R:TR1').explanation });
+      api.submitBulletin(OFFU, { id: b2.id });
+      if (rj) api.createBulletin(OFFU, { type: 'wind_wave_warning', riskId: rj.id, title: rj.title, body: rj.explanation });
     }
     function sampleValue(a, h, T0) {
       const hod = (new Date(T0 + h * H).getUTCHours() + 3) % 24, di = Math.sin(2 * Math.PI * (hod - 9) / 24), b = a.b;
@@ -251,7 +280,7 @@
       const LVA = { low: 'منخفض', medium: 'متوسط', high: 'مرتفع', critical: 'حرج' };
       for (const w of found) {
         const inds = Object.values(w.inds).sort((x, y) => rank(y.level) - rank(x.level));
-        const dom = inds[0] ? DOMINANT[inds[0].name] : 'high_waves';
+        let dom = inds[0] ? DOMINANT[inds[0].name] : 'high_waves'; if (inds.filter(x => rank(x.level) >= 3 && (x.name === 'windKn' || x.name === 'waveM')).length === 2 && w.level === 'critical') dom = 'severe_weather';
         const start = w.f.series[w.fromH].validAt, end = w.f.series[w.toH].validAt + H;
         const th = x => { const tt = R[x.name], i = Math.max(0, rank(x.level) - 1); return (x.name === 'visNm' ? '≤ ' : '≥ ') + tt[i] + ' ' + UNIT[x.name]; };
         const expAr = 'صُنّفت ' + w.a.name.ar + ' بمستوى «' + LVA[w.level] + '» لأن: ' + inds.map(x => IND[x.name].ar + ' ' + x.value + ' ' + UNIT[x.name] + ' (حد مستوى «' + LVA[x.level] + '» ' + th(x) + ')').join('، ') + '. المدة ' + (w.toH - w.fromH + 1) + ' ساعة في بيانات التوقعات التجريبية.';
@@ -259,13 +288,19 @@
         S.insert('maritimeRisks', { id: 'R:' + w.a.id + ':' + Math.round((start - T0) / H), key: w.a.id + ':' + Math.round((start - T0) / H), source: 'rules', type: dom, level: w.level, title: tx(RTYPE[dom].ar + ' – ' + w.a.name.ar, RTYPE[dom].en + ' – ' + w.a.name.en), areaId: w.a.id, areaName: w.a.name, center: w.a.p, radiusNm: w.a.radiusNm, poly: w.a.poly,
           start, end, durationH: w.toH - w.fromH + 1, peak: { at: w.peak.validAt, windKn: w.peak.windKn, gustKn: w.peak.gustKn, waveM: w.peak.waveM, visNm: w.peak.visNm, currentKn: w.peak.currentKn }, indicators: inds.map(x => Object.assign({ name: x.name, label: IND[x.name], value: x.value, unit: UNIT[x.name], level: x.level, threshold: th(x), at: x.at }, x.name === 'windKn' ? { beaufort: beaufort(x.value), wmoWarning: windWarning(x.value) } : {})),
           wmoWindWarning: windWarning(w.peak.windKn) ? { category: windWarning(w.peak.windKn), label: WWARN[windWarning(w.peak.windKn)], beaufort: beaufort(w.peak.windKn), ref: WWMIWS_REF } : null,
-          reliability: w.f.series[w.fromH].reliability, explanation: tx(expAr, expEn), createdAt: t, createdBy: 'rules-engine' });
+          reliability: w.f.series[w.fromH].reliability, explanation: tx(expAr, expEn), actions: ACTIONS[dom], confidence: confidenceOf(w.f.series[w.fromH].reliability, 'rules'), createdAt: t, createdBy: 'rules-engine' });
       }
       for (const p of S.all('ports').filter(p => p.status !== 'open')) {
         const ty = p.status === 'closed' ? 'port_closure' : 'port_restriction';
         S.insert('maritimeRisks', { id: 'R:PORT:' + p.id, key: 'PORT:' + p.id, source: 'port', type: ty, level: p.status === 'closed' ? 'high' : 'medium', title: tx(RTYPE[ty].ar + ' – ' + p.name.ar, RTYPE[ty].en + ' – ' + p.name.en), areaName: p.name, center: p.p, radiusNm: 12, poly: C.circlePoly(p.p, 12, 16), start: p.updatedAt, end: p.statusUntil || p.updatedAt + 24 * H, durationH: Math.round(((p.statusUntil || p.updatedAt + 24 * H) - p.updatedAt) / H),
           indicators: [{ name: 'port', text: tx('حالة الميناء: ' + (p.status === 'closed' ? 'مغلق' : 'مقيّد') + (p.restrictions.ar ? ' – ' + p.restrictions.ar : ''), 'Port status: ' + p.status + (p.restrictions.en ? ' – ' + p.restrictions.en : '')), level: p.status === 'closed' ? 'high' : 'medium' }],
-          explanation: tx('خطر تشغيلي ناتج عن حالة الميناء التي حددها ضابط الميناء.', 'Operational risk derived from the port status set by the port officer.'), createdAt: t, createdBy: 'rules-engine' });
+          explanation: tx('خطر تشغيلي ناتج عن حالة الميناء التي حددها ضابط الميناء.', 'Operational risk derived from the port status set by the port officer.'), actions: ACTIONS[ty], confidence: confidenceOf(1, 'port'), createdAt: t, createdBy: 'rules-engine' });
+      }
+      for (const p of S.all('ports').filter(p => p.status === 'open' && portOcc(p) >= 85)) {
+        const occ = portOcc(p), lvl = occ >= 92 ? 'high' : 'medium';
+        S.insert('maritimeRisks', { id: 'R:CONG:' + p.id, key: 'CONG:' + p.id, source: 'port', type: 'port_congestion', level: lvl, title: tx(RTYPE.port_congestion.ar + ' – ' + p.name.ar, RTYPE.port_congestion.en + ' – ' + p.name.en), areaName: p.name, center: p.p, radiusNm: 12, poly: C.circlePoly(p.p, 12, 16), start: t, end: t + 24 * H, durationH: 24,
+          indicators: [{ name: 'port', text: tx('الإشغال ' + occ + '٪ (حد التنبيه ٨٥٪، الحد الأعلى للتحويل ٨٨٪)', 'Occupancy ' + occ + '% (alert threshold 85%, diversion ceiling 88%)'), level: lvl }],
+          explanation: tx('إشغال الميناء مرتفع؛ السفن القادمة قد تحتاج تأجيل الوصول أو التحويل.', 'Port occupancy is high; incoming vessels may need to delay arrival or divert.'), actions: ACTIONS.port_congestion, confidence: confidenceOf(1, 'port'), createdAt: t, createdBy: 'rules-engine' });
       }
       computeAffected();
       const n = S.all('maritimeRisks').length;
@@ -319,6 +354,7 @@
       return { nm: Math.round(nm), hours: r1(hours), waitH: r1(waitH), fuelT: r1(fuelT), costSAR: Math.round(costSAR / 100) * 100 };
     }
     function decideOptions(v, r, row, alloc) {
+      row._base = { kind: row.kind, alternative: row.alternative, checks: row.checks, reason: row.reason };
       const t = now(), R = rules(), aff = S.all('affectedVessels').find(a => a.riskId === r.id && a.vesselId === v.id);
       const destP = port(v.destId), destClosed = destP && destP.status === 'closed';
       const arrival = t + (row.current.nm || 0) / Math.max(1, v.sog || 12) * H, beforeRisk = !destClosed && destP && arrival < r.start;
@@ -332,14 +368,16 @@
       for (const p of S.all('ports')) {
         const cp = C.PORTS.find(x => x.id === p.id);
         if (p.id === v.destId || p.status !== 'open' || !cp || cp.region !== region || p.maxDraftM < v.draft + R.ukcM || high.some(x => C.pointInPoly(p.p, x.poly))) continue;
-        const occ = p.congestionPct + ((alloc[p.id] || 0) + 1) * 100 / p.capacityBerths;
+        const occ = portOcc(p) + ((alloc[p.id] || 0) + 1) * 100 / p.capacityBerths;
         const rt = route(v.pos, nearestNodes(v.pos, 4), p.node, { constraints: S.all('constraints'), avoid: high.filter(x => !C.pointInPoly(v.pos, x.poly)).map(x => ({ poly: x.poly })), rough: [], draft: v.draft, ukc: R.ukcM });
         if (!rt) continue;
         opts.push(Object.assign({ kind: 'divert', portId: p.id, label: tx('التحويل إلى ' + p.name.ar, 'Divert to ' + p.name.en), safe: occ <= MAX_OCC, occupancyAfter: Math.round(occ), nodes: rt.nodes }, metrics(v, rt.nm, 0)));
       }
-      const pool = opts.filter(o => o.safe), best = (pool.length ? pool : opts).slice().sort((a, b) => a.costSAR - b.costSAR)[0];
+      const pool = opts.filter(o => o.safe), best = pool.length ? pool.slice().sort((a, b) => a.costSAR - b.costSAR)[0] : (opts.find(o => o.kind === 'wait') || opts[0]);
+      row.needsReview = !pool.length;
       row.options = opts.map(o => Object.assign({}, o, { recommended: o === best, nodes: undefined }));
       row.recommended = { kind: best.kind, portId: best.portId || null, label: best.label };
+      row._nodes = Object.fromEntries(opts.filter(o => o.nodes).map(o => [o.portId, o.nodes]));
       if (best.kind === 'divert') {
         alloc[best.portId] = (alloc[best.portId] || 0) + 1;
         row.kind = 'divert'; row.alternative = { nodes: best.nodes, nm: best.nm, hours: best.hours, portId: best.portId, coords: [v.pos].concat(C.nodesToCoords(best.nodes)) };
@@ -350,6 +388,11 @@
         row.reason = tx('تخفيض السرعة أو الانتظار قبل المنطقة ' + best.waitH + ' ساعة حتى انتهاء الخطر ثم إكمال الرحلة هو الأقل تكلفة.', 'Slowing down or waiting before the area for ' + best.waitH + ' h until the risk ends, then continuing, is the lowest-cost option.');
       } else if (best.kind === 'continue') { row.kind = 'continue'; row.alternative = null; row.checks = []; row.reason = beforeRisk ? tx('السفينة تصل الميناء قبل بداية الخطر؛ يُوصى بإكمال الدخول دون تأخير.', 'The vessel reaches port before the risk starts; completing entry without delay is recommended.') : tx('الاستمرار في المسار الحالي آمن خلال فترة الخطر.', 'Continuing on the current route is safe during the risk window.'); }
       return row;
+    }
+    function genRecs(al) {
+      const r = al.riskId && S.get('maritimeRisks', al.riskId) || { id: 'ALERT:' + al.id, title: al.title, level: al.severity, poly: al.poly, start: al.validFrom, end: al.validTo, areaName: al.areaName };
+      const ae = v => (S.all('affectedVessels').find(x => x.vesselId === v.id && x.riskId === r.id) || {}).etaToZone || 0;
+      const alloc = {}; for (const v of al.targets.map(vessel).filter(v => v && v.status === 'underway').sort((a, b) => ae(a) - ae(b))) proposeRoute(v, r, al.id, SYS, alloc);
     }
     function proposeRoute(v, r, alertId, actor, alloc) {
       const t = now(), R = rules();
@@ -409,7 +452,8 @@
       const row = { id: uid('ALT'), number: num('ALT', 'alt'), vesselId: v.id, riskId: r.id, alertId: alertId || null, kind: alt ? kind : 'none', current: cur, alternative: alt, riskPoly: r.poly, avoided: { title: r.title, level: r.level, start: r.start, end: r.end },
         reason: alt ? why : tx('تعذر إيجاد بديل ضمن بيانات الاختبار والقيود الملاحية المتاحة. يلزم تقييم الضابط والتواصل مع السفينة.', 'No alternative could be found within the test data and available navigational constraints. Officer assessment and contact with the vessel are needed.'),
         checks, validation: 'unverified', validationNote: tx('صلاحية المسار غير متحققة: لا تتوفر خرائط ملاحية معتمدة أو بيانات أعماق موثوقة، والأعماق المستخدمة قيم اختبار. لا يُعد المسار آمنًا أو صالحًا للملاحة الفعلية.', 'Route validity is NOT verified: no approved nautical charts or reliable depth data are available; depths used are test values. The route is not declared safe or fit for actual navigation.'), createdAt: t, createdBy: actor.username };
-      decideOptions(v, r, row, alloc || {});
+      decideOptions(v, r, row, alloc || {}); row.status = 'proposed';
+      if (row.needsReview) row.reason = tx('لا يوجد خيار آمن ضمن القيود؛ يُوصى بالانتظار في منطقة آمنة ويحتاج القرار مراجعة الضابط.', 'No safe option within the constraints; waiting at a safe location is recommended and the case needs officer review.');
       for (const o of S.all('alternativeRoutes').filter(x => x.vesselId === v.id && x.riskId === r.id).slice()) S.remove('alternativeRoutes', o.id);
       S.insert('alternativeRoutes', row);
       audit(actor, 'route.propose', 'alternativeRoute', row.id, tx('توصية ' + row.number + ' للسفينة ' + v.name + ': ' + row.recommended.label.ar, 'Recommendation ' + row.number + ' for ' + v.name + ': ' + row.recommended.label.en));
@@ -417,7 +461,7 @@
     }
 
     // ---------------- Alerts lifecycle
-    function setAlert(a, status, actor, note, patch = {}) { const cur = S.get('alerts', a.id); S.update('alerts', a.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch)); }
+    function setAlert(a, status, actor, note, patch = {}) { const cur = S.get('alerts', a.id); markTx(a.id, cur.status, status); S.update('alerts', a.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch)); }
     function releaseHeld(vid, actor) {
       const v = vessel(vid); if (!v || !C.inSaudiTerritorialSea(v.pos)) return; const t = now();
       for (const d of S.all('deliveryRecords').filter(x => x.vesselId === vid && x.status === 'held_outside_ts')) {
@@ -528,9 +572,55 @@
     }
 
     // ---------------- Bulletins & navigational notices: routed by WWNWS level to the competent parties (test environment)
+  // ---------------- Structured English navigational-warning draft (prepared by MARSA; issuance remains with the authorized entity)
+  function warningDraft(b) {
+    const w = b.warning || {}, c = b.poly.reduce((a, q) => [a[0] + q[0] / b.poly.length, a[1] + q[1] / b.poly.length], [0, 0]);
+    const rad = Math.round(Math.max(...b.poly.map(q => C.gcNm(c, q))));
+    const cls = { LOCAL: 'LOCAL WARNING', COASTAL: 'COASTAL WARNING', NAVAREA: 'NAVAREA IX WARNING' }[b.scope] || b.scope;
+    return ['MARSA DRAFT - FOR REVIEW BY THE AUTHORIZED ENTITY - NOT AN OFFICIAL WARNING', 'WARNING ID: ' + b.number, 'CLASSIFICATION: ' + cls, 'AREA: ' + String(b.areaName.en || '').toUpperCase(),
+      'POSITION: ' + dm(c[1], 'N', 'S', 2) + ' ' + dm(c[0], 'E', 'W', 3) + ' RADIUS ' + rad + ' NM', 'VALID: ' + dtg(b.validFrom) + ' TO ' + dtg(b.validTo),
+      'HAZARD: ' + String(w.hazard || '').toUpperCase(), 'NAVIGATIONAL IMPACT: ' + String(w.impact || '').toUpperCase(), 'PRECAUTIONS: ' + String(w.precautions || '').toUpperCase(),
+      'SOURCE: ' + String(w.source || '').toUpperCase(), 'RESPONSIBLE AUTHORITY: ' + String(w.authority || '').toUpperCase()].join('\n');
+  }
+  function warningDefaults(r, scope, b) {
+    const auth = { LOCAL: 'Port authority (harbour master)', COASTAL: 'Saudi NAVTEX station (authorized)', NAVAREA: 'NAVAREA IX coordinator (Karachi)' }[scope] || 'Port authority';
+    if (!r) return { hazard: b.title.en, impact: 'Vessels in the area may be affected', precautions: 'Navigate with caution and follow port instructions', source: 'MARSA test data (simulated)', authority: auth };
+    const pk = r.peak || {}, vals = [pk.windKn ? 'winds up to ' + Math.round(pk.windKn) + ' kt' : '', pk.waveM ? 'waves up to ' + pk.waveM + ' m' : '', pk.visNm && pk.visNm < 6 ? 'visibility down to ' + pk.visNm + ' nm' : ''].filter(Boolean).join(', ');
+    return { hazard: RTYPE[r.type].en + (vals ? ': ' + vals : ''), impact: r.type.startsWith('port') ? 'Port entry and berthing affected' : 'Hazardous conditions for navigation in the area', precautions: (r.actions || ACTIONS.other).en, source: r.source === 'rules' ? 'National Center for Meteorology forecast (simulated test data)' : 'MARSA test data (simulated)', authority: auth };
+  }
+  // ---------------- Alternative port allocation for closed or congested ports (88% ceiling)
+  const MAX_ALLOC_OCC = 88;
+  function runAllocationFor(u, portId) {
+    const from = port(portId); if (!from) throw new ValidationError('port');
+    const t = now(), R = rules(), high = S.all('maritimeRisks').filter(x => rank(x.level) >= 3 && x.end > t && x.source !== 'port'), region = (C.PORTS.find(x => x.id === portId) || {}).region;
+    for (const a of S.all('allocations').filter(a => a.fromPort === portId && a.status === 'proposed').slice()) S.remove('allocations', a.id);
+    const incoming = S.all('vessels').filter(v => v.destId === portId && v.status !== 'moored').sort((a, b) => (a.etaAt || 0) - (b.etaAt || 0));
+    const extra = {}, out = [];
+    for (const v of incoming) {
+      const calc = [];
+      for (const p of S.all('ports')) {
+        if (p.id === portId) continue; const cp = C.PORTS.find(x => x.id === p.id), before = portOcc(p) + Math.round((extra[p.id] || 0) * 100 / p.capacityBerths), after = Math.round(before + 100 / p.capacityBerths);
+        let reason = null; if (!cp || cp.region !== region) reason = tx('بحر مختلف', 'Different sea'); else if (p.status !== 'open') reason = tx('الميناء غير متاح', 'Port not open'); else if (p.maxDraftM < v.draft + R.ukcM) reason = tx('الغاطس يتجاوز حد الميناء', 'Draft exceeds port limit'); else if (after > MAX_ALLOC_OCC) reason = tx('الإشغال بعد التحويل ' + after + '٪ > ٨٨٪', 'Occupancy after ' + after + '% > 88%');
+        if (cp && cp.region !== region) continue;
+        const rt = reason ? null : route(v.pos, nearestNodes(v.pos, 4), p.node, { constraints: S.all('constraints'), avoid: high.filter(x => !C.pointInPoly(v.pos, x.poly) && x.start <= t + 6 * H).map(x => ({ poly: x.poly })), rough: [], draft: v.draft, ukc: R.ukcM });
+        if (!reason && !rt) reason = tx('لا يوجد مسار آمن', 'No safe route');
+        if (!reason && rt) { const arr = t + rt.nm / Math.max(1, v.sog || 12) * H, hz = high.find(x => C.pointInPoly(p.p, x.poly) && x.start <= arr && x.end > arr); if (hz) reason = tx('الميناء داخل منطقة خطر عند وصول السفينة', 'Port inside a risk area when the vessel arrives'); }
+        calc.push({ portId: p.id, occBefore: before, occAfter: after, availableBerths: p.availableBerths, nm: rt ? Math.round(rt.nm) : null, eligible: !reason, reason });
+      }
+      const best = calc.filter(c => c.eligible).sort((a, b) => a.nm - b.nm || a.occAfter - b.occAfter)[0];
+      if (best) extra[best.portId] = (extra[best.portId] || 0) + 1;
+      const row = { id: uid('PA'), number: num('PA', 'pa'), vesselId: v.id, fromPort: portId, toPort: best ? best.portId : null, status: best ? 'proposed' : 'no_capacity', calc, createdAt: t, createdBy: u.username, history: [{ s: best ? 'proposed' : 'no_capacity', at: t, by: u.username }],
+        explanation: best ? tx('اختير ' + port(best.portId).name.ar + ': أقرب ميناء آمن (' + best.nm + ' ميل) بإشغال بعد التحويل ' + best.occAfter + '٪ ضمن حد ٨٨٪.', port(best.portId).name.en + ' selected: nearest safe port (' + best.nm + ' nm), occupancy after diversion ' + best.occAfter + '% within the 88% ceiling.') : tx('لا يوجد ميناء بديل آمن ضمن حد ٨٨٪؛ يُوصى بالانتظار في منطقة آمنة ومراجعة الضابط.', 'No safe alternative port within the 88% ceiling; waiting at a safe location and officer review are recommended.') };
+      S.insert('allocations', row); out.push(row);
+    }
+    audit(u, 'allocation.run', 'port', portId, tx('توزيع السفن القادمة إلى ' + from.name.ar + ': ' + out.length + ' سفن، ' + out.filter(a => a.toPort).length + ' لها ميناء بديل', 'Allocation for vessels bound to ' + from.name.en + ': ' + out.length + ' vessels, ' + out.filter(a => a.toPort).length + ' with an alternative port'));
+    return out;
+  }
+  function setAllocation(a, status, actor, note, patch) { markTx(a.id, a.status, status); S.update('allocations', a.id, Object.assign({ status, history: a.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
   function bulletinRecipients(b) {
     const out = [], ports = S.all('ports').filter(p => C.pointInPoly(p.p, b.poly) || (b.portId === p.id)).slice(0, 4);
     if (!ports.length) { const c = b.poly.reduce((a, q) => [a[0] + q[0] / b.poly.length, a[1] + q[1] / b.poly.length], [0, 0]); const n = S.all('ports').slice().sort((x, y) => C.gcNm(x.p, c) - C.gcNm(y.p, c))[0]; if (n) ports.push(n); }
+    if (b.scope === 'LOCAL') for (const p of ports) out.push({ id: 'V:' + p.id, kind: 'vhf', targetId: p.id, name: tx('قناة VHF المحلية – ضابط ' + p.name.ar, 'Local VHF channel – ' + p.name.en + ' officer'), means: tx('بث VHF', 'VHF broadcast'), status: 'pending' });
     for (const p of ports) out.push({ id: 'P:' + p.id, kind: 'port', targetId: p.id, name: tx('إدارة ' + p.name.ar + ' (مأمور الميناء)', p.name.en + ' (harbour master)'), means: tx('VHF والقنوات المحلية', 'VHF and local channels'), status: 'pending' });
     if (b.scope === 'COASTAL' || b.scope === 'NAVAREA') {
       const st = (b.wwnws && b.wwnws.navtexStations || []).map(id => C.STATIONS.find(x => x.id === id)).filter(Boolean);
@@ -540,7 +630,7 @@
     if (b.scope === 'NAVAREA') { const k = C.STATIONS.find(x => x.id === 'KHI_NAV'); out.push({ id: 'C:KHI_NAV', kind: 'coordinator', targetId: k.id, name: tx(k.ar, k.en), means: tx('تحذير NAVAREA عبر NAVTEX/EGC', 'NAVAREA warning via NAVTEX/EGC'), status: 'pending' }); }
     return out;
   }
-  function setBulletin(b, status, actor, note, patch) { const cur = S.get('bulletins', b.id); S.update('bulletins', b.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
+  function setBulletin(b, status, actor, note, patch) { const cur = S.get('bulletins', b.id); markTx(b.id, cur.status, status); S.update('bulletins', b.id, Object.assign({ status, history: cur.history.concat([{ s: status, at: now(), by: actor.username, note: note || null }]) }, patch || {})); }
 
   // ---------------- Marine forecast text in the WWMIWS structure (Part I warnings, Part II synopsis, Part III forecast)
   function marineForecast(areaId, hours) {
@@ -571,11 +661,11 @@
         const aIds = new Set(dl.map(d => d.alertId));
         const bd = S.all('bulletinDeliveries').filter(d => d.vesselId === user.vesselId), bIds = new Set(bd.map(d => d.bulletinId));
         return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, vessels: v ? [v] : [], bulletinDeliveries: bd, bulletins: S.all('bulletins').filter(b => bIds.has(b.id)).map(b => ({ id: b.id, number: b.number, type: b.type, title: b.title, body: b.body, areaName: b.areaName, validFrom: b.validFrom, validTo: b.validTo, status: b.status })), ports: S.all('ports'), alerts: S.all('alerts').filter(a => aIds.has(a.id)), deliveryRecords: dl,
-          alternativeRoutes: S.all('alternativeRoutes').filter(r => r.vesselId === user.vesselId && r.alertId && aIds.has(r.alertId)), constraints: S.all('constraints'), dataSources: S.all('dataSources').filter(x => x.id === 'ais') };
+          alternativeRoutes: S.all('alternativeRoutes').filter(r => r.vesselId === user.vesselId && r.alertId && aIds.has(r.alertId) && ['approved', 'modified'].includes(r.status)), constraints: S.all('constraints'), dataSources: S.all('dataSources').filter(x => x.id === 'ais') };
       }
       return { now: t, me: user, version: m.version, datasetAt: m.datasetAt, disclaimer: DISCLAIMER, rules: rules(), seaAreas: S.all('seaAreas'), ports: S.all('ports'), vessels: S.all('vessels'), constraints: S.all('constraints'),
         weatherObservations: S.all('weatherObservations'), weatherForecasts: S.all('weatherForecasts'), maritimeRisks: S.all('maritimeRisks'), affectedVessels: S.all('affectedVessels'), alerts: S.all('alerts'), deliveryRecords: S.all('deliveryRecords'),
-        alternativeRoutes: S.all('alternativeRoutes'), bulletins: S.all('bulletins'), bulletinDeliveries: S.all('bulletinDeliveries'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
+        alternativeRoutes: S.all('alternativeRoutes'), allocations: S.all('allocations'), portOccupancy: Object.fromEntries(S.all('ports').map(p => [p.id, portOcc(p)])), bulletins: S.all('bulletins'), bulletinDeliveries: S.all('bulletinDeliveries'), navtexMessages: S.all('navtexMessages'), integrationEvents: S.all('integrationEvents').slice(-60), dataSources: S.all('dataSources'), auditLogs: S.all('auditLogs').slice(-500),
         stations: C.STATIONS.filter(s => s.navarea === 'IX').map(s => ({ id: s.id, role: s.role, name: tx(s.ar, s.en), country: s.country, b1: s.b1 })), sampleSystems: SAMPLE_SYSTEMS.map(s => ({ id: s.id, name: tx(s.ar, s.en) })), wwnws: { ref: WWNWS_REF, levels: WW, kingdomWatersNm: KSA_WATERS_NM }, wwmiwsRef: WWMIWS_REF };
     }
 
@@ -641,7 +731,7 @@
         const t = now(), start = t + clamp(+a.startH || 0, -24, 48) * H, end = start + clamp(+a.durationH || 12, 1, 240) * H;
         const title = bil(a.title, 160); if (!title.ar || !title.en) throw new ValidationError('title');
         const r = { id: 'R:M:' + uid('M'), key: 'M', source: 'manual', type: a.type, level: a.level, title, areaName: title, center: [lon, lat], radiusNm: rad, poly: C.circlePoly([lon, lat], rad, 20), start, end, durationH: Math.round((end - start) / H),
-          indicators: [{ name: 'manual', text: bil(a.indicators && (a.indicators.ar || a.indicators.en) ? a.indicators : tx('مُدخل يدويًا', 'Entered manually'), 300), level: a.level }], explanation: tx('خطر مُدخل من ضابط الميناء في بيئة الاختبار.', 'Risk entered by the port officer in the test environment.'), createdAt: t, createdBy: u.username };
+          indicators: [{ name: 'manual', text: bil(a.indicators && (a.indicators.ar || a.indicators.en) ? a.indicators : tx('مُدخل يدويًا', 'Entered manually'), 300), level: a.level }], explanation: tx('خطر مُدخل من ضابط الميناء في بيئة الاختبار.', 'Risk entered by the port officer in the test environment.'), actions: ACTIONS[a.type] || ACTIONS.other, confidence: confidenceOf(.8, 'manual'), createdAt: t, createdBy: u.username };
         S.insert('maritimeRisks', r); audit(u, 'risk.create', 'risk', r.id, tx('إضافة خطر: ' + title.ar, 'Risk added: ' + title.en)); computeAffected();
         audit(SYS, 'risk.affected', 'risk', r.id, tx('تحديد السفن المتأثرة بالخطر الجديد: ' + (S.get('maritimeRisks', r.id).affectedCount || 0), 'Vessels affected by the new risk: ' + (S.get('maritimeRisks', r.id).affectedCount || 0)));
         touch(); return S.get('maritimeRisks', r.id);
@@ -657,7 +747,7 @@
         const al = { id: uid('AL'), number: num('MRS-TA', 'al'), wwnws: wc, riskId: r ? r.id : null, riskSnapshot: r ? { title: r.title, type: r.type, level: r.level, start: r.start, end: r.end, explanation: r.explanation } : null, title, body, instructions: instr, poly, areaName,
           priority: ['routine', 'important', 'urgent'].includes(a.priority) ? a.priority : 'important', severity: ['low', 'medium', 'high', 'critical'].includes(a.severity) ? a.severity : (r ? r.level : 'medium'), validFrom: from, validTo: to, targets,
           status: 'draft', history: [{ s: 'draft', at: t, by: u.username }], createdAt: t, createdBy: u.username, approvedBy: null, approvedAt: null, dispatchedAt: null, label: 'Test Maritime Alert' };
-        S.insert('alerts', al); audit(u, 'alert.create', 'alert', al.id, tx('إنشاء إنذار ' + al.number + ' لـ' + targets.length + ' سفن: ' + title.ar, 'Alert ' + al.number + ' created for ' + targets.length + ' vessels: ' + title.en)); touch(); return al;
+        S.insert('alerts', al); genRecs(al); audit(u, 'alert.create', 'alert', al.id, tx('إنشاء إنذار ' + al.number + ' لـ' + targets.length + ' سفن: ' + title.ar, 'Alert ' + al.number + ' created for ' + targets.length + ' vessels: ' + title.en)); touch(); return al;
       },
       editAlert(u, a) {
         needOfficer(u); const al = S.get('alerts', a.id); if (!al || !['draft', 'pending_approval'].includes(al.status)) throw new ValidationError('state');
@@ -673,9 +763,9 @@
         if (a.reject) { setAlert(al, 'draft', u, a.note || 'returned'); audit(u, 'alert.return', 'alert', al.id, tx('إعادة الإنذار ' + al.number + ' للتعديل', 'Alert ' + al.number + ' returned for changes')); touch(); return { ok: true }; }
         setAlert(al, 'approved', u, a.note, { approvedBy: u.username, approvedAt: now(), verification: C.sha256(JSON.stringify([al.number, al.title, al.body, al.instructions, al.targets, al.validFrom, al.validTo])).slice(0, 16).toUpperCase() });
         audit(u, 'alert.approve', 'alert', al.id, tx('اعتماد الإنذار ' + al.number + ' في بيئة الاختبار مع الإقرار بالمسؤولية', 'Alert ' + al.number + ' approved in the test environment with responsibility statement'));
-        const r = al.riskId && S.get('maritimeRisks', al.riskId) || { id: 'ALERT:' + al.id, title: al.title, level: al.severity, poly: al.poly, start: al.validFrom, end: al.validTo, areaName: al.areaName };
-        const alloc = {}, byEta = al.targets.map(vessel).filter(v => v && v.status === 'underway').sort((a, b) => ((S.all('affectedVessels').find(x => x.vesselId === a.id && x.riskId === r.id) || {}).etaToZone || 0) - ((S.all('affectedVessels').find(x => x.vesselId === b.id && x.riskId === r.id) || {}).etaToZone || 0));
-        for (const v of byEta) proposeRoute(v, r, al.id, SYS, alloc);
+        if (!S.all('alternativeRoutes').some(x => x.alertId === al.id)) genRecs(al);
+        for (const x of S.all('alternativeRoutes').filter(x => x.alertId === al.id && x.status === 'proposed')) S.update('alternativeRoutes', x.id, { status: 'approved', approvedBy: u.username, approvedAt: now() });
+        audit(u, 'recommendation.approve', 'alert', al.id, tx('اعتماد توصيات السفن للإنذار ' + al.number + ' وتحويلها إلى تعليمات تشغيلية', 'Vessel recommendations for alert ' + al.number + ' approved as operational instructions'));
         touch(); return { ok: true };
       },
       prepareDispatch(u, { id }) {
@@ -703,13 +793,40 @@
         for (const d of S.all('deliveryRecords').filter(x => (ids || []).includes(x.id) && x.vesselId === u.vesselId && x.status === 'dispatched')) { S.update('deliveryRecords', d.id, { status: 'received', receivedAt: t, history: d.history.concat([{ s: 'received', at: t }]) }); touched.add(d.alertId); audit(u, 'alert.received', 'delivery', d.id, tx('عُرض الإنذار على شاشة جسر ' + vessel(d.vesselId).name, 'Alert shown on the ' + vessel(d.vesselId).name + ' bridge screen')); }
         touched.forEach(aggregateAlert); if (touched.size) touch(); return { ok: true };
       },
-      acknowledge(u, { id, officer, action }) {
+      acknowledge(u, { id, officer, action, reason }) {
         if (!u || u.role !== 'bridge') throw new PermissionError('bridge'); const d = S.get('deliveryRecords', id); if (!d || d.vesselId !== u.vesselId) throw new PermissionError('own');
         if (!officer || str(officer, 80).length < 3) throw new ValidationError('officer'); if (d.ackAt) return { ok: true };
-        const t = now(), rec = S.all('alternativeRoutes').find(x => x.alertId === d.alertId && x.vesselId === d.vesselId); const act = action === 'accepted' && rec ? 'accepted' : 'received_only';
-        S.update('deliveryRecords', d.id, { status: 'acknowledged', action: act, actionLabel: act === 'accepted' ? rec.recommended.label : tx('تأكيد الاستلام فقط', 'Receipt only'), receivedAt: d.receivedAt || t, ackAt: t, ackBy: str(officer, 80), history: d.history.concat([{ s: 'acknowledged', at: t, by: str(officer, 80) }]) });
-        const al = S.get('alerts', d.alertId); audit(u, 'alert.ack', 'delivery', d.id, tx('تأكيد استلام الإنذار ' + al.number + ' من ' + vessel(d.vesselId).name + ' (' + str(officer, 80) + ')', 'Alert ' + al.number + ' acknowledged by ' + vessel(d.vesselId).name + ' (' + str(officer, 80) + ')' + (act === 'accepted' ? ' – recommendation accepted: ' + rec.recommended.label.en : '')));
-        aggregateAlert(al.id); touch(); return { ok: true };
+        const t = now(), rec = S.all('alternativeRoutes').find(x => x.alertId === d.alertId && x.vesselId === d.vesselId);
+        const act = action === 'accepted' && rec ? 'accepted' : action === 'rejected' && rec ? 'rejected' : 'acknowledged';
+        if (act === 'rejected' && (!reason || str(reason, 300).length < 3)) throw new ValidationError('reason');
+        const v = vessel(d.vesselId), al = S.get('alerts', d.alertId);
+        S.update('deliveryRecords', d.id, { status: act === 'rejected' ? 'rejected' : 'acknowledged', action: act, rejectReason: act === 'rejected' ? str(reason, 300) : null, actionLabel: act === 'acknowledged' ? tx('تأكيد الاستلام فقط', 'Acknowledged only') : rec.recommended.label, receivedAt: d.receivedAt || t, ackAt: t, ackBy: str(officer, 80), history: d.history.concat([{ s: act, at: t, by: str(officer, 80) }]) });
+        if (rec) S.update('alternativeRoutes', rec.id, { vesselResponse: act, vesselResponseAt: t, vesselReason: act === 'rejected' ? str(reason, 300) : null });
+        audit(u, act === 'rejected' ? 'recommendation.reject' : act === 'accepted' ? 'recommendation.accept' : 'alert.ack', 'delivery', d.id,
+          tx((act === 'rejected' ? 'رفض توصية' : act === 'accepted' ? 'قبول توصية' : 'تأكيد استلام') + ' الإنذار ' + al.number + ' – ' + v.name + ' (' + str(officer, 80) + ')' + (act === 'rejected' ? ' – السبب: ' + str(reason, 300) : ''), (act === 'rejected' ? 'Recommendation rejected' : act === 'accepted' ? 'Recommendation accepted' : 'Acknowledged') + ' for alert ' + al.number + ' – ' + v.name + ' (' + str(officer, 80) + ')' + (act === 'rejected' ? ' – reason: ' + str(reason, 300) : '')), null, d.status, act === 'rejected' ? 'rejected' : 'acknowledged');
+        aggregateAlert(al.id); touch(); return { ok: true, action: act };
+      },
+      chooseRecommendation(u, { id, kind, portId }) {
+        needOfficer(u); const x = S.get('alternativeRoutes', id); if (!x || !x.options) throw new ValidationError('id');
+        const al = x.alertId && S.get('alerts', x.alertId); if (al && !['draft', 'pending_approval'].includes(al.status)) throw new ValidationError('state');
+        const o = x.options.find(q => q.kind === kind && (kind !== 'divert' || q.portId === portId)); if (!o) throw new ValidationError('option'); if (!o.safe) throw new ValidationError('unsafe_option');
+        const v = vessel(x.vesselId), patch = { recommended: { kind: o.kind, portId: o.portId || null, label: o.label }, status: 'modified', options: x.options.map(q => Object.assign({}, q, { recommended: q === o })) };
+        if (kind === 'divert') Object.assign(patch, { kind: 'divert', alternative: { nodes: x._nodes[portId], nm: o.nm, hours: o.hours, portId, coords: [v.pos].concat(C.nodesToCoords(x._nodes[portId])) } });
+        else if (kind === 'continue') Object.assign(patch, { kind: 'continue', alternative: null, checks: [] });
+        else if (kind === 'delay') Object.assign(patch, { kind: 'delay', alternative: { nodes: x.current.nodes, nm: o.nm, hours: o.hours, waitHours: o.waitH, coords: x.current.coords } });
+        else Object.assign(patch, { kind: x._base.kind, alternative: x._base.alternative, checks: x._base.checks });
+        patch.reason = tx('عدّل ضابط الميناء التوصية إلى: ' + o.label.ar, 'The port officer changed the recommendation to: ' + o.label.en);
+        S.update('alternativeRoutes', id, patch);
+        audit(u, 'recommendation.modify', 'alternativeRoute', id, tx('تعديل توصية ' + v.name + ' إلى: ' + o.label.ar, 'Recommendation for ' + v.name + ' changed to: ' + o.label.en), null, x.recommended.kind, o.kind);
+        touch(); return S.get('alternativeRoutes', id);
+      },
+      simulateEnterTerritorialWaters(u, { vesselId }) {
+        needOfficer(u); const v = vessel(vesselId); if (!v) throw new ValidationError('id'); if (C.inSaudiTerritorialSea(v.pos)) return { ok: true, already: true };
+        const dest = (C.PORTS.find(p => p.id === v.destId) || {}).p; if (!dest) throw new ValidationError('destination');
+        let pos = v.pos; for (let k = 1; k <= 40; k++) { const q = [v.pos[0] + (dest[0] - v.pos[0]) * k / 40, v.pos[1] + (dest[1] - v.pos[1]) * k / 40]; pos = q; if (C.distToSaudiCoastNm(q) <= C.TERRITORIAL_SEA_NM - 2) break; }
+        const before = v.distCoastNm; S.update('vessels', v.id, Object.assign(planVesselRoute(Object.assign({}, v, { pos })), { pos, recordedAt: now() })); geo(S.get('vessels', v.id)); S.update('vessels', v.id, { distCoastNm: S.get('vessels', v.id).distCoastNm, inTerritorialSea: true });
+        audit(u, 'vessel.enter_ts', 'vessel', v.id, tx('محاكاة: دخلت ' + v.name + ' المياه الإقليمية (من ' + before + ' إلى ' + S.get('vessels', v.id).distCoastNm + ' ميل من الساحل)', 'Simulation: ' + v.name + ' entered territorial waters (' + before + ' → ' + S.get('vessels', v.id).distCoastNm + ' nm from coast)'), null, 'outside_ts', 'inside_ts');
+        releaseHeld(v.id, u); computeAffected(); touch(); return { ok: true };
       },
       createBulletin(u, a) {
         needOfficer(u); const types = ['weather_bulletin', 'wind_wave_warning', 'port_closure', 'nav_restriction']; if (!types.includes(a.type)) throw new ValidationError('type');
@@ -721,38 +838,56 @@
         b.checks = [];
         if (b.type === 'weather_bulletin' && b.validTo - b.validFrom < 24 * H) b.checks.push(tx('فترة صلاحية التوقعات أقل من ٢٤ ساعة (' + WWMIWS_REF + '، 4.2.2.2)', 'Forecast valid period is less than 24 h (' + WWMIWS_REF + ', 4.2.2.2)'));
         if (b.scope !== 'LOCAL' && /[^\x20-\x7E\n]/.test(b.body.en)) b.checks.push(tx('النص الإنجليزي يحتوي أحرفًا غير لاتينية؛ الخدمات الدولية (NAVTEX/EGC) بالإنجليزية فقط', 'English text contains non-Latin characters; international services (NAVTEX/EGC) are English only'));
-        b.recipients = bulletinRecipients(b);
+        if (b.scope === 'SUBAREA') b.scope = auto; b.warning = Object.assign(warningDefaults(r, b.scope, b), a.warning || {}); b.recipients = bulletinRecipients(b); b.draftEn = warningDraft(b);
         S.insert('bulletins', b); audit(u, 'bulletin.create', 'bulletin', b.id, tx('إنشاء نشرة ' + b.number + ': ' + title.ar, 'Bulletin ' + b.number + ' created: ' + title.en)); touch(); return b;
       },
-      readyBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); setBulletin(b, 'ready', u); audit(u, 'bulletin.ready', 'bulletin', id, tx('النشرة ' + b.number + ' جاهزة للإرسال', 'Bulletin ' + b.number + ' ready')); touch(); return { ok: true }; },
+      editBulletin(u, a) {
+        needOfficer(u); const b = S.get('bulletins', a.id); if (!b || !['draft', 'under_review'].includes(b.status)) throw new ValidationError('state');
+        const patch = {}; if (a.title) patch.title = bil(a.title, 200); if (a.body) patch.body = bil(a.body);
+        if (a.scope && normScope(a.scope) && normScope(a.scope) !== 'SUBAREA' && normScope(a.scope) !== b.scope) { patch.scope = normScope(a.scope); }
+        for (const k of ['hazard', 'impact', 'precautions', 'source', 'authority']) if (a.warning && a.warning[k] != null) patch.warning = Object.assign({}, b.warning, patch.warning, { [k]: str(a.warning[k], 600) });
+        if (a.draftEn != null) patch.draftEn = str(a.draftEn, 3000);
+        const nb = Object.assign({}, b, patch); if (patch.scope || patch.warning) { nb.recipients = bulletinRecipients(nb); patch.recipients = nb.recipients; if (a.draftEn == null) patch.draftEn = warningDraft(nb); }
+        S.update('bulletins', b.id, patch); audit(u, 'bulletin.edit', 'bulletin', b.id, tx('تعديل النشرة ' + b.number, 'Bulletin ' + b.number + ' edited')); touch(); return S.get('bulletins', b.id);
+      },
+      submitBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'draft') throw new ValidationError('state'); setBulletin(b, 'under_review', u); audit(u, 'bulletin.submit', 'bulletin', id, tx('إرسال النشرة ' + b.number + ' للمراجعة', 'Bulletin ' + b.number + ' submitted for review')); touch(); return { ok: true }; },
+      approveBulletin(u, { id, reject, note }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'under_review') throw new ValidationError('state');
+        if (reject) { setBulletin(b, 'draft', u, note || 'returned'); audit(u, 'bulletin.return', 'bulletin', id, tx('إعادة النشرة ' + b.number + ' للتعديل', 'Bulletin ' + b.number + ' returned for changes')); }
+        else { setBulletin(b, 'approved', u, note); audit(u, 'bulletin.approve', 'bulletin', id, tx('اعتماد النشرة ' + b.number, 'Bulletin ' + b.number + ' approved')); }
+        touch(); return { ok: true };
+      },
+      readyBulletin(u, a) { const b = S.get('bulletins', a.id); if (b && b.status === 'draft') api.submitBulletin(u, a); return api.approveBulletin(u, a); },
       sendBulletin(u, { id }) {
-        needOfficer(u); let b = S.get('bulletins', id); if (!b || !['draft', 'ready'].includes(b.status)) throw new ValidationError('state'); const t = now();
-        const recipients = (b.recipients || []).map(r => Object.assign({}, r, { status: 'sent_test', sentAt: t, endpoint: 'proposed://' + r.kind + '/' + r.targetId + '/test' }));
+        needOfficer(u); let b = S.get('bulletins', id); if (!b || b.status !== 'approved') throw new ValidationError('state'); const t = now();
+        const recipients = (b.recipients || []).map(r => Object.assign({}, r, { status: 'sent', sentAt: t, endpoint: 'proposed://' + r.kind + '/' + r.targetId + '/test' }));
         let n = 0;
         if (b.scope === 'LOCAL' || b.scope === 'COASTAL') for (const v of S.all('vessels').filter(v => C.pointInPoly(v.pos, b.poly) && C.inSaudiTerritorialSea(v.pos) && v.channel === 'bridge')) { S.insert('bulletinDeliveries', { id: uid('BD'), bulletinId: id, vesselId: v.id, status: 'sent', sentAt: t, readAt: null }); n++; }
-        setBulletin(b, 'sent_test', u, recipients.length + ' parties, ' + n + ' ships', { recipients, sentAt: t, shipNotices: n });
+        setBulletin(b, 'sent', u, recipients.length + ' parties, ' + n + ' ships', { recipients, sentAt: t, shipNotices: n });
         for (const r of recipients) S.insert('integrationEvents', { id: uid('IE'), at: t, integration: 'bulletin_' + r.kind, direction: 'out', status: 'test_only', messageId: id, endpoint: r.endpoint, by: u.username });
-        audit(u, 'bulletin.send', 'bulletin', id, tx('إرسال النشرة ' + b.number + ' داخل بيئة الاختبار إلى ' + recipients.map(r => r.name.ar).join('، ') + (n ? ' وإشعار ' + n + ' سفن داخل المياه الإقليمية' : '') + ' – لم تُرسل فعليًا لأي جهة', 'Bulletin ' + b.number + ' sent in the test environment to ' + recipients.map(r => r.name.en).join(', ') + (n ? ' and ' + n + ' ships in territorial waters notified' : '') + ' – not actually sent to any party'));
+        audit(u, 'bulletin.send', 'bulletin', id, tx('تسجيل إحالة النشرة ' + b.number + ' إلى ' + recipients.map(r => r.name.ar).join('، ') + (n ? ' وإشعار ' + n + ' سفن داخل المياه الإقليمية' : '') + ' – بيئة اختبار، لم تُبث رسميًا', 'Bulletin ' + b.number + ' routed to ' + recipients.map(r => r.name.en).join(', ') + (n ? ' and ' + n + ' ships in territorial waters notified' : '') + ' – test environment, not officially broadcast'));
         touch(); return { recipients: recipients.length, ships: n };
       },
-      confirmBulletinRecipient(u, { id, recipientId, by, ref }) {
-        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'receipt_confirmed'].includes(b.status)) throw new ValidationError('state');
+      confirmBulletinRecipient(u, { id, recipientId, by, ref, note }) {
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent', 'recipient_ack'].includes(b.status)) throw new ValidationError('state');
         if (!by || str(by, 80).length < 2) throw new ValidationError('officer'); const t = now();
-        const recipients = b.recipients.map(r => r.id === recipientId ? Object.assign({}, r, { status: 'confirmed', confirmedAt: t, confirmedBy: str(by, 80), ref: str(ref, 60) || null }) : r);
-        const all = recipients.every(r => r.status === 'confirmed');
+        const recipients = b.recipients.map(r => r.id === recipientId ? Object.assign({}, r, { status: 'confirmed', confirmedAt: t, confirmedBy: str(by, 80), ref: str(ref, 60) || null, note: str(note, 200) || null }) : r);
         S.update('bulletins', id, { recipients });
         audit(u, 'bulletin.receipt', 'bulletin', id, tx('تسجيل تأكيد استلام النشرة ' + b.number + ' من ' + recipients.find(r => r.id === recipientId).name.ar + ' (' + str(by, 80) + ')', 'Receipt of bulletin ' + b.number + ' recorded from ' + recipients.find(r => r.id === recipientId).name.en + ' (' + str(by, 80) + ')'));
-        if (all) setBulletin(S.get('bulletins', id), 'awaiting_official', SYS, 'all parties confirmed receipt');
-        touch(); return { ok: true, all };
+        if (recipients.every(r => r.status === 'confirmed') && b.status === 'sent') setBulletin(S.get('bulletins', id), 'recipient_ack', SYS, 'all recipients acknowledged'), audit(SYS, 'bulletin.all_ack', 'bulletin', id, tx('أكدت كل الجهات استلام النشرة ' + b.number, 'All recipients acknowledged bulletin ' + b.number));
+        touch(); return { ok: true };
       },
-      recordOfficialIssue(u, { id, ref }) {
-        needOfficer(u); const b = S.get('bulletins', id); if (!b || !['sent_test', 'awaiting_official'].includes(b.status)) throw new ValidationError('state');
-        setBulletin(b, 'issued_official', u, str(ref, 80) || null, { officialRef: str(ref, 80) || null, officialAt: now() });
-        audit(u, 'bulletin.official', 'bulletin', id, tx('تسجيل صدور النشرة ' + b.number + ' رسميًا من الجهة المختصة' + (ref ? ' (مرجع ' + str(ref, 80) + ')' : ''), 'Official issuance of bulletin ' + b.number + ' recorded' + (ref ? ' (ref ' + str(ref, 80) + ')' : '')));
+      recordOfficialIssue(u, { id, ref, confirmedBy, authorityId }) {
+        // Official issuance is recorded only on confirmation from the authorized entity for this level (port for LOCAL, NAVTEX station for COASTAL, NAVAREA IX coordinator for NAVAREA)
+        needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status !== 'recipient_ack') throw new ValidationError('not_acknowledged');
+        const need = b.scope === 'NAVAREA' ? 'coordinator' : b.scope === 'COASTAL' ? 'navtex' : 'port', auth = b.recipients.find(r => r.id === authorityId && r.kind === need && r.status === 'confirmed');
+        if (!auth) throw new ValidationError('authority_required'); if (!ref || str(ref, 80).length < 3) throw new ValidationError('reference_required'); if (!confirmedBy || str(confirmedBy, 80).length < 2) throw new ValidationError('officer');
+        setBulletin(b, 'issued_official', u, str(ref, 80), { officialRef: str(ref, 80), officialAt: now(), officialBy: { authority: auth.name, person: str(confirmedBy, 80) } });
+        audit(u, 'bulletin.official', 'bulletin', id, tx('تسجيل صدور النشرة ' + b.number + ' رسميًا بتأكيد ' + auth.name.ar + ' (' + str(confirmedBy, 80) + ') – المرجع ' + str(ref, 80), 'Official issuance of bulletin ' + b.number + ' recorded on confirmation by ' + auth.name.en + ' (' + str(confirmedBy, 80) + ') – ref ' + str(ref, 80)));
         touch(); return { ok: true };
       },
       markBulletinRead(u, { id }) { if (!u || u.role !== 'bridge') throw new PermissionError('bridge'); const d = S.get('bulletinDeliveries', id); if (!d || d.vesselId !== u.vesselId) throw new PermissionError('own'); if (!d.readAt) { S.update('bulletinDeliveries', id, { status: 'read', readAt: now() }); audit(u, 'bulletin.read', 'bulletin', d.bulletinId, tx('اطلعت ' + vessel(d.vesselId).name + ' على الإشعار الملاحي', vessel(d.vesselId).name + ' read the navigational notice')); touch(); } return { ok: true }; },
-      issueBulletin(u, a) { return api.sendBulletin(u, a); },
+      issueBulletin(u, a) { const b = S.get('bulletins', a.id); if (b && b.status === 'draft') api.submitBulletin(u, a); if (S.get('bulletins', a.id).status === 'under_review') api.approveBulletin(u, a); return api.sendBulletin(u, a); },
       cancelBulletin(u, { id }) { needOfficer(u); const b = S.get('bulletins', id); if (!b || b.status === 'cancelled') throw new ValidationError('state'); S.update('bulletins', id, { status: 'cancelled', history: b.history.concat([{ s: 'cancelled', at: now(), by: u.username }]) }); audit(u, 'bulletin.cancel', 'bulletin', id, tx('إلغاء النشرة ' + b.number, 'Bulletin ' + b.number + ' cancelled')); touch(); return { ok: true }; },
       saveNavtex(u, a) {
         needOfficer(u); const t = now(); const ex = a.id && S.get('navtexMessages', a.id);
@@ -779,11 +914,43 @@
       tick() {
         const t = now(); let ch = false;
         for (const a of S.all('alerts')) if (!['expired', 'cancelled'].includes(a.status) && a.validTo <= t) { setAlert(a, 'expired', SYS); audit(SYS, 'alert.expire', 'alert', a.id, tx('انتهاء صلاحية الإنذار ' + a.number, 'Alert ' + a.number + ' expired')); ch = true; }
-        for (const b of S.all('bulletins')) if (['sent_test', 'awaiting_official', 'issued_official'].includes(b.status) && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
+        for (const b of S.all('bulletins')) if (['sent', 'recipient_ack', 'issued_official'].includes(b.status) && b.validTo <= t) { S.update('bulletins', b.id, { status: 'expired' }); ch = true; }
         if (ch) touch();
       },
       classifyArea: (u, { poly }) => warningClass(poly),
       marineForecast: (u, { areaId, hours }) => { needOfficer(u); return marineForecast(areaId, hours); },
+      runAllocation(u, { portId }) { needOfficer(u); const out = runAllocationFor(u, portId); touch(); return out; },
+      approveAllocation(u, { id, reject, note }) {
+        needOfficer(u); const a = S.get('allocations', id); if (!a || a.status !== 'proposed') throw new ValidationError('state');
+        if (reject) { setAllocation(a, 'rejected', u, note); audit(u, 'allocation.reject', 'allocation', id, tx('رفض تحويل ' + vessel(a.vesselId).name, 'Allocation for ' + vessel(a.vesselId).name + ' rejected')); }
+        else { const p = port(a.toPort); if (portOcc(p) + 100 / p.capacityBerths > MAX_ALLOC_OCC + .5) throw new ValidationError('capacity'); setAllocation(a, 'approved', u, note, { approvedAt: now() }); audit(u, 'allocation.approve', 'allocation', id, tx('اعتماد تحويل ' + vessel(a.vesselId).name + ' إلى ' + p.name.ar, 'Diversion of ' + vessel(a.vesselId).name + ' to ' + p.name.en + ' approved')); }
+        analyse('allocation'); touch(); return { ok: true };
+      },
+      modifyAllocation(u, { id, toPort }) {
+        needOfficer(u); const a = S.get('allocations', id); if (!a || !['proposed', 'no_capacity'].includes(a.status)) throw new ValidationError('state');
+        const c = a.calc.find(x => x.portId === toPort); if (!c || !c.eligible) throw new ValidationError('port_not_eligible'); const p = port(toPort);
+        if (portOcc(p) + 100 / p.capacityBerths > MAX_ALLOC_OCC + .5) throw new ValidationError('capacity');
+        setAllocation(a, 'modified', u, 'manual', { toPort, approvedAt: now() }); audit(u, 'allocation.modify', 'allocation', id, tx('تعديل يدوي: تحويل ' + vessel(a.vesselId).name + ' إلى ' + p.name.ar, 'Manual change: ' + vessel(a.vesselId).name + ' to ' + p.name.en));
+        analyse('allocation'); touch(); return { ok: true };
+      },
+      recalculate(u) {
+        needOfficer(u); analyse('manual recalculation');
+        for (const al of S.all('alerts').filter(a => ['draft', 'pending_approval'].includes(a.status))) { for (const x of S.all('alternativeRoutes').filter(x => x.alertId === al.id).slice()) S.remove('alternativeRoutes', x.id); genRecs(al); }
+        audit(u, 'recommendation.recalculate', 'analysis', null, tx('إعادة حساب المخاطر والتوصيات', 'Risks and recommendations recalculated')); touch(); return { ok: true };
+      },
+      runScenario(u, { n }) {
+        needOfficer(u); const OFFU = u, res = { n: +n };
+        const topBy = pred => S.all('maritimeRisks').filter(pred).sort((a, b) => rank(b.level) - rank(a.level))[0];
+        const targetsOf = r => S.all('affectedVessels').filter(a => a.riskId === r.id && a.relation !== 'crossing').map(a => a.vesselId);
+        const mkAlert = (r, targets) => api.createAlert(OFFU, { riskId: r.id, targets, priority: 'urgent', title: tx(RTYPE[r.type].ar + ' – ' + r.areaName.ar, RTYPE[r.type].en + ' – ' + r.areaName.en), body: r.explanation, instructions: r.actions });
+        if (+n === 1) { api.editWeather(OFFU, { areaId: 'LTH', fromH: 6, toH: 22, values: { windKn: 38, waveM: 4.2, visNm: 1.5 } }); const r = topBy(x => x.areaId === 'LTH'); const al = mkAlert(r, targetsOf(r).length ? targetsOf(r) : ['V5', 'V17']); api.submitAlert(OFFU, { id: al.id }); res.alertId = al.id; res.go = 'alerts'; }
+        else if (+n === 2) { api.updatePort(OFFU, { id: 'JED', status: 'closed', untilH: 24, restrictions: tx('مغلق بسبب الطقس (محاكاة)', 'Closed due to weather (simulation)') }); runAllocationFor(OFFU, 'JED'); res.go = 'distribute'; }
+        else if (+n === 3) { api.updatePort(OFFU, { id: 'DMM', congestionPct: 93 }); runAllocationFor(OFFU, 'DMM'); res.go = 'distribute'; }
+        else if (+n === 4) { const r = topBy(x => x.areaId === 'JED'); const out = S.all('vessels').find(v => v.channel === 'bridge' && v.status === 'underway' && !C.inSaudiTerritorialSea(v.pos) && targetsOf(r).includes(v.id)); const al = mkAlert(r, [out.id]); api.submitAlert(OFFU, { id: al.id }); api.approveAlert(OFFU, { id: al.id, disclaimer: true }); api.prepareDispatch(OFFU, { id: al.id }); api.dispatchAlert(OFFU, { id: al.id }); res.alertId = al.id; res.vesselId = out.id; res.go = 'alerts'; }
+        else if (+n === 5) { const r = topBy(x => x.areaId === 'JED'); const b = api.createBulletin(OFFU, { type: 'wind_wave_warning', riskId: r.id, scope: 'NAVAREA', title: r.title, body: r.explanation }); api.submitBulletin(OFFU, { id: b.id }); res.bulletinId = b.id; res.go = 'bulletins'; }
+        else throw new ValidationError('scenario');
+        audit(u, 'scenario.run', 'scenario', String(n), tx('تشغيل سيناريو العرض ' + n, 'Demo scenario ' + n + ' run')); touch(); return res;
+      },
       ingestWeather(payload) { const res = validateWeather(payload); applyWeather({ username: 'integration:ncm-test', role: 'integration' }, res, 'test_api'); touch(); return { accepted: res.accepted.length, rejected: res.rejected, warnings: res.warnings }; },
       validateWeather,
       onChange(f) { listeners.push(f); },

@@ -24,7 +24,7 @@ setInterval(() => { const now = Date.now(); for (const [k, s] of sessions) if (s
 
 const RPC = new Set(['verifyAudit', 'resetTestData', 'updateRules', 'upsertVessel', 'deleteVessel', 'updatePort', 'editWeather', 'importWeather', 'addRisk', 'deleteRisk',
   'createAlert', 'editAlert', 'submitAlert', 'approveAlert', 'prepareDispatch', 'dispatchAlert', 'cancelAlert', 'proposeRoute', 'markReceived', 'acknowledge',
-  'createBulletin', 'issueBulletin', 'readyBulletin', 'sendBulletin', 'confirmBulletinRecipient', 'recordOfficialIssue', 'markBulletinRead', 'cancelBulletin', 'saveNavtex', 'exportNavtex', 'dispatchNavtexTest', 'marineForecast']);
+  'createBulletin', 'editBulletin', 'submitBulletin', 'approveBulletin', 'issueBulletin', 'readyBulletin', 'sendBulletin', 'confirmBulletinRecipient', 'recordOfficialIssue', 'markBulletinRead', 'chooseRecommendation', 'simulateEnterTerritorialWaters', 'runAllocation', 'approveAllocation', 'modifyAllocation', 'recalculate', 'runScenario', 'cancelBulletin', 'saveNavtex', 'exportNavtex', 'dispatchNavtexTest', 'marineForecast']);
 const rate = new Map();
 const limited = (req, max) => { const ip = req.socket.remoteAddress, now = Date.now(), r = rate.get(ip) || { n: 0, t: now }; if (now - r.t > 60e3) { r.n = 0; r.t = now; } r.n++; rate.set(ip, r); return r.n > max; };
 setInterval(() => { const now = Date.now(); for (const [k, r] of rate) if (now - r.t > 120e3) rate.delete(k); }, 60e3).unref();

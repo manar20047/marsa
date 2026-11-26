@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS deliveryRecords     (id TEXT PRIMARY KEY, doc TEXT NO
 CREATE TABLE IF NOT EXISTS alternativeRoutes   (id TEXT PRIMARY KEY, doc TEXT NOT NULL, vessel_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.vesselId')) VIRTUAL, alert_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.alertId')) VIRTUAL);
 CREATE TABLE IF NOT EXISTS bulletins           (id TEXT PRIMARY KEY, doc TEXT NOT NULL, risk_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.riskId')) VIRTUAL);
 CREATE TABLE IF NOT EXISTS bulletinDeliveries  (id TEXT PRIMARY KEY, doc TEXT NOT NULL, bulletin_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.bulletinId')) VIRTUAL, vessel_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.vesselId')) VIRTUAL);
+CREATE TABLE IF NOT EXISTS allocations         (id TEXT PRIMARY KEY, doc TEXT NOT NULL, from_port TEXT GENERATED ALWAYS AS (json_extract(doc,'$.fromPort')) VIRTUAL, to_port TEXT GENERATED ALWAYS AS (json_extract(doc,'$.toPort')) VIRTUAL, vessel_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.vesselId')) VIRTUAL);
 CREATE TABLE IF NOT EXISTS navtexMessages      (id TEXT PRIMARY KEY, doc TEXT NOT NULL, bulletin_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.bulletinId')) VIRTUAL);
 CREATE TABLE IF NOT EXISTS integrationEvents   (id TEXT PRIMARY KEY, doc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS dataSources         (id TEXT PRIMARY KEY, doc TEXT NOT NULL);
