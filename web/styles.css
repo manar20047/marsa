@@ -425,3 +425,9 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 .occ .bar span{background:var(--teal);border-radius:999px 0 0 999px;height:100%}.occ .bar em{background:var(--warn);height:100%}
 .occ .bar i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--crit)}
 @media (max-width:900px){.ogrp{display:none}.oside button span small{display:none}}
+/* ---------- v4.8 professional polish ---------- */
+main.home-main{margin:0!important;max-width:none!important;width:auto}
+.home-top .envbadge,.home-top .envbadge span{color:#6b4e00;font-size:11px}
+.panel:empty,.side-list:empty{display:none}
+.cta{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:18px;border:1px dashed var(--line);border-radius:14px;background:var(--panel)}
+.cta b{font-size:16px}.cta p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6}
