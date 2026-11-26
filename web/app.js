@@ -218,7 +218,7 @@
     ['g', 'الاتصالات البحرية', 'Maritime communications'],
     ['alerts', 'الإنذارات المباشرة', 'Direct alerts'], ['bulletins', 'النشرات الملاحية', 'Navigational bulletins'],
     ['g', 'الإدارة', 'Administration'],
-    ['scenarios', 'سيناريوهات التجربة', 'Test scenarios'], ['audit', 'سجل العمليات', 'Operations log'], ['settings', 'الإعدادات والأدوات', 'Settings & tools']];
+    ['scenarios', 'سيناريوهات التجربة', 'Test scenarios'], ['audit', 'سجل العمليات', 'Operations log']];
   // Secondary pages stay reachable (header, KPIs, settings) without crowding the sidebar.
   const PARENT = { map: 'ops', vessels: 'ops', notiflog: 'alerts', devices: 'settings', pushtest: 'settings', integrations: 'settings', data: 'settings' };
   Object.assign(NAVI, { ops: 'M3 3h7v7H3zM14 3h7v4h-7zM14 10h7v11h-7zM3 13h7v8H3z', vessels: 'M3 17h18l-2 4H5zM6 17V9h12v8M9 9V5h6v4', notiflog: 'M4 5h16v11H8l-4 4zM8 9h8M8 12h5', devices: 'M7 2h10v20H7zM11 18h2', pushtest: 'M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0', settings: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z', scenarios: 'M5 3l14 9-14 9z', audit: 'M9 3h6l1 2h3v16H5V5h3zM9 11h6M9 15h6', integrations: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zm0 0v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3', distribute: 'M3 21V9l9-6 9 6v12M9 21v-6h6v6', routes: 'M5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14-12a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 15V9a4 4 0 0 1 4-4h6m4 4v6a4 4 0 0 1-4 4H9' });
@@ -965,7 +965,7 @@
   }
 
   // Settings
-  OFF.settings = { mount: () => sechead(T('الإعدادات', 'Settings'), '') + '<div id="setp"></div>', upd: () => fill('#setp', settingsHtml()) };
+  OFF.settings = { mount: () => sechead(T('الإعدادات والأدوات', 'Settings & tools'), '') + '<div id="setp"></div>', upd: () => fill('#setp', settingsHtml()) };
   function settingsHtml() {
     const s = S(), me = s.me || {};
     const tool = (id, ar, en) => '<button class="tool" data-a="sec" data-id="' + id + '">' + ic(NAVI[id] || NAVI.ops) + '<span>' + T(ar, en) + '</span></button>';
