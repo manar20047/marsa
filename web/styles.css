@@ -497,3 +497,10 @@ header.top.v4 .clock b{font-size:15px;color:#fff;font-variant-numeric:tabular-nu
 .ck.ck-ok .dot{background:#22c55e}.ck.ck-warn .dot{background:#f59e0b}.ck.ck-bad .dot{background:var(--crit)}.ck.ck-bad{border-color:color-mix(in srgb,var(--crit) 45%,var(--line))}
 .btn[disabled]{opacity:.42;cursor:not-allowed;filter:none}
 #pushhint .sndhint{border-color:var(--teal);color:var(--teal)}#pushhint .sndhint svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.tool{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer;text-align:start;font-weight:600}
+.tool:hover{border-color:var(--teal);color:var(--teal)}.tool svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.impact{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:-2px 0 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden}
+.impact .impt{display:flex;align-items:center;padding:8px 14px;font-size:12px;font-weight:700;color:var(--teal);background:color-mix(in srgb,var(--teal) 10%,transparent)}
+.impact>div{flex:1;min-width:140px;padding:8px 14px;border-inline-start:1px solid var(--line)}.impact b{display:block;font-size:18px;font-variant-numeric:tabular-nums}.impact span{font-size:11.5px;color:var(--muted)}
+details.more{margin:8px 0}details.more summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:13.5px}
