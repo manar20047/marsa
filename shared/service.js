@@ -954,6 +954,8 @@
       ingestWeather(payload) { const res = validateWeather(payload); applyWeather({ username: 'integration:ncm-test', role: 'integration' }, res, 'test_api'); touch(); return { accepted: res.accepted.length, rejected: res.rejected, warnings: res.warnings }; },
       validateWeather,
       onChange(f) { listeners.push(f); },
+      // Server-side hook (not exposed through RPC): device registration and push delivery events written to the same audit chain.
+      recordEvent(u, { action, entity, entityId, ar, en, prev, next }) { audit(u || SYS, String(action), String(entity), entityId || null, tx(String(ar), String(en)), null, prev || null, next || null); touch(); return { ok: true }; },
       seed, store: S, DISCLAIMER
     };
     if (!S.get('meta', 'meta') || !S.get('settings', 'rules')) seed();

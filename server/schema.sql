@@ -33,3 +33,6 @@ CREATE INDEX IF NOT EXISTS ix_aff_risk ON affectedVessels(risk_id);
 CREATE INDEX IF NOT EXISTS ix_dr_alert ON deliveryRecords(alert_id);
 CREATE INDEX IF NOT EXISTS ix_dr_vessel ON deliveryRecords(vessel_id);
 CREATE INDEX IF NOT EXISTS ix_audit_seq ON auditLogs(seq);
+CREATE TABLE IF NOT EXISTS devices             (id TEXT PRIMARY KEY, doc TEXT NOT NULL, vessel_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.vesselId')) VIRTUAL, status TEXT GENERATED ALWAYS AS (json_extract(doc,'$.status')) VIRTUAL);
+CREATE TABLE IF NOT EXISTS pushLog             (id TEXT PRIMARY KEY, doc TEXT NOT NULL, device_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.deviceId')) VIRTUAL, delivery_id TEXT GENERATED ALWAYS AS (json_extract(doc,'$.deliveryId')) VIRTUAL);
+CREATE TABLE IF NOT EXISTS vapid               (id TEXT PRIMARY KEY, doc TEXT NOT NULL);

@@ -17,3 +17,7 @@ services:
         value: "1"
       - key: MARSA_INTEGRATION_KEY
         generateValue: true
+      - key: MARSA_VAPID_SEED
+        generateValue: true
+      - key: MARSA_VAPID_SUBJECT
+        value: mailto:marsa-demo@example.invalid

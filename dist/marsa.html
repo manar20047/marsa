@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مَرسى · MARSA</title>
+
+<meta name="theme-color" content="#0a1628">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -458,6 +460,55 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 .mpop .x{position:absolute;top:6px;inset-inline-end:8px;border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer}
 .mpop p{margin:6px 0}
 .seamap .zone.z-hold{fill:color-mix(in srgb,#2e9e5b 22%,transparent);stroke:#2e9e5b;stroke-dasharray:3 2}
+
+/* ===== v5 operations theme: dark navy command centre ===== */
+:root[data-theme=dark]{--bg:#0a1628;--panel:#0f2138;--ink:#e6eef7;--muted:#8da3bb;--line:#1e3550;--navy:#071121;--navy2:#0b1a2e;--teal:#14b8a6;--teal2:#0f3a3a;
+  --sea:#0b2440;--land:#16273a;--coast:#3b5878;--gridc:#123251;--crit2:#3d1219;--warn2:#3a2a0e;--ok2:#0e3324;--sh:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25)}
+:root[data-theme=dark] .panel{border-color:var(--line)}
+header.top.v4{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.06);min-height:56px;color:#e6eef7}
+header.top.v4 .logo{width:32px;height:32px;flex:none}
+header.top.v4 .ttl b{display:block;font-size:16px;color:#fff;line-height:1.2}header.top.v4 .ttl b small{font-weight:500;color:#9fb6cf;font-size:13px}header.top.v4 .ttl span{font-size:11.5px;color:#8da3bb}
+.hbtn{position:relative;display:inline-grid;place-items:center;min-width:38px;height:38px;padding:0 8px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#d8e6f4;cursor:pointer;font-weight:700;font-size:13px}
+.hbtn:hover{background:rgba(255,255,255,.1)}.hbtn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hbtn i{position:absolute;top:-5px;inset-inline-end:-5px;font-style:normal;font-size:10.5px;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--crit);color:#fff;padding:0 4px}.hbtn i:empty{display:none}
+header.top.v4 .who{display:flex;flex-direction:column;line-height:1.2;padding-inline-start:6px;border-inline-start:1px solid rgba(255,255,255,.12)}header.top.v4 .who b{font-size:12.5px;color:#fff;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}header.top.v4 .who span{font-size:11px;color:#8da3bb}
+header.top.v4 .btn.ghost{color:#bfe9e6;border-color:rgba(255,255,255,.18)}header.top.v4 .btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+header.top.v4 .clock b{font-size:15px;color:#fff;font-variant-numeric:tabular-nums}header.top.v4 .clock span{font-size:11px;color:#8da3bb}header.top.v4 .clock{display:flex;flex-direction:column;line-height:1.15;text-align:center}
+.sysbtn{display:flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);border-radius:8px;padding:3px 10px;color:#d8e6f4;cursor:pointer;line-height:1.15;text-align:start}
+.sysbtn b{display:block;font-size:12px;font-weight:600}.sysbtn small{display:block;font-size:10.5px;color:#8da3bb}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}.dot.ok{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18)}.dot.warn{background:#f59e0b}.dot.bad{background:var(--crit)}
+.oside{background:var(--navy2)!important;border-inline-end:1px solid rgba(255,255,255,.05)}
+.oside .ogrp{font-size:10.5px;letter-spacing:.06em;color:#6f88a3;font-weight:700;padding:12px 12px 4px}
+.oside button{padding:8px 12px!important;font-size:13.5px!important;color:#c3d4e6!important}.oside button.on{background:rgba(20,184,166,.14)!important;color:#5eead4!important;box-shadow:inset 3px 0 0 var(--teal)}[dir=rtl] .oside button.on{box-shadow:inset -3px 0 0 var(--teal)}
+.kpis5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi5{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);cursor:pointer;text-align:start;border-inline-start:3px solid var(--teal)}
+.kpi5 b{font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}.kpi5 span{font-size:12.5px;color:var(--muted)}.kpi5.warn{border-inline-start-color:#f59e0b}.kpi5.warn b{color:#f59e0b}.kpi5.crit{border-inline-start-color:var(--crit)}.kpi5.crit b{color:#f05264}
+.opsgrid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+.opsgrid .incl{max-height:640px;overflow-y:auto}
+.incs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.inc{border:1px solid var(--line);border-inline-start:4px solid var(--muted);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.inc.lv-critical{border-inline-start-color:var(--crit)}.inc.lv-high{border-inline-start-color:var(--hi)}.inc.lv-medium{border-inline-start-color:#f59e0b}.inc.lv-low{border-inline-start-color:#22c55e}
+.inc b{font-size:13.5px}.recent{margin-top:12px}.recent .panel{min-height:160px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);border-radius:8px}.ck b{display:block;font-size:13.5px}.ck .dot{margin-top:6px}
+.ck.ok .dot{background:#22c55e}.ck.warn .dot{background:#f59e0b}.ck.bad .dot{background:var(--crit)}
+.tests{display:flex;flex-direction:column;gap:8px}.tests .btn{justify-content:flex-start}
+.thisdev .btn.big{min-height:52px;font-size:16px;padding:0 22px}.thisdev .btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
+.thisdev details{margin-top:10px}.thisdev summary{cursor:pointer;color:var(--teal);font-weight:600}
+.help ol{margin:6px 0 10px;padding-inline-start:20px}.help li{margin:3px 0}
+.warnline{color:#f59e0b;font-size:13px}
+.almute{position:static;width:fit-content;margin:0 0 10px;margin-inline-start:auto;display:inline-flex;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.2);color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:600}
+.almute svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}.almute.on{background:#fff;color:var(--crit)}.alarm{position:relative}
+.focusal{border:2px solid var(--crit)}h2.sect{margin:18px 2px 8px;font-size:17px}
+.btn.danger:not(.ghost){color:#fff}
+@media (max-width:1200px){.kpis5{grid-template-columns:repeat(3,minmax(0,1fr))}.opsgrid{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.kpis5{grid-template-columns:repeat(2,minmax(0,1fr))}.grid4{grid-template-columns:1fr}header.top.v4 .who,header.top.v4 .clock,header.top.v4 .sysbtn small,header.top.v4 .ttl span{display:none}header.top.v4 .btn span{display:none}header.top.v4{gap:6px;padding:6px 8px}}
+@media (max-width:480px){header.top.v4 .ttl b small{display:none}.sysbtn b{display:none}.sysbtn{padding:8px}}
+.inc.sv-critical{border-inline-start-color:var(--crit)}.inc.sv-high{border-inline-start-color:var(--hi)}.inc.sv-medium{border-inline-start-color:#f59e0b}.inc.sv-low{border-inline-start-color:#22c55e}
+.ck.ck-ok .dot{background:#22c55e}.ck.ck-warn .dot{background:#f59e0b}.ck.ck-bad .dot{background:var(--crit)}.ck.ck-bad{border-color:color-mix(in srgb,var(--crit) 45%,var(--line))}
+.btn[disabled]{opacity:.42;cursor:not-allowed;filter:none}
+#pushhint .sndhint{border-color:var(--teal);color:var(--teal)}#pushhint .sndhint svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
 
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;const h=c.closest('table').rows[0].cells[i];c.dataset.l=h?h.textContent:''}}).observe(document,{childList:true,subtree:true})</script>
@@ -1862,6 +1913,8 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       ingestWeather(payload) { const res = validateWeather(payload); applyWeather({ username: 'integration:ncm-test', role: 'integration' }, res, 'test_api'); touch(); return { accepted: res.accepted.length, rejected: res.rejected, warnings: res.warnings }; },
       validateWeather,
       onChange(f) { listeners.push(f); },
+      // Server-side hook (not exposed through RPC): device registration and push delivery events written to the same audit chain.
+      recordEvent(u, { action, entity, entityId, ar, en, prev, next }) { audit(u || SYS, String(action), String(entity), entityId || null, tx(String(ar), String(en)), null, prev || null, next || null); touch(); return { ok: true }; },
       seed, store: S, DISCLAIMER
     };
     if (!S.get('meta', 'meta') || !S.get('settings', 'rules')) seed();
@@ -2373,28 +2426,44 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       mode: 'local',
       async enter(id) { const r = store.get('users', id); if (!r) throw new Error('NO_USER'); user = r; svc.recordLogin(r); return svc.snapshot(r); },
       leave() { user = null; },
-      async bridges() { return store.all('vessels').map(v => ({ userId: 'B-' + v.id, id: v.id, name: v.name, mmsi: v.mmsi, type: v.type, status: v.status, destId: v.destId, channel: v.channel })); },
+      async bridges() { return store.all('vessels').map(v => ({ userId: 'B-' + v.id, id: v.id, name: v.name, mmsi: v.mmsi, type: v.type, status: v.status, destId: v.destId, channel: v.channel, inTerritorialSea: C.inSaudiTerritorialSea(v.pos) })); },
       async call(m, a) { if (typeof svc[m] !== 'function') throw new Error('UNKNOWN'); const res = svc[m](fresh(), a || {}); emit(); return res; },
+      async raw() { throw new Error('server_only'); }, refresh: async () => emit(), live: 'local',
       subscribe(f) { subs.push(f); }
     };
   }
   function serverClient() {
-    let token = null, subs = [], timer = null;
-    const req = async (path, body) => { const r = await fetch(path, { method: body ? 'POST' : 'GET', headers: Object.assign({ 'content-type': 'application/json' }, token ? { authorization: 'Bearer ' + token } : {}), body: body ? JSON.stringify(body) : undefined }); const j = await r.json(); if (!r.ok) throw new Error(j.error || 'HTTP_' + r.status); return j; };
-    const poll = async () => { try { const s = await req('/api/snapshot'); subs.forEach(f => f(s)); } catch (e) { /* keep last state */ } };
+    // Demo authentication: the interfaces are opened with demo accounts (no passwords). Sessions are server-side bearer tokens;
+    // vessel accounts only receive their own vessel's records. Production needs real identity management (see README).
+    let token = null, uid = null, subs = [], timer = null, es = null, inflight = false, again = false;
+    const raw = async (path, body, retry) => {
+      const r = await fetch(path, { method: body ? 'POST' : 'GET', headers: Object.assign({ 'content-type': 'application/json' }, token ? { authorization: 'Bearer ' + token } : {}), body: body ? JSON.stringify(body) : undefined });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401 && uid && !retry) { await login(uid); return raw(path, body, true); }
+      if (!r.ok) throw new Error(j.error || 'HTTP_' + r.status); return j;
+    };
+    const poll = async () => { if (!token) return; if (inflight) { again = true; return; } inflight = true; try { const s = await raw('/api/snapshot'); subs.forEach(f => f(s)); } catch (e) { /* keep last state */ } inflight = false; if (again) { again = false; poll(); } };
+    function stream() {
+      if (es) es.close(); if (!window.EventSource || !token) return;
+      es = new EventSource('/api/events?token=' + encodeURIComponent(token)); state.live = 'connecting';
+      es.addEventListener('change', () => { state.live = 'live'; poll(); });
+      es.onerror = () => { state.live = 'reconnecting'; if (es && es.readyState === 2) setTimeout(stream, 3000); };
+    }
+    async function login(id) { const j = await raw('/api/demo-login', { userId: id }, true); token = j.token; uid = id; stream(); return j; }
     return {
-      mode: 'server',
-      async enter(id) { const j = await req('/api/demo-login', { userId: id }); token = j.token; clearInterval(timer); timer = setInterval(poll, 1500); return j.snapshot; },
-      leave() { if (token) req('/api/logout', {}).catch(() => {}); token = null; clearInterval(timer); },
-      async bridges() { return (await req('/api/bridges')).vessels; },
-      async call(m, a) { const j = await req('/api/rpc/' + m, a || {}); poll(); return j.result; },
+      mode: 'server', raw, get live() { return state.live; },
+      async enter(id) { const j = await login(id); clearInterval(timer); timer = setInterval(() => { if (state.live !== 'live') poll(); }, 5000); return j.snapshot; },
+      leave() { if (token) raw('/api/logout', {}).catch(() => {}); token = null; uid = null; clearInterval(timer); if (es) es.close(); es = null; },
+      async bridges() { return (await raw('/api/bridges')).vessels; },
+      async call(m, a) { const j = await raw('/api/rpc/' + m, a || {}); poll(); return j.result; },
+      refresh: poll,
       subscribe(f) { subs.push(f); }
     };
   }
   const client = window.MARSA_SERVER ? serverClient() : localClient();
 
   // ---------- State ----------
-  const state = { snap: null, view: 'home', sec: 'map', sel: {}, f: { region: '', vtype: '', risk: '' }, maps: {}, seenDeliv: null, sentReceived: new Set(), verify: null, dataTab: 'vessels', intTab: 'sources', lay: {}, pop: null };
+  const state = { live: 'off', snap: null, view: 'home', sec: 'ops', sel: {}, f: { region: '', vtype: '', risk: '' }, maps: {}, seenDeliv: null, sentReceived: new Set(), verify: null, dataTab: 'vessels', intTab: 'sources', lay: {}, pop: null };
   try { const l = localStorage.getItem('marsa.lang'); if (l === 'en' || l === 'ar') I.lang = l; } catch (e) { /* ignore */ }
   const S = () => state.snap;
   const port = id => S().ports.find(p => p.id === id);
@@ -2426,28 +2495,40 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   const opts = (list, sel) => list.map(([v, l]) => '<option value="' + esc(v) + '"' + (String(v) === String(sel) ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
   async function download(name, text, type) { try { await X.save(name, new Blob([text], { type: type || 'text/plain;charset=utf-8' })); toast(T('تم التصدير: ', 'Exported: ') + name, 'ok'); } catch (e) { toast(T('التنزيل غير متاح هنا', 'Download unavailable here'), 'bad'); } }
 
-  // ---------- Sound (bell rendered to WAV; unlocked on first tap) ----------
+  // ---------- Sound: original synthesized warning tones (no music). Browsers block autoplay until the user enables sound. ----------
   const Sound = (() => {
-    let on = true; try { on = localStorage.getItem('marsa.sound') !== '0'; } catch (e) { /* ignore */ }
-    const RING_S = 5, BELL_F = 440, GAP = .62, SR = 22050;
-    let audio = null, unlocked = false, repeatT = null;
-    function bellWav() {
-      const n = Math.floor(RING_S * SR), buf = new Float32Array(n), parts = [[1, 1, 3.2], [1.004, .7, 3.0], [.5, .45, 3.6], [2.0, .5, 2.2], [2.76, .35, 1.6], [3.0, .2, 1.2], [5.4, .12, .7]];
-      for (let k = 0; k * GAP < RING_S - 1; k++) { const t0 = Math.floor(k * GAP * SR); for (const [m, a, d] of parts) { const w = 2 * Math.PI * BELL_F * m / SR, len = Math.min(n - t0, Math.floor(d * SR)), att = Math.floor(.006 * SR), dec = Math.log(1e-4) / (len - att); for (let i = 0; i < len; i++) buf[t0 + i] += a * (i < att ? i / att : Math.exp(dec * (i - att))) * Math.sin(w * i); } }
-      let peak = 0; for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(buf[i]));
+    const ls = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } };
+    let on = ls('marsa.sound', '1') !== '0', tone = ls('marsa.tone', 'horn'), vol = Math.max(.1, Math.min(1, +ls('marsa.vol', '1') || 1));
+    const SR = 22050, cache = {}; let audio = null, unlocked = false, repeatT = null, muted = false;
+    function wav(buf) {
+      const n = buf.length; let peak = 0; for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(buf[i]));
       const g = .97 / (peak || 1), dv = new DataView(new ArrayBuffer(44 + n * 2)), st = (o, t) => { for (let i = 0; i < t.length; i++) dv.setUint8(o + i, t.charCodeAt(i)); };
       st(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); st(8, 'WAVE'); st(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, SR, true); dv.setUint32(28, SR * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); st(36, 'data'); dv.setUint32(40, n * 2, true);
       for (let i = 0; i < n; i++) { const v = Math.tanh(buf[i] * g * 1.4) / Math.tanh(1.4); dv.setInt16(44 + i * 2, Math.max(-1, Math.min(1, v)) * 32767, true); }
       return URL.createObjectURL(new Blob([dv.buffer], { type: 'audio/wav' }));
     }
-    try { audio = new Audio(bellWav()); audio.preload = 'auto'; audio.setAttribute('playsinline', ''); } catch (e) { audio = null; }
-    function unlock() { if (unlocked || !audio) return; audio.muted = true; const p = audio.play(); if (p && p.then) p.then(() => { audio.pause(); audio.currentTime = 0; audio.muted = false; unlocked = true; if (state.view === 'bridge') update(); }).catch(() => { audio.muted = false; }); }
-    function ring(force) { if (!on && !force) return; unlock(); if (audio) { try { audio.muted = false; audio.volume = 1; audio.currentTime = 0; const p = audio.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* blocked */ } } }
+    const env = (i, len, att, rel) => Math.min(1, i / att, (len - i) / rel);
+    const TONES = {
+      horn: () => { const d = 3.2, n = Math.floor(d * SR), b = new Float32Array(n); // two-tone maritime horn: 660 / 880 Hz, 0.4 s each
+        for (let i = 0; i < n; i++) { const t = i / SR, k = Math.floor(t / .4), f = k % 2 ? 880 : 660, seg = (t % .4) * SR; if (k >= 7) break; let v = 0; for (const h of [1, 2, 3, 5]) v += Math.sin(2 * Math.PI * f * h * t) / (h * h); b[i] = v * env(seg, .4 * SR, 300, 600); } return b; },
+      pulse: () => { const d = 3, n = Math.floor(d * SR), b = new Float32Array(n); // rapid high-pitched beeps
+        for (let i = 0; i < n; i++) { const t = i / SR, seg = (t % .25) * SR; b[i] = seg < .14 * SR ? Math.sin(2 * Math.PI * 1050 * t) * env(seg, .14 * SR, 100, 200) : 0; } return b; },
+      bell: () => { const RING = 4.4, n = Math.floor(RING * SR), b = new Float32Array(n), parts = [[1, 1, 3.2], [1.004, .7, 3.0], [.5, .45, 3.6], [2.0, .5, 2.2], [2.76, .35, 1.6], [3.0, .2, 1.2], [5.4, .12, .7]];
+        for (let k = 0; k * .62 < RING - 1; k++) { const t0 = Math.floor(k * .62 * SR); for (const [m, a, dd] of parts) { const w = 2 * Math.PI * 440 * m / SR, len = Math.min(n - t0, Math.floor(dd * SR)), att = Math.floor(.006 * SR), dec = Math.log(1e-4) / (len - att); for (let i = 0; i < len; i++) b[t0 + i] += a * (i < att ? i / att : Math.exp(dec * (i - att))) * Math.sin(w * i); } } return b; }
+    };
+    const url = t => cache[t] || (cache[t] = wav(TONES[t]()));
+    function load() { try { if (!audio) { audio = new Audio(); audio.preload = 'auto'; audio.setAttribute('playsinline', ''); } if (audio.dataset.t !== tone) { audio.src = url(tone); audio.dataset.t = tone; } } catch (e) { audio = null; } }
+    load();
+    function unlock() { if (unlocked || !audio) return; audio.muted = true; const p = audio.play(); if (p && p.then) p.then(() => { audio.pause(); audio.currentTime = 0; audio.muted = false; unlocked = true; if (state.view !== 'home') update(); }).catch(() => { audio.muted = false; }); }
+    function ring(force) { if ((!on || muted) && !force) return; unlock(); load(); if (audio) { try { audio.muted = false; audio.volume = vol; audio.currentTime = 0; const p = audio.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* blocked */ } } }
     return {
-      get on() { return on; }, get unlocked() { return unlocked || !audio; }, ring, unlock,
-      toggle() { on = !on; try { localStorage.setItem('marsa.sound', on ? '1' : '0'); } catch (e) { /* ignore */ } if (on) ring(true); else this.stopRepeat(); },
-      repeat() { clearInterval(repeatT); repeatT = setInterval(() => ring(), 12000); },
-      stopRepeat() { clearInterval(repeatT); if (audio) audio.pause(); }
+      get on() { return on; }, get unlocked() { return unlocked || !audio; }, get tone() { return tone; }, get vol() { return vol; }, get muted() { return muted; }, get repeating() { return !!repeatT; }, ring, unlock,
+      TONES: Object.keys(TONES),
+      set(o) { if (o.on !== undefined) { on = !!o.on; put('marsa.sound', on ? '1' : '0'); if (!on) this.stopRepeat(); } if (o.tone && TONES[o.tone]) { tone = o.tone; put('marsa.tone', tone); load(); } if (o.vol !== undefined) { vol = Math.max(.1, Math.min(1, +o.vol)); put('marsa.vol', String(vol)); if (audio) audio.volume = vol; } },
+      toggle() { this.set({ on: !on }); if (on) ring(true); },
+      mute(m) { muted = m === undefined ? !muted : !!m; if (muted && audio) audio.pause(); else if (!muted && repeatT) ring(); },
+      repeat() { muted = false; clearInterval(repeatT); repeatT = setInterval(() => ring(), 4200); }, // repeats until the alert is acknowledged
+      stopRepeat() { clearInterval(repeatT); repeatT = null; muted = false; if (audio) audio.pause(); }
     };
   })();
   for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) document.addEventListener(ev, () => Sound.unlock(), { capture: true, passive: true });
@@ -2463,50 +2544,58 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   const envBadge = () => '<span class="envbadge" title="' + esc(T('البيانات المعروضة بيانات اختبار تجريبية وليست بيانات حية أو رسمية', 'Data shown is test data, not live or official data')) + '"><span class="f">TEST DATA ENVIRONMENT</span><span class="s">TEST DATA</span></span>';
 
   // ---------- Home ----------
-  function goHome() { client.leave(); state.snap = null; state.view = 'home'; state.seenDeliv = null; Sound.stopRepeat(); for (const k in state.maps) state.maps[k].destroy(); state.maps = {}; renderHome(); }
+  function goHome() { try { localStorage.removeItem('marsa.acct'); } catch (e) { /* ignore */ } client.leave(); state.snap = null; state.view = 'home'; state.seenDeliv = null; Sound.stopRepeat(); for (const k in state.maps) state.maps[k].destroy(); state.maps = {}; renderHome(); }
   function renderHome() {
     applyLang();
-    document.getElementById('app').innerHTML = '<div class="home"><header class="home-top">' + LOGO + '<div><b>MARSA · ' + T('مَرسى', 'Marsa') + '</b><span>' + T('نظام تجريبي لإدارة المخاطر والإنذارات البحرية في السواحل السعودية', 'Prototype for maritime risk and alert management on Saudi coasts') + '</span></div><div class="grow"></div>' + envBadge() + '<button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>' +
-      '<main class="home-main"><h1>' + T('اختر الواجهة', 'Choose an interface') + '</h1><div class="home-cards">' +
-      '<button class="hcard" data-a="enterBridge">' + SHIP_ICON + '<b>' + T('جسر السفينة', 'Ship Bridge') + '</b><span>' + T('الإنذارات والإشعارات الملاحية، وتوصية مَرسى للسفينة، وتأكيد الاستلام', 'Alerts and navigational notices, MARSA\'s recommendation for the vessel, and confirmation of receipt') + '</span></button>' +
-      '<button class="hcard" data-a="enterOfficer">' + OFFICER_ICON + '<b>' + T('ضابط الميناء', 'Port Officer') + '</b><span>' + T('يرصد ويتوقع ويقرر ويوزّع، ويرسل الإنذارات للسفن والنشرات للجهات المختصة', 'Monitor, predict, decide and distribute; send alerts to vessels and bulletins to competent parties') + '</span></button>' +
+    document.getElementById('app').innerHTML = '<div class="home"><header class="home-top">' + LOGO + '<div><b>' + T('مَرسى', 'MARSA') + '</b><span>' + T('الإنذار المبكر والتنسيق البحري', 'Maritime early warning & coordination') + '</span></div><div class="grow"></div><button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>' +
+      '<main class="home-main"><h1>' + T('تسجيل الدخول', 'Sign in') + '</h1><p class="muted">' + T('حسابات العرض', 'Demo accounts') + '</p><div class="home-cards">' +
+      '<button class="hcard" data-a="enterOfficer">' + OFFICER_ICON + '<b>' + T('ضابط الميناء', 'Port officer') + '</b><span>' + T('مركز العمليات البحرية', 'Maritime operations centre') + '</span></button>' +
+      '<button class="hcard" data-a="enterBridge">' + SHIP_ICON + '<b>' + T('جسر السفينة', 'Vessel bridge') + '</b><span>' + T('حساب طاقم سفينة واحدة', 'One vessel crew account') + '</span></button>' +
       '</div></main></div><div id="toasts"></div>';
   }
   A.switchRole = () => { if (state.view === 'officer') A.enterBridge(); else { client.leave(); Sound.stopRepeat(); $$('.alarm-wrap').forEach(x => x.remove()); A.enterOfficer(); } };
-  A.enterOfficer = async () => { try { const s = await client.enter('OFFICER'); state.view = 'officer'; state.snap = s; renderView(); } catch (e) { toast(String(e.message || e), 'bad'); } };
+  A.enterOfficer = async () => { try { const s = await client.enter('OFFICER'); state.view = 'officer'; state.snap = s; remember('OFFICER'); renderView(); resyncPush(); } catch (e) { toast(String(e.message || e), 'bad'); } };
   A.enterBridge = async () => {
     const list = await client.bridges();
     const m = modal('<h3>' + T('اختر السفينة', 'Choose the vessel') + '</h3><input class="vsearch" placeholder="' + T('بحث بالاسم أو MMSI', 'Search name or MMSI') + '"><ul class="vpick">' +
-      list.map(v => '<li data-n="' + esc((v.name + ' ' + v.mmsi).toLowerCase()) + '"><button data-a="pickBridge" data-id="' + esc(v.userId) + '"><b>' + esc(v.name) + '</b><span>MMSI ' + esc(v.mmsi) + ' · ' + vtype(v.type) + ' → ' + esc(C.PORTS.find(p => p.id === v.destId) ? T(C.PORTS.find(p => p.id === v.destId).ar, C.PORTS.find(p => p.id === v.destId).en) : v.destId) + '</span></button></li>').join('') + '</ul>', 'wide');
+      list.map(v => '<li data-n="' + esc((v.name + ' ' + v.mmsi).toLowerCase()) + '"><button data-a="pickBridge" data-id="' + esc(v.userId) + '"><b>' + esc(v.name) + '</b><span>' + (v.inTerritorialSea ? B('ok', T('داخل المياه الإقليمية', 'Inside territorial waters')) + ' ' : '') + 'MMSI ' + esc(v.mmsi) + ' · ' + vtype(v.type) + ' → ' + esc(C.PORTS.find(p => p.id === v.destId) ? T(C.PORTS.find(p => p.id === v.destId).ar, C.PORTS.find(p => p.id === v.destId).en) : v.destId) + '</span></button></li>').join('') + '</ul>', 'wide');
     $('.vsearch', m).oninput = e => { const q = e.target.value.toLowerCase(); $$('.vpick li', m).forEach(li => { li.hidden = !!q && !li.dataset.n.includes(q); }); };
   };
-  A.pickBridge = async d => { closeModal(); try { const s = await client.enter(d.id); state.view = 'bridge'; state.snap = s; state.seenDeliv = null; state.seenNotices = null; renderView(); } catch (e) { toast(String(e.message || e), 'bad'); } };
+  A.pickBridge = async d => { closeModal(); try { const s = await client.enter(d.id); state.view = 'bridge'; state.snap = s; state.seenDeliv = null; state.seenNotices = null; remember(d.id); renderView(); resyncPush(); } catch (e) { toast(String(e.message || e), 'bad'); } };
+  const remember = id => { try { localStorage.setItem('marsa.acct', id); } catch (e) { /* ignore */ } };
 
   // ---------- Shell ----------
   const SECS = () => [
-    ['g', 'مراحل مَرسى', 'MARSA stages'],
-    ['map', '١ · يرصد', '1 · Monitor', 'السفن والطقس والموانئ', 'Vessels, weather, ports'],
-    ['risks', '٢ · يتوقع', '2 · Predict', 'المخاطر خلال ٤٨ ساعة', 'Risks over 48 h'],
-    ['routes', '٣ · يقرر', '3 · Decide', 'قرار لكل سفينة', 'A decision per vessel'],
-    ['distribute', '٤ · يوزّع', '4 · Distribute', 'السفن على الموانئ البديلة', 'Vessels across alternative ports'],
-    ['g', 'الإرسال', 'Dissemination'],
-    ['alerts', 'الإنذار المباشر', 'Direct alerts', 'للسفن داخل المياه الإقليمية', 'Ships in territorial waters'],
-    ['bulletins', 'النشرات والإشعارات', 'Bulletins & notices', 'للجهات المختصة', 'To competent parties'],
+    ['g', 'العمليات', 'Operations'],
+    ['ops', 'مركز العمليات', 'Operations centre'], ['map', 'الخريطة البحرية', 'Maritime map'], ['risks', 'المخاطر البحرية', 'Maritime risks'],
+    ['vessels', 'متابعة السفن', 'Vessel tracking'], ['routes', 'التوصيات التشغيلية', 'Operational recommendations'], ['distribute', 'إدارة الموانئ', 'Port management'],
+    ['g', 'الاتصالات البحرية', 'Maritime communications'],
+    ['alerts', 'الإنذارات المباشرة', 'Direct alerts'], ['bulletins', 'النشرات الملاحية', 'Navigational bulletins'], ['notiflog', 'سجل الإشعارات والاستلام', 'Notifications & receipts'],
     ['g', 'الإدارة', 'Administration'],
-    ['scenarios', 'سيناريوهات العرض', 'Demo scenarios'],
-    ['data', 'بيانات الاختبار', 'Test data'], ['integrations', 'التكاملات المقترحة', 'Proposed integrations'], ['audit', 'سجل العمليات', 'Operations log']];
+    ['audit', 'سجل العمليات', 'Operations log'], ['integrations', 'مصادر البيانات والتكاملات', 'Data sources & integrations'], ['devices', 'إدارة أجهزة استقبال الإنذارات', 'Alert receiving devices'],
+    ['pushtest', 'مركز اختبار الإشعارات', 'Notification test centre'], ['scenarios', 'المحاكاة التشغيلية', 'Operational simulation'], ['settings', 'الإعدادات', 'Settings']];
+  Object.assign(NAVI, { ops: 'M3 3h7v7H3zM14 3h7v4h-7zM14 10h7v11h-7zM3 13h7v8H3z', vessels: 'M3 17h18l-2 4H5zM6 17V9h12v8M9 9V5h6v4', notiflog: 'M4 5h16v11H8l-4 4zM8 9h8M8 12h5', devices: 'M7 2h10v20H7zM11 18h2', pushtest: 'M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0', settings: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.8-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z', scenarios: 'M5 3l14 9-14 9z', audit: 'M9 3h6l1 2h3v16H5V5h3zM9 11h6M9 15h6', integrations: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zm0 0v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3', distribute: 'M3 21V9l9-6 9 6v12M9 21v-6h6v6', routes: 'M5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14-12a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 15V9a4 4 0 0 1 4-4h6m4 4v6a4 4 0 0 1-4 4H9' });
+  const I_BELL = 'M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0', I_GEAR = NAVI.settings, I_SWAP = 'M7 7h13l-4-4M17 17H4l4 4';
+  const LIVE = () => client.mode !== 'server' ? ['ok', T('محلي', 'Local')] : state.live === 'live' ? ['ok', T('متصل · مزامنة فورية', 'Connected · live sync')] : ['warn', T('إعادة الاتصال…', 'Reconnecting…')];
   function header(title, sub, extra) {
-    return '<header class="top v3"><button class="btn ghost light sm homebtn" data-a="home">' + ic(I_HOME) + '<span>' + T('الرئيسية', 'Home') + '</span></button>' + LOGO + '<div class="ttl"><b>' + esc(title) + '</b><span>' + sub + '</span></div><div class="grow"></div>' + envBadge() + '<div class="clock" id="clock"></div>' + (extra || '') + '<button class="btn ghost light sm" data-a="switchRole">' + (state.view === 'officer' ? T('التبديل إلى جسر السفينة', 'Switch to Ship Bridge') : T('التبديل إلى ضابط الميناء', 'Switch to Port Officer')) + '</button>' + '<button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>';
+    const me = S() && S().me, bell = state.view === 'officer' ? '<button class="hbtn" data-a="sec" data-id="notiflog" title="' + T('سجل الإشعارات والاستلام', 'Notifications & receipts') + '">' + ic(I_BELL) + '<i id="hbell"></i></button>' : '';
+    return '<header class="top v4">' + LOGO + '<div class="ttl"><b>' + T('مَرسى', 'MARSA') + ' <small>| ' + esc(title) + '</small></b><span>' + sub + '</span></div><div class="grow"></div>' +
+      '<div class="sysst" id="sysst"></div><div class="clock" id="clock"></div>' + bell + (extra || '') +
+      '<button class="hbtn" data-a="lang" title="Language">' + T('EN', 'ع') + '</button>' +
+      '<button class="hbtn" data-a="' + (state.view === 'officer' ? 'sec" data-id="settings' : 'goBset') + '" title="' + T('الإعدادات', 'Settings') + '">' + ic(I_GEAR) + '</button>' +
+      '<div class="who"><b>' + esc(me ? L(me.name) : '') + '</b><span>' + (state.view === 'officer' ? T('ضابط الميناء', 'Port officer') : T('طاقم السفينة', 'Vessel crew')) + '</span></div>' +
+      '<button class="btn ghost light sm" data-a="switchRole" title="' + T('حسابات العرض', 'Demo accounts') + '">' + ic(I_SWAP) + '<span>' + (state.view === 'officer' ? T('جسر السفينة', 'Vessel bridge') : T('ضابط الميناء', 'Port officer')) + '</span></button>' +
+      '<button class="hbtn" data-a="home" title="' + T('خروج', 'Sign out') + '">' + ic('M15 3h4v18h-4M10 17l-5-5 5-5M5 12h11') + '</button></header>';
   }
   function renderView() {
     applyLang(); for (const k in state.maps) state.maps[k].destroy(); state.maps = {};
     if (state.view === 'officer') {
-      document.getElementById('app').innerHTML = header(T('ضابط الميناء', 'Port Officer'), T('بيئة بيانات اختبار مشتركة', 'Shared test-data environment')) +
-        '<div class="olay"><nav class="oside">' + SECS().map(([k, ar, en, sar, sen]) => k === 'g' ? '<div class="ogrp">' + T(ar, en) + '</div>' : '<button class="' + (state.sec === k ? 'on' : '') + '" data-a="sec" data-id="' + k + '">' + ic(NAVI[k] || NAVI.routes) + '<span>' + T(ar, en) + (sar ? '<small>' + T(sar, sen) + '</small>' : '') + '</span><i data-c="' + k + '"></i></button>').join('') + '</nav><main id="main" class="omain"></main></div><div id="toasts"></div>';
+      document.getElementById('app').innerHTML = header(T('مركز العمليات البحرية', 'Maritime operations'), T('ضابط الميناء', 'Port officer')) +
+        '<div class="olay"><nav class="oside">' + SECS().map(([k, ar, en, sar, sen]) => k === 'g' ? '<div class="ogrp">' + T(ar, en) + '</div>' : '<button class="' + (state.sec === k ? 'on' : '') + '" data-a="sec" data-id="' + k + '">' + ic(NAVI[k] || NAVI.routes) + '<span>' + T(ar, en) + '</span><i data-c="' + k + '"></i></button>').join('') + '</nav><main id="main" class="omain"></main></div><div id="toasts"></div>';
       $('#main').innerHTML = OFF[state.sec].mount(); if (OFF[state.sec].bind) OFF[state.sec].bind($('#main'));
     } else {
       const v = S().vessels[0] || {};
-      document.getElementById('app').innerHTML = header(T('جسر السفينة', 'Ship Bridge') + ' · ' + (v.name || ''), 'MMSI ' + esc(v.mmsi || '—') + ' · ' + esc(v.imo || ''), '<button class="btn ghost light sm" id="soundbtn" data-a="sound">' + ic(I_SOUND) + '<span>' + (Sound.on ? T('الصوت مفعّل', 'Sound on') : T('الصوت متوقف', 'Sound off')) + '</span></button><button class="btn sm" data-a="testAlarm">' + T('اختبار الإنذار', 'Test alarm') + '</button>') + '<main id="main" class="v3main bridge">' + BR.mount() + '</main><div id="toasts"></div>';
+      document.getElementById('app').innerHTML = header(T('جسر السفينة', 'Vessel bridge') + ' · ' + (v.name || ''), 'MMSI ' + esc(v.mmsi || '—'), '<button class="hbtn" id="soundbtn" data-a="sound" title="' + T('الصوت', 'Sound') + '">' + ic(Sound.on ? I_SOUND : 'M11 5 6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6') + '</button>') + '<main id="main" class="v3main bridge">' + BR.mount() + '</main><div id="toasts"></div>';
     }
     update();
   }
@@ -2515,9 +2604,11 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   A.sec = d => { state.sec = d.id; renderView(); };
   function update() {
     const s = S(); if (!s) return;
-    fill('#clock', '<b>' + fTs(s.now) + '</b><span>' + fD(s.now) + ' · ' + T('توقيت السعودية', 'KSA') + '</span>');
+    fill('#clock', '<b>' + fTs(s.now) + '</b><span>' + fD(s.now) + '</span>');
+    { const [k, t] = LIVE(), sim = (s.dataSources || []).length ? T('المصادر: محاكاة', 'Sources: simulated') : ''; fill('#sysst', '<button class="sysbtn" data-a="' + (state.view === 'officer' ? 'sec" data-id="integrations' : 'goBset') + '"><span class="dot ' + k + '"></span><span><b>' + t + '</b>' + (sim ? '<small>' + sim + '</small>' : '') + '</span></button>'); }
+    if (state.view === 'officer') { const nb = s.deliveryRecords.filter(d => d.action === 'rejected' && !(state.seenRej || new Set()).has(d.id)).length + (s.pushLog || []).filter(l => ['failed', 'expired'].includes(l.status) && l.at > s.now - 6 * H).length; fill('#hbell', nb ? String(nb) : ''); }
     if (state.view === 'officer') {
-      const cnt = { risks: s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now).length, alerts: s.alerts.filter(a => ['draft', 'pending_approval', 'approved', 'ready_for_dispatch'].includes(a.status)).length, routes: s.alternativeRoutes.length };
+      const cnt = { risks: s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now).length, alerts: s.alerts.filter(a => ['draft', 'pending_approval', 'approved', 'ready_for_dispatch'].includes(a.status)).length, routes: s.alternativeRoutes.filter(r => r.status === 'proposed').length, bulletins: (s.bulletins || []).filter(b => ['draft', 'under_review', 'approved', 'sent', 'recipient_ack'].includes(b.status)).length, notiflog: s.deliveryRecords.filter(d => ['dispatched', 'received'].includes(d.status) && !d.ackAt).length };
       $$('.oside i[data-c]').forEach(el => { const n = cnt[el.dataset.c]; el.textContent = n ? String(n) : ''; });
       OFF[state.sec].upd($('#main')); applyFilters();
     } else BR.upd($('#main'));
@@ -2559,12 +2650,13 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   const topRisk = () => S().maritimeRisks.filter(r => r.end > S().now).sort((a, b) => RANK(b.level) - RANK(a.level) || (b.affectedCount || 0) - (a.affectedCount || 0))[0];
   const cta = (title, text, btn) => '<div class="cta"><b>' + esc(title) + '</b><p>' + esc(text) + '</p>' + (btn || '') + '</div>';
   const ctaAlert = () => { const r = topRisk(); return r ? '<button class="btn" data-a="alertForm" data-r="' + esc(r.id) + '">' + T('إنذار: ', 'Alert: ') + esc(L(r.title)) + '</button>' : ''; };
-  const srcLine = (id) => { const d = src(id); return '<span class="srcline">' + TAG(d.label || id) + ' ' + T('آخر تحديث: ', 'Updated: ') + fT(d.lastReceivedAt) + ' (' + rel(d.lastReceivedAt) + ')</span>'; };
+  const SRCN = { ais: ['AIS', 'AIS'], ncm: ['الأرصاد', 'Met'], ports: ['أنظمة الموانئ', 'Port systems'] };
+  const srcLine = (id) => { const d = src(id); return '<span class="srcline">' + B('muted', (SRCN[id] ? T(...SRCN[id]) : id) + ' · ' + T('محاكاة', 'Simulated')) + ' ' + T('آخر تحديث: ', 'Updated: ') + fT(d.lastReceivedAt) + ' (' + rel(d.lastReceivedAt) + ')</span>'; };
   const sechead = (title, sub, right) => { const src = sub && sub.indexOf('<span class="srcline">') >= 0 ? sub.slice(sub.indexOf('<span class="srcline">')) : ''; return '<div class="pagehead"><div><h1>' + esc(title) + '</h1>' + (src ? '<p class="muted">' + src + '</p>' : '') + '</div><div class="row">' + (right || '') + '</div></div>'; };
 
   // 1) Map
   OFF.map = {
-    mount: () => sechead(T('يرصد: السفن والطقس والموانئ', 'Monitor: vessels, weather and ports'), srcLine('ais') + ' ' + srcLine('ncm')) + '<div id="ovr"></div>' +
+    mount: () => sechead(T('الخريطة البحرية', 'Maritime map'), srcLine('ais') + ' ' + srcLine('ncm')) +
       '<div class="panel filters row"><label class="sm">' + T('المنطقة', 'Region') + '<select data-f="region">' + opts([['', T('الكل', 'All')], ['RS', T('البحر الأحمر', 'Red Sea')], ['AG', T('الخليج العربي', 'Arabian Gulf')]], state.f.region) + '</select></label><label class="sm">' + T('نوع السفينة', 'Vessel type') + '<select data-f="vtype">' + opts([['', T('الكل', 'All')]].concat(Object.keys(VTYPE).map(k => [k, vtype(k)])), state.f.vtype) + '</select></label><label class="sm">' + T('مستوى الخطر', 'Risk level') + '<select data-f="risk">' + opts([['', T('الكل', 'All')], ['medium', T('متوسط فأعلى', 'Medium+')], ['high', T('مرتفع فأعلى', 'High+')], ['critical', T('حرج', 'Critical')]], state.f.risk) + '</select></label></div>' +
       '<div class="split"><div class="panel mapp"><div class="layers">' + [['vessels', 'السفن', 'Vessels'], ['ports', 'الموانئ', 'Ports'], ['risks', 'مناطق الخطر', 'Risk zones'], ['constraints', 'القيود الملاحية', 'Constraints'], ['routes', 'المسارات', 'Routes'], ['waiting', 'مناطق الانتظار الآمنة', 'Safe waiting areas']].map(([k, ar, en]) => '<label class="chk sm"><input type="checkbox" data-layer="' + k + '"' + (state.lay[k] !== false ? ' checked' : '') + '>' + T(ar, en) + '</label>').join('') + '</div><div class="mapwrap"><div class="mapbox tall" id="omap"></div><div id="mpop"></div></div><div class="maplegend"><span class="lg ves"></span>' + T('سفينة (Test AIS Data)', 'Vessel (Test AIS Data)') + ' <span class="lg ves risk"></span>' + T('متأثرة بخطر مرتفع/حرج', 'Affected by high/critical risk') + ' <span class="lg z rk-high"></span>' + T('منطقة خطر', 'Risk area') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Navigational constraints (test)') + ' <span class="lg ln alt"></span>' + T('مسار بديل', 'Alternative route') + '</div></div><aside class="panel side-list" id="vside"></aside></div>',
     bind: m => ensureMap('omap', $('#omap', m), { fit: [33.5, 15, 52, 29.5] }),
@@ -2611,7 +2703,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 
   // 2) Risk analysis
   OFF.risks = {
-    mount: () => sechead(T('يتوقع: المخاطر خلال ٤٨ ساعة', 'Predict: risks over the next 48 h'), T('محرك قواعد واضحة وقابلة للتعديل يحلل بيانات الأرصاد التجريبية وحالة الموانئ وسجلات المخاطر. ليس نموذج ذكاء اصطناعي مدرّبًا ولا تُدّعى له دقة مثبتة.', 'Explicit, editable rules analyse the sample weather data, port status and risk records. Not a trained AI model; no proven accuracy is claimed.') + '<br>' + srcLine('ncm'), '<select data-f="rsev" class="tsearch">' + opts([['', T('كل المستويات', 'All levels')], ['critical', lv('critical')], ['high', lv('high')], ['medium', lv('medium')], ['low', lv('low')]], state.f.rsev || '') + '</select><button class="btn sm ghost" data-a="recalc">' + T('إعادة الحساب', 'Recalculate') + '</button><button class="btn sm ghost" data-a="secData" data-t="rules">' + T('تعديل القواعد', 'Edit rules') + '</button><button class="btn sm" data-a="riskForm">' + T('إضافة خطر', 'Add risk') + '</button>') +
+    mount: () => sechead(T('المخاطر البحرية · ٤٨ ساعة', 'Maritime risks · 48 h'), T('محرك قواعد واضحة وقابلة للتعديل يحلل بيانات الأرصاد التجريبية وحالة الموانئ وسجلات المخاطر. ليس نموذج ذكاء اصطناعي مدرّبًا ولا تُدّعى له دقة مثبتة.', 'Explicit, editable rules analyse the sample weather data, port status and risk records. Not a trained AI model; no proven accuracy is claimed.') + '<br>' + srcLine('ncm'), '<select data-f="rsev" class="tsearch">' + opts([['', T('كل المستويات', 'All levels')], ['critical', lv('critical')], ['high', lv('high')], ['medium', lv('medium')], ['low', lv('low')]], state.f.rsev || '') + '</select><button class="btn sm ghost" data-a="recalc">' + T('إعادة الحساب', 'Recalculate') + '</button><button class="btn sm ghost" data-a="secData" data-t="rules">' + T('تعديل القواعد', 'Edit rules') + '</button><button class="btn sm" data-a="riskForm">' + T('إضافة خطر', 'Add risk') + '</button>') +
       '<div class="split"><aside class="panel side-list" id="rlist"></aside><div><div class="panel" id="rdet"></div><div class="panel mapp"><div class="mapbox mid" id="rmap"></div></div></div></div>',
     bind: m => ensureMap('rmap', $('#rmap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
@@ -2644,7 +2736,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 
   // 3) Alerts
   OFF.alerts = {
-    mount: () => sechead(T('الإنذار المباشر للسفن', 'Direct alerts to vessels'), T('إنذارات اختبار (Test Maritime Alerts): تُنشأ وتُراجع وتُعتمد وتُرسل داخل بيئة الاختبار إلى شاشات جسر السفن المستهدفة فقط.', 'Test Maritime Alerts: created, reviewed, approved and dispatched inside the test environment to the targeted vessels\' bridge screens only.'), '<button class="btn sm" data-a="alertForm">' + T('إنذار جديد', 'New alert') + '</button>') + '<div class="split"><aside class="panel side-list" id="alist"></aside><div class="panel" id="adet"></div></div>',
+    mount: () => sechead(T('الإنذارات المباشرة', 'Direct alerts'), T('إنذارات اختبار (Test Maritime Alerts): تُنشأ وتُراجع وتُعتمد وتُرسل داخل بيئة الاختبار إلى شاشات جسر السفن المستهدفة فقط.', 'Test Maritime Alerts: created, reviewed, approved and dispatched inside the test environment to the targeted vessels\' bridge screens only.'), '<button class="btn sm" data-a="alertForm">' + T('إنذار جديد', 'New alert') + '</button>') + '<div class="split"><aside class="panel side-list" id="alist"></aside><div class="panel" id="adet"></div></div>',
     upd: () => {
       const s = S(), list = s.alerts.slice().reverse();
       if (!state.sel.alert || (!alertById(state.sel.alert) && !(state.holdSel > Date.now()))) state.sel.alert = list[0] && list[0].id;
@@ -2737,7 +2829,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
       '<div class="row">' + act + (b.scope === 'LOCAL' ? '' : btn('navtexForm', 'NAVTEX', 'ghost', ' data-b="' + b.id + '"')) + (!['cancelled', 'expired', 'issued_official'].includes(b.status) ? btn('bCancel', T('إلغاء', 'Cancel'), 'ghost danger') : '') + '</div></div>';
   }
   OFF.bulletins = {
-    mount: () => sechead(T('النشرات والإشعارات الملاحية', 'Bulletins & navigational notices'), T('نشرات اختبار (Test Bulletin) مع أداة لإعداد رسالة بصيغة NAVTEX للاختبار والتكامل المستقبلي. لا تبث مَرسى أي رسالة رسميًا ولا ترسلها إلى محطة كراتشي.', 'Test Bulletins with a tool to prepare NAVTEX-format messages for testing and future integration. MARSA does not broadcast any message officially or send it to the Karachi station.'), '<input class="tsearch" data-t="#blist" placeholder="' + T('بحث', 'Search') + '">' + '<button class="btn sm ghost" data-a="navtexForm">' + T('رسالة NAVTEX جديدة', 'New NAVTEX message') + '</button><button class="btn sm" data-a="bulletinForm">' + T('نشرة جديدة', 'New bulletin') + '</button>') +
+    mount: () => sechead(T('النشرات الملاحية', 'Navigational bulletins'), T('نشرات اختبار (Test Bulletin) مع أداة لإعداد رسالة بصيغة NAVTEX للاختبار والتكامل المستقبلي. لا تبث مَرسى أي رسالة رسميًا ولا ترسلها إلى محطة كراتشي.', 'Test Bulletins with a tool to prepare NAVTEX-format messages for testing and future integration. MARSA does not broadcast any message officially or send it to the Karachi station.'), '<input class="tsearch" data-t="#blist" placeholder="' + T('بحث', 'Search') + '">' + '<button class="btn sm ghost" data-a="navtexForm">' + T('رسالة NAVTEX جديدة', 'New NAVTEX message') + '</button><button class="btn sm" data-a="bulletinForm">' + T('نشرة جديدة', 'New bulletin') + '</button>') +
       '<div class="panel"><h3>' + T('النشرات', 'Bulletins') + '</h3><div id="bcomp"></div><div id="blist"></div></div><div class="panel"><h3>' + T('رسائل NAVTEX التجريبية', 'Test NAVTEX messages') + '</h3><div id="nlist"></div></div>',
     upd: () => {
       const s = S();
@@ -2806,7 +2898,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 
   // 5) Alternative routes
   OFF.routes = {
-    mount: () => sechead(T('يقرر: قرار لكل سفينة متأثرة', 'Decide: a decision for each affected vessel'), T('محرك تجريبي يراعي موقع السفينة ووجهتها وغاطسها ونوعها ومناطق الخطر والأحوال البحرية والقيود الملاحية في بيانات الاختبار. صلاحية المسارات غير متحققة.', 'Prototype engine considering vessel position, destination, draft, type, risk areas, sea conditions and the navigational constraints in the test data. Route validity is not verified.')) + '<div class="split"><aside class="panel side-list" id="alist2"></aside><div><div class="panel mapp"><div class="mapbox mid" id="amap"></div><div class="maplegend"><span class="lg z rk-critical"></span>' + T('منطقة الخطر', 'Risk area') + ' <span class="lg ln cur"></span>' + T('المسار الحالي', 'Current route') + ' <span class="lg ln alt"></span>' + T('المسار البديل', 'Alternative route') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Constraints (test)') + '</div></div><div class="panel" id="adet2"></div></div></div>',
+    mount: () => sechead(T('التوصيات التشغيلية', 'Operational recommendations'), T('محرك تجريبي يراعي موقع السفينة ووجهتها وغاطسها ونوعها ومناطق الخطر والأحوال البحرية والقيود الملاحية في بيانات الاختبار. صلاحية المسارات غير متحققة.', 'Prototype engine considering vessel position, destination, draft, type, risk areas, sea conditions and the navigational constraints in the test data. Route validity is not verified.')) + '<div class="split"><aside class="panel side-list" id="alist2"></aside><div><div class="panel mapp"><div class="mapbox mid" id="amap"></div><div class="maplegend"><span class="lg z rk-critical"></span>' + T('منطقة الخطر', 'Risk area') + ' <span class="lg ln cur"></span>' + T('المسار الحالي', 'Current route') + ' <span class="lg ln alt"></span>' + T('المسار البديل', 'Alternative route') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Constraints (test)') + '</div></div><div class="panel" id="adet2"></div></div></div>',
     bind: m => ensureMap('amap', $('#amap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
       const s = S(), list = s.alternativeRoutes.slice().reverse();
@@ -2833,7 +2925,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   // 4) Distribute: diversions across alternative ports, capped at 88 % occupancy
   NAVI.distribute = 'M4 20V10m8 10V4m8 16v-7M2 20h20';
   OFF.distribute = {
-    mount: () => sechead(T('يوزّع: السفن على الموانئ البديلة', 'Distribute: vessels across alternative ports'), srcLine('ports')) + '<div class="panel"><h3>' + T('الموانئ', 'Ports') + '</h3><div id="pgrid" class="pgrid"></div></div><div class="panel"><div class="row between"><h3>' + T('مقترحات التحويل', 'Diversion proposals') + '</h3><input class="tsearch" data-t="#atbl" placeholder="' + T('بحث', 'Search') + '"></div><div id="atbl"></div></div><div class="panel mapp"><div class="mapbox mid" id="dmap"></div></div>',
+    mount: () => sechead(T('إدارة الموانئ', 'Port management'), srcLine('ports')) + '<div class="panel"><h3>' + T('الموانئ', 'Ports') + '</h3><div id="pgrid" class="pgrid"></div></div><div class="panel"><div class="row between"><h3>' + T('مقترحات التحويل', 'Diversion proposals') + '</h3><input class="tsearch" data-t="#atbl" placeholder="' + T('بحث', 'Search') + '"></div><div id="atbl"></div></div><div class="panel mapp"><div class="mapbox mid" id="dmap"></div></div>',
     bind: m => ensureMap('dmap', $('#dmap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
       const s = S(), occ = s.portOccupancy || {}, high = s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now);
@@ -2857,7 +2949,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 
   // 6) Test data management
   OFF.data = {
-    mount: () => sechead(T('بيانات الاختبار', 'Test data'), T('سجلات منظمة قابلة للتعديل والإضافة والحذف. أي تعديل يعيد تشغيل التحليل ويُسجل في سجل العمليات.', 'Structured records you can edit, add and delete. Any change re-runs the analysis and is written to the operations log.'), '<input class="tsearch" data-t="#dbody" placeholder="' + T('بحث', 'Search') + '">' + '<button class="btn sm ghost danger" data-a="resetData">' + T('إعادة تهيئة بيانات الاختبار', 'Reset test data') + '</button>') +
+    mount: () => sechead(T('بيانات المحاكاة', 'Simulation data'), T('سجلات منظمة قابلة للتعديل والإضافة والحذف. أي تعديل يعيد تشغيل التحليل ويُسجل في سجل العمليات.', 'Structured records you can edit, add and delete. Any change re-runs the analysis and is written to the operations log.'), '<input class="tsearch" data-t="#dbody" placeholder="' + T('بحث', 'Search') + '">' + '<button class="btn sm ghost danger" data-a="resetData">' + T('إعادة تهيئة بيانات الاختبار', 'Reset test data') + '</button>') +
       '<div class="tabs">' + [['vessels', 'السفن', 'Vessels'], ['ports', 'الموانئ', 'Ports'], ['weather', 'الأرصاد', 'Weather'], ['constraints', 'القيود الملاحية', 'Constraints'], ['rules', 'قواعد التحليل', 'Analysis rules']].map(([k, ar, en]) => '<button class="' + (state.dataTab === k ? 'on' : '') + '" data-a="dataTab" data-id="' + k + '">' + T(ar, en) + '</button>').join('') + '</div><div class="panel" id="dbody"></div>',
     upd: () => {
       const s = S(), t = state.dataTab;
@@ -2907,7 +2999,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
   // 7) Proposed integrations
   const NCM_SAMPLE = () => JSON.stringify({ source: 'TEST', records: [{ areaId: 'JED', recordedAt: new Date(S().now - 5 * 60e3).toISOString(), reliability: 0.85, observation: { windKn: 24, windDir: 310, waveM: 2.2, waveDir: 315, currentKn: 1.2, currentDir: 150, visNm: 4, tempC: 27 }, forecast: [{ h: 3, windKn: 29, waveM: 3.0 }, { h: 6, windKn: 33, waveM: 3.8 }] }, { areaId: 'XXX', recordedAt: 'not-a-date', observation: { windKn: 500 } }] }, null, 2);
   OFF.integrations = {
-    mount: () => sechead(T('التكاملات المقترحة (Proposed Integration)', 'Proposed integrations'), T('بنية جاهزة للتكامل المستقبلي. لا يوجد اتصال فعلي مع أي جهة؛ كل التبادلات هنا داخل بيئة الاختبار.', 'Architecture ready for future integration. There is no actual connection with any party; all exchanges here are inside the test environment.')) +
+    mount: () => sechead(T('مصادر البيانات والتكاملات', 'Data sources & integrations'), T('بنية جاهزة للتكامل المستقبلي. لا يوجد اتصال فعلي مع أي جهة؛ كل التبادلات هنا داخل بيئة الاختبار.', 'Architecture ready for future integration. There is no actual connection with any party; all exchanges here are inside the test environment.')) +
       '<div class="tabs">' + [['sources', 'حالة مصادر البيانات', 'Data sources'], ['ncm', 'المركز الوطني للأرصاد', 'National Center for Meteorology'], ['navarea', 'الامتثال الدولي وNAVAREA/NAVTEX', 'Compliance & NAVAREA/NAVTEX'], ['ship', 'شاشة السفينة والميناء', 'Ship & port screens']].map(([k, ar, en]) => '<button class="' + (state.intTab === k ? 'on' : '') + '" data-a="intTab" data-id="' + k + '">' + T(ar, en) + '</button>').join('') + '</div><div id="ibody"></div>',
     upd: () => {
       const s = S(), t = state.intTab;
@@ -2968,7 +3060,7 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
     [4, 'سفينة خارج المياه الإقليمية', 'Vessel outside territorial waters', 'سفينة تتجه لخطر وهي خارج حد الإنذار المباشر: يُحجز إنذارها، ثم حاكِ دخولها لتستلمه.', 'A vessel approaching a risk is outside the direct-alert boundary: its alert is queued; then simulate its entry to deliver it.'],
     [5, 'تحذير NAVAREA', 'NAVAREA warning', 'تجهيز مسودة تحذير NAVAREA IX وتحديد الجهات (الميناء، محطة NAVTEX، منسق كراتشي) وعرضها للمراجعة والاعتماد.', 'Prepare a NAVAREA IX warning draft, identify recipients (port, NAVTEX station, Karachi coordinator) and send it for review and approval.']];
   OFF.scenarios = {
-    mount: () => sechead(T('سيناريوهات العرض', 'Demo scenarios'), '', '<button class="btn sm ghost danger" data-a="resetData">' + T('إعادة ضبط العرض', 'Reset demo') + '</button>') + '<div class="scgrid">' + SCN.map(([n, ar, en, dar, den]) => '<div class="sccard"><span class="scn">' + n + '</span><b>' + T(ar, en) + '</b><p>' + T(dar, den) + '</p><button class="btn" data-a="runScn" data-id="' + n + '">' + T('تشغيل', 'Run') + '</button></div>').join('') + '</div>',
+    mount: () => sechead(T('المحاكاة التشغيلية', 'Operational simulation'), '', '<button class="btn sm ghost" data-a="sec" data-id="data">' + T('محرر بيانات المحاكاة', 'Simulation data editor') + '</button><button class="btn sm ghost danger" data-a="resetData">' + T('إعادة ضبط العرض', 'Reset demo') + '</button>') + '<div class="scgrid">' + SCN.map(([n, ar, en, dar, den]) => '<div class="sccard"><span class="scn">' + n + '</span><b>' + T(ar, en) + '</b><p>' + T(dar, den) + '</p><button class="btn" data-a="runScn" data-id="' + n + '">' + T('تشغيل', 'Run') + '</button></div>').join('') + '</div>',
     upd: () => {}
   };
   NAVI.scenarios = 'M5 3l14 9-14 9V3z';
@@ -2976,16 +3068,18 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
 
   // ---------- Ship Bridge ----------
   const BR = {
-    mount: () => '<div id="bident"></div><div id="sndhint"></div><div id="bstatus"></div><div id="bnotice"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات', 'Alert log') + '</h2><div id="blog"></div></div>',
+    mount: () => '<div id="bident"></div><div id="pushhint"></div><div id="sndhint"></div><div id="bfocus"></div><div id="bstatus"></div><div id="bnotice"></div><div class="grid2b"><div class="panel"><h2>' + T('المسار البديل المقترح', 'Suggested alternative route') + '</h2><div id="broute"></div></div><div class="panel"><h2>' + T('بيانات السفينة', 'Vessel data') + '</h2><div id="bvessel"></div></div></div><div class="panel"><h2>' + T('سجل الإنذارات والتأكيد', 'Alert & acknowledgement history') + '</h2><div id="blog"></div></div><div id="bset"></div>',
     upd: () => {
       const s = S(), v = s.vessels[0]; if (!v) { fill('#bstatus', empty(T('حُذف سجل هذه السفينة.', 'This vessel record was deleted.'))); return; }
       fill('#bident', '<div class="ident"><div><b>' + esc(v.name) + '</b><span>IMO ' + esc(v.imo) + ' · MMSI ' + esc(v.mmsi) + ' · ' + vtype(v.type) + '</span></div><div><span>' + T('الموقع', 'Position') + '</span><b>' + ll(v.pos) + '</b></div><div><span>' + T('الوجهة', 'Destination') + '</span><b>' + esc(pname(v.destId)) + '</b></div><div><span>' + T('الوصول المتوقع', 'ETA') + '</span><b>' + (v.etaAt ? fT(v.etaAt) : '—') + '</b></div><div><span>' + T('المياه الإقليمية', 'Territorial waters') + '</span><b>' + (v.inTerritorialSea ? T('داخلها', 'Inside') : T('خارجها', 'Outside')) + ' · ' + N(v.distCoastNm, 1) + ' nm</b></div></div>');
+      { const mp = myPush(), reg = mp && (s.devices || []).find(d => d.id === mp.deviceId && d.status === 'active'), sp = pushSupport();
+        fill('#pushhint', sp.server && !reg ? '<button class="sndhint" data-a="enablePush" data-v="' + esc(v.id) + '">' + ic(I_BELL) + T('فعّل إشعارات الجوال لاستقبال إنذارات ' + v.name + ' والمتصفح مغلق', 'Enable mobile notifications to receive ' + v.name + ' alerts while the browser is closed') + '</button>' : ''); }
       fill('#sndhint', Sound.on && !Sound.unlocked ? '<button class="sndhint" data-a="enableSound">' + ic(I_SOUND) + T('اضغط هنا لتفعيل صوت الإنذار على هذا الجهاز', 'Tap here to enable the alarm sound on this device') + '</button>' : '');
       const dls = s.deliveryRecords.slice().sort((a, b) => (b.dispatchedAt || 0) - (a.dispatchedAt || 0));
       const open = dls.filter(d => !d.ackAt && ['dispatched', 'received'].includes(d.status) && !['cancelled', 'expired'].includes((alertById(d.alertId) || {}).status));
       const unseen = dls.filter(d => d.status === 'dispatched' && !state.sentReceived.has(d.id)).map(d => d.id);
       if (unseen.length && document.visibilityState === 'visible') { unseen.forEach(id => state.sentReceived.add(id)); client.call('markReceived', { ids: unseen }).catch(() => unseen.forEach(id => state.sentReceived.delete(id))); }
-      fill('#bstatus', open.length ? open.map(d => { const a = alertById(d.alertId) || {}; return '<div class="bigalert lv-critical"><div class="ba-head"><span class="ba-icon">!</span><div><b>' + esc(L(a.title)) + '</b><span>' + T('إنذار من مَرسى (اختبار)', 'MARSA alert (test)') + ' · ' + esc(a.number) + ' · ' + lv(a.severity) + '</span></div></div><div class="ba-body"><p>' + esc(L(a.body)) + '</p><p><b>' + T('التعليمات: ', 'Instructions: ') + '</b>' + esc(L(a.instructions)) + '</p><p class="sm">' + T('موقع الخطر: ', 'Hazard location: ') + esc(L(a.areaName)) + ' · ' + T('الوقت المتوقع: ', 'Expected: ') + (a.riskSnapshot ? fT(a.riskSnapshot.start) + ' – ' + fT(a.riskSnapshot.end) : fT(a.validFrom) + ' – ' + fT(a.validTo)) + '</p></div><button class="btn big light" data-a="ackAlert" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button></div>'; }).join('')
+      fill('#bstatus', open.length ? open.map(d => { const a = alertById(d.alertId) || {}; return '<div class="bigalert lv-critical"><div class="ba-head"><span class="ba-icon">!</span><div><b>' + esc(L(a.title)) + '</b><span>' + T('إنذار مَرسى', 'MARSA alert') + ' · ' + esc(a.number) + ' · ' + lv(a.severity) + '</span></div></div><div class="ba-body"><p>' + esc(L(a.body)) + '</p><p><b>' + T('التعليمات: ', 'Instructions: ') + '</b>' + esc(L(a.instructions)) + '</p><p class="sm">' + T('موقع الخطر: ', 'Hazard location: ') + esc(L(a.areaName)) + ' · ' + T('الوقت المتوقع: ', 'Expected: ') + (a.riskSnapshot ? fT(a.riskSnapshot.start) + ' – ' + fT(a.riskSnapshot.end) : fT(a.validFrom) + ' – ' + fT(a.validTo)) + '</p></div><button class="btn big light" data-a="ackAlert" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button></div>'; }).join('')
         : '<div class="calmline">' + T('لا توجد إنذارات بانتظار التأكيد.', 'No alerts awaiting confirmation.') + '</div>');
       const bd = (s.bulletinDeliveries || []).slice().sort((a, b) => b.sentAt - a.sentAt);
       fill('#bnotice', bd.length ? '<div class="panel"><h2>' + T('الإشعارات الملاحية', 'Navigational notices') + '</h2>' + bd.map(d => { const b = (s.bulletins || []).find(x => x.id === d.bulletinId) || {}; return '<div class="notice' + (d.readAt ? ' read' : '') + '"><div><b>' + esc(L(b.title)) + '</b><span class="sm muted">' + esc(b.number) + ' · ' + T(...(BTYPE[b.type] || ['', ''])) + ' · ' + T('صالحة حتى ', 'valid until ') + fT(b.validTo) + '</span><p>' + esc(L(b.body)) + '</p></div>' + (d.readAt ? B('ok', T('تم الاطلاع ', 'Read ') + fH(d.readAt)) : '<button class="btn sm" data-a="bRead" data-id="' + d.id + '">' + T('تأكيد الاطلاع', 'Acknowledge') + '</button>') + '</div>'; }).join('') + '</div>' : '');
@@ -2998,36 +3092,269 @@ main.home-main{margin:0!important;max-width:none!important;width:auto}
         if ($('#bmap').dataset.fit !== ar.id) { $('#bmap').dataset.fit = ar.id; mp.fitPoints(ar.current.coords.slice(0, 6).concat(ar.alternative ? ar.alternative.coords.slice(0, 8) : []).concat(ar.riskPoly), 1); }
         fill('#rinfo', routeDetail(ar));
       } else fill('#broute', '<p class="muted">' + T('لا يوجد مسار بديل مقترح.', 'No alternative route suggested.') + '</p>');
-      fill('#bvessel', '<div class="kv">' + [['MMSI', '<code>' + esc(v.mmsi) + '</code>'], ['IMO', '<code>' + esc(v.imo) + '</code>'], [T('الموقع', 'Position'), ll(v.pos) + ' ' + TAG('Test AIS Data')], [T('السرعة / الاتجاه', 'Speed / course'), N(v.sog, 1) + ' kn / ' + N(v.cog) + '°'], [T('الغاطس', 'Draft'), N(v.draft, 1) + ' m'], [T('الوجهة', 'Destination'), esc(pname(v.destId)) + (v.etaAt ? ' · ' + fT(v.etaAt) : '')]].map(([k, x]) => '<span>' + k + '</span><b>' + x + '</b>').join('') + '</div>');
+      fill('#bvessel', '<div class="kv">' + [['MMSI', '<code>' + esc(v.mmsi) + '</code>'], ['IMO', '<code>' + esc(v.imo) + '</code>'], [T('الموقع', 'Position'), ll(v.pos)], [T('السرعة / الاتجاه', 'Speed / course'), N(v.sog, 1) + ' kn / ' + N(v.cog) + '°'], [T('الغاطس', 'Draft'), N(v.draft, 1) + ' m'], [T('الوجهة', 'Destination'), esc(pname(v.destId)) + (v.etaAt ? ' · ' + fT(v.etaAt) : '')]].map(([k, x]) => '<span>' + k + '</span><b>' + x + '</b>').join('') + '</div>');
       fill('#blog', dls.length ? tbl([T('الإنذار', 'Alert'), T('الخطورة', 'Severity'), T('وقت الاستلام', 'Received'), T('حالة التأكيد', 'Confirmation'), T('مسار بديل', 'Alt. route')], dls.map(d => { const a = alertById(d.alertId) || {}, rr = s.alternativeRoutes.find(x => x.alertId === d.alertId); return tr(['<b>' + esc(a.number) + '</b><div class="sm">' + esc(L(a.title)) + '</div>', lvB(a.severity), fT(d.receivedAt || d.dispatchedAt), d.ackAt ? B(d.action === 'rejected' ? 'crit' : 'ok', (d.action === 'rejected' ? T('رُفضت التوصية ', 'Rejected ') : d.action === 'accepted' ? T('قُبلت التوصية ', 'Accepted ') : T('مؤكد ', 'Confirmed ')) + fH(d.ackAt)) : ['cancelled', 'expired'].includes(a.status) ? B('muted', T(...AST[a.status])) : B('crit', T('بانتظار التأكيد', 'Awaiting')), rr ? esc(decName(rr)) : '—']); })) : empty(T('لا توجد إنذارات سابقة.', 'No previous alerts.')));
       const ids = new Set(dls.map(d => d.id));
       if (state.seenDeliv === null) { state.seenDeliv = ids; if (open.length) showAlarm(open[0]); }
       else { const fresh = dls.filter(d => !state.seenDeliv.has(d.id)); fresh.forEach(d => state.seenDeliv.add(d.id)); const f0 = fresh.find(d => ['dispatched', 'received'].includes(d.status)); if (f0) showAlarm(f0); }
       if (!open.length) Sound.stopRepeat();
+      // Alert opened from a mobile notification
+      if (state.focusAlert) { const d = s.deliveryRecords.find(x => x.alertId === state.focusAlert), a = alertById(state.focusAlert);
+        if (d && a) { fill('#bfocus', '<div class="panel focusal"><div class="row between"><h2>' + T('الإنذار المفتوح من الإشعار', 'Alert opened from notification') + '</h2><button class="btn sm ghost" data-a="unfocus">×</button></div><div class="kv"><span>' + T('رقم الإنذار', 'Alert ID') + '</span><b>' + esc(a.number) + '</b><span>' + T('السفينة', 'Vessel') + '</span><b>' + esc(v.name) + '</b><span>' + T('الخطر', 'Risk') + '</span><b>' + lvB(a.severity) + ' ' + esc(L(a.title)) + '</b><span>' + T('الوصف', 'Description') + '</span><b>' + esc(L(a.body)) + '</b><span>' + T('الإجراء الموصى به', 'Recommended action') + '</span><b>' + (() => { const rr = s.alternativeRoutes.find(x => x.alertId === a.id); return rr && rr.recommended ? esc(L(rr.recommended.label)) + ' — ' + esc(L(rr.reason)) : esc(L(a.instructions)); })() + '</b><span>' + T('الموقع', 'Location') + '</span><b>' + esc(L(a.areaName)) + '</b><span>' + T('وقت الإصدار', 'Issued') + '</span><b>' + fT(a.dispatchedAt || d.dispatchedAt) + '</b><span>' + T('الحالة', 'Status') + '</span><b>' + dstB(d) + '</b></div>' + (d.ackAt ? '' : '<button class="btn big" data-a="ackAlert" data-id="' + d.id + '">' + T('الرد على الإنذار', 'Respond to the alert') + '</button>') + '</div>');
+          if (state.focusAck && !d.ackAt) { state.focusAck = false; showAlarm(d); } }
+        else fill('#bfocus', ''); } else fill('#bfocus', '');
+      fill('#bset', '<h2 class="sect">' + T('إعدادات الإشعارات', 'Notification settings') + '</h2>' + thisDevicePanel(v.id) + '<div class="panel"><h2>' + T('أجهزة هذه السفينة', 'This vessel\'s devices') + '</h2>' + deviceTable((s.devices || []).slice().sort((a, b) => b.lastRegisteredAt - a.lastRegisteredAt)) + '</div><div class="panel"><h2>' + T('الإنذار الصوتي', 'Audible alarm') + '</h2><label class="chk"><input type="checkbox" data-set="on"' + (Sound.on ? ' checked' : '') + '>' + T('تفعيل صوت الإنذار', 'Enable alarm sound') + '</label><label>' + T('نغمة الإنذار', 'Alarm tone') + '<select data-set="tone">' + opts([['horn', T('بوق بحري ثنائي النغمة', 'Two-tone marine horn')], ['pulse', T('نبضات حادة', 'Sharp pulses')], ['bell', T('جرس السفينة', 'Ship bell')]], Sound.tone) + '</select></label><label>' + T('مستوى الصوت', 'Volume') + '<input type="range" min="10" max="100" step="10" value="' + Math.round(Sound.vol * 100) + '" data-set="vol"></label><div class="row">' + (Sound.unlocked ? '' : '<button class="btn" data-a="enableSound">' + ic(I_SOUND) + T('تفعيل الصوت', 'Enable sound') + '</button>') + '<button class="btn ghost" data-a="testAlarm">' + T('اختبار الإنذار', 'Test alarm') + '</button></div></div>');
     }
   };
-  function showAlarm(d, test) {
+  A.unfocus = () => { state.focusAlert = null; update(); };
+  function showAlarm(d, test, repeatTest) {
     const a = test ? { number: 'TEST', severity: 'critical', title: { ar: 'اختبار الإنذار', en: 'Alarm test' }, body: { ar: 'اختبار لنظام الإنذار الصوتي والمرئي.', en: 'Test of the audio-visual alarm.' }, instructions: { ar: 'لا يلزم أي إجراء.', en: 'No action required.' }, areaName: { ar: '—', en: '—' }, validFrom: S().now, validTo: S().now } : alertById(d.alertId);
     if (!a) return;
     $$('.alarm-wrap').forEach(x => x.remove());
     const rec = !test && S().alternativeRoutes.find(x => x.alertId === d.alertId);
     const el = document.createElement('div'); el.className = 'alarm-wrap';
-    el.innerHTML = '<div class="alarm lv-critical" role="alertdialog" aria-modal="true"><div class="al-head"><span class="al-icon">!</span><div><b>' + (test ? T('اختبار', 'TEST') : T('إنذار من مَرسى', 'MARSA ALERT')) + '</b><span>' + T('الخطورة: ', 'Severity: ') + lv(a.severity) + ' · ' + esc(a.number) + ' · TEST DATA</span></div></div><h2>' + esc(L(a.title)) + '</h2><p>' + esc(L(a.body)) + '</p>' +
+    el.innerHTML = '<div class="alarm lv-critical" role="alertdialog" aria-modal="true"><div class="al-head"><span class="al-icon">!</span><div><b>' + (test ? T('اختبار', 'TEST') : T('إنذار من مَرسى', 'MARSA ALERT')) + '</b><span>' + T('الخطورة: ', 'Severity: ') + lv(a.severity) + ' · ' + esc(a.number) + '</span></div></div><h2>' + esc(L(a.title)) + '</h2><p>' + esc(L(a.body)) + '</p>' +
       '<div class="kv"><span>' + T('موقع الخطر', 'Hazard location') + '</span><b>' + esc(L(a.areaName)) + '</b><span>' + T('الوقت المتوقع', 'Expected time') + '</span><b>' + (a.riskSnapshot ? fT(a.riskSnapshot.start) + ' – ' + fT(a.riskSnapshot.end) : fT(a.validFrom) + ' – ' + fT(a.validTo)) + '</b><span>' + T('التعليمات', 'Instructions') + '</span><b>' + esc(L(a.instructions)) + '</b><span>' + T('صدر', 'Issued') + '</span><b>' + fT(a.dispatchedAt || S().now) + ' · ' + T('ضابط الميناء – مَرسى', 'Port Officer – MARSA') + '</b></div>' +
       (!test && rec && rec.recommended ? '<div class="recbox">' + T('توصية مَرسى لسفينتك: ', 'MARSA recommendation for your vessel: ') + '<b>' + esc(L(rec.recommended.label)) + '</b><span>' + esc(L(rec.reason)) + '</span>' + recImpact(rec) + '</div>' : '') + (test ? '<button class="btn big light" data-a="closeAlarm">' + T('إغلاق الاختبار', 'Close test') + '</button>' : '<label class="offname">' + T('اسم الضابط المناوب', 'Officer of the watch') + '<input id="alof" value="' + esc(T('ضابط المناوبة', 'Officer of the watch')) + '"></label>' + (rec && rec.recommended ? '<button class="btn big light" data-a="ackFromAlarm" data-act="accepted" data-id="' + d.id + '">' + T('قبول التوصية', 'Accept recommendation') + '</button><button class="btn ghost light" data-a="ackFromAlarm" data-act="rejected" data-id="' + d.id + '">' + T('رفض التوصية', 'Reject recommendation') + '</button><button class="btn ghost light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Acknowledge alert') + '</button>' : '<button class="btn big light" data-a="ackFromAlarm" data-id="' + d.id + '">' + T('تأكيد استلام الإنذار', 'Confirm receipt') + '</button>') + '<button class="btn ghost light sm" data-a="closeAlarm">' + T('عرض لاحقًا', 'Later') + '</button>') + '</div>';
-    document.body.appendChild(el); Sound.ring(); if (!test) Sound.repeat();
+    el.querySelector('.alarm').insertAdjacentHTML('afterbegin', '<button class="almute" data-a="muteAlarm">' + ic(I_SOUND) + '<span>' + T('كتم الصوت', 'Mute') + '</span></button>');
+    document.body.appendChild(el); Sound.ring(); if (!test || repeatTest) Sound.repeat();
   }
   A.enableSound = () => { Sound.unlock(); setTimeout(() => { Sound.ring(true); update(); }, 150); toast(T('تم تفعيل صوت الإنذار', 'Alarm sound enabled'), 'ok'); };
   A.testAlarm = () => { Sound.unlock(); showAlarm(null, true); };
   A.closeAlarm = () => { $$('.alarm-wrap').forEach(x => x.remove()); Sound.stopRepeat(); };
+  A.muteAlarm = (d, el) => { Sound.mute(); const sp = el && el.querySelector('span'); if (sp) sp.textContent = Sound.muted ? T('إلغاء الكتم', 'Unmute') : T('كتم الصوت', 'Mute'); el.classList.toggle('on', Sound.muted); };
   function recImpact(rec) { const o = (rec.options || []).find(q => q.recommended), c = (rec.options || []).find(q => q.kind === 'continue'); if (!o) return ''; const v = S().vessels[0] || {}; return '<span>' + T('الوصول المتوقع: ', 'ETA: ') + fT(S().now + o.hours * H) + ' · ' + T('زمن إضافي: ', 'Extra time: ') + (c ? (o.hours - c.hours >= 0 ? '+' : '') + N(o.hours - c.hours, 1) : '—') + T(' س', ' h') + ' · ' + T('أثر الوقود: ', 'Fuel impact: ') + (c ? (o.fuelT - c.fuelT >= 0 ? '+' : '') + N(o.fuelT - c.fuelT, 1) : '—') + T(' طن (تقدير)', ' t (estimate)') + '</span>'; }
   A.ackFromAlarm = async d => { const name = ($('#alof') || {}).value || T('ضابط المناوبة', 'Officer of the watch'); let reason = null; if (d.act === 'rejected') { reason = prompt(T('سبب رفض التوصية (مطلوب)', 'Reason for rejecting the recommendation (required)'), ''); if (!reason || reason.trim().length < 3) { toast(T('سبب الرفض مطلوب', 'A reason is required'), 'bad'); return; } } if (await act('acknowledge', { id: d.id, officer: name, action: d.act || null, reason }, T('أُرسل تأكيد الاستلام', 'Receipt confirmed'))) A.closeAlarm(); };
   A.bRead = d => act('markBulletinRead', { id: d.id }, false);
   A.ackAlert = d => showAlarm(S().deliveryRecords.find(x => x.id === d.id));
 
+  // ---------- Devices, Web Push registration (PWA) ----------
+  const UA = navigator.userAgent || '';
+  const devInfo = () => {
+    const ios = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1), android = /Android/.test(UA);
+    const type = ios ? (/iPad/.test(UA) ? 'iPad' : 'iPhone') : android ? 'Android' : /Windows/.test(UA) ? 'Windows' : /Mac/.test(UA) ? 'macOS' : /Linux/.test(UA) ? 'Linux' : 'Device';
+    const browser = /SamsungBrowser/.test(UA) ? 'Samsung Internet' : /Edg\//.test(UA) ? 'Edge' : /CriOS|Chrome\//.test(UA) ? 'Chrome' : /FxiOS|Firefox\//.test(UA) ? 'Firefox' : /Safari\//.test(UA) ? 'Safari' : 'Browser';
+    const standalone = !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    return { ios, android, type, mobile: ios || android, browser, standalone };
+  };
+  const pushSupport = () => ({ sw: 'serviceWorker' in navigator, push: 'PushManager' in window, notif: 'Notification' in window, secure: !!window.isSecureContext, server: client.mode === 'server' });
+  const b64ToU8 = x => { const pad = '='.repeat((4 - x.length % 4) % 4), b = atob((x + pad).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+  const u8ToB64 = u => btoa(String.fromCharCode.apply(null, Array.from(u))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const PS = { reg: null, sub: null, swState: 'unknown', err: null, busy: false };
+  const perm = () => 'Notification' in window ? Notification.permission : 'unsupported';
+  const myPush = () => { try { return JSON.parse(localStorage.getItem('marsa.push') || 'null'); } catch (e) { return null; } };
+  async function swReg() {
+    if (!pushSupport().sw || client.mode !== 'server') { PS.swState = 'unsupported'; return null; }
+    try { PS.reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' }); await navigator.serviceWorker.ready; PS.swState = (PS.reg.active && PS.reg.active.state) || 'installing'; PS.sub = PS.reg.pushManager ? await PS.reg.pushManager.getSubscription() : null; }
+    catch (e) { PS.err = e.message; PS.swState = 'error'; }
+    return PS.reg;
+  }
+  const PERR = { permission_denied: ['رُفض إذن الإشعارات. فعّله من إعدادات المتصفح لهذا الموقع ثم أعد المحاولة.', 'Notification permission was denied. Allow it in the browser settings for this site and retry.'], permission_dismissed: ['لم يُمنح إذن الإشعارات.', 'Notification permission was not granted.'], sw_failed: ['تعذر تسجيل Service Worker.', 'Service worker registration failed.'], 'INVALID:endpoint': ['عنوان الاشتراك غير مقبول.', 'Subscription endpoint not accepted.'] };
+  const pushErr = m => PERR[m] ? T(...PERR[m]) : T('تعذر التسجيل: ', 'Registration failed: ') + m;
+  function pushHelp() {
+    const di = devInfo();
+    return '<div class="help">' + (di.ios ? '<b>' + T('iPhone / iPad (iOS 16.4 أو أحدث)', 'iPhone / iPad (iOS 16.4 or later)') + '</b><ol><li>' + T('افتح الرابط في Safari.', 'Open the link in Safari.') + '</li><li>' + T('زر المشاركة ← «إضافة إلى الشاشة الرئيسية».', 'Share → “Add to Home Screen”.') + '</li><li>' + T('افتح مَرسى من أيقونة الشاشة الرئيسية، ثم «تفعيل إشعارات الجوال».', 'Open MARSA from the Home Screen icon, then “Enable mobile notifications”.') + '</li><li>' + T('الصوت: الإعدادات ← الإشعارات ← مَرسى ← الأصوات، وأوقف وضع التركيز/الصامت.', 'Sound: Settings → Notifications → MARSA → Sounds; turn off Focus/silent mode.') + '</li></ol>' + (di.standalone ? '' : '<p class="warnline">' + T('أنت تفتح الموقع من المتصفح؛ على iPhone لا تعمل الإشعارات إلا بعد الإضافة للشاشة الرئيسية.', 'You are in the browser; on iPhone, notifications only work after adding to the Home Screen.') + '</p>') : '') +
+      (!di.ios ? '<b>' + T('Android (Chrome أو Samsung Internet أو Edge)', 'Android (Chrome, Samsung Internet or Edge)') + '</b><ol><li>' + T('اضغط «تفعيل إشعارات الجوال» ثم «سماح».', 'Tap “Enable mobile notifications”, then “Allow”.') + '</li><li>' + T('اختياري: قائمة المتصفح ← «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».', 'Optional: browser menu → “Install app” / “Add to Home screen”.') + '</li><li>' + T('الصوت: الإعدادات ← التطبيقات ← Chrome ← الإشعارات ← مَرسى ← «تنبيه بالصوت»، وأوقف «عدم الإزعاج».', 'Sound: Settings → Apps → Chrome → Notifications → MARSA → “Alert/Sound”; turn off Do Not Disturb.') + '</li></ol>' : '') +
+      '<p class="sm muted">' + T('صوت إشعار النظام واهتزازه يتحكم بهما الجهاز والمتصفح، ولا يمكن ضمان تشغيل صوت مخصص والموقع مغلق. داخل التطبيق المفتوح يعمل الإنذار الصوتي المتكرر.', 'System notification sound and vibration are controlled by the device and browser; a custom sound cannot be guaranteed while the site is closed. Inside the open app the repeating audible alarm is used.') + '</p></div>';
+  }
+  async function enablePush(vesselId) {
+    const sp = pushSupport(), di = devInfo();
+    if (!sp.server) { toast(T('إشعارات الجوال تعمل من الرابط المنشور فقط', 'Mobile notifications work from the deployed URL only'), 'bad'); return; }
+    if (!sp.secure) { toast(T('يتطلب اتصال HTTPS', 'HTTPS required'), 'bad'); return; }
+    if (!sp.sw || !sp.push || !sp.notif) { modal('<h3>' + T('هذا المتصفح لا يدعم إشعارات الويب هنا', 'Web push is not available in this browser here') + '</h3>' + pushHelp() + '<div class="row end"><button class="btn" data-x>' + T('حسنًا', 'OK') + '</button></div>'); return; }
+    PS.busy = true; PS.err = null; update();
+    try {
+      const pr = await Notification.requestPermission();
+      if (pr !== 'granted') throw new Error(pr === 'denied' ? 'permission_denied' : 'permission_dismissed');
+      const reg = await swReg(); if (!reg) throw new Error('sw_failed');
+      const cfg = await (await fetch('/api/push/config')).json();
+      let sub = await reg.pushManager.getSubscription();
+      if (sub) { const k = sub.options && sub.options.applicationServerKey; if (k && u8ToB64(new Uint8Array(k)) !== cfg.publicKey) { await sub.unsubscribe(); sub = null; } }
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(cfg.publicKey) });
+      const j = await client.raw('/api/push/subscribe', { subscription: sub.toJSON(), vesselId: vesselId || null, name: di.type + ' · ' + di.browser, deviceType: di.type, browser: di.browser, platform: navigator.platform || '', standalone: di.standalone, permission: pr });
+      PS.sub = sub; try { localStorage.setItem('marsa.push', JSON.stringify({ deviceId: j.device.id, vesselId: j.device.vesselId, role: j.device.role })); } catch (e) { /* ignore */ }
+      toast(T('سُجل الجهاز لاستقبال الإنذارات', 'Device registered to receive alerts'), 'ok'); client.refresh();
+    } catch (e) { PS.err = e.message; toast(pushErr(e.message), 'bad'); }
+    PS.busy = false; update();
+  }
+  // After a server restart the phone's existing browser subscription is re-sent when the app is opened.
+  async function resyncPush() {
+    if (client.mode !== 'server' || perm() !== 'granted') { swReg(); return; }
+    const mp = myPush(); await swReg(); if (!mp || !PS.sub) return; const me = S() && S().me; if (!me) return;
+    if (me.role === 'bridge' && me.vesselId !== mp.vesselId) return;
+    const di = devInfo(); try { const j = await client.raw('/api/push/subscribe', { subscription: PS.sub.toJSON(), vesselId: mp.vesselId, name: di.type + ' · ' + di.browser, deviceType: di.type, browser: di.browser, platform: navigator.platform || '', standalone: di.standalone, permission: perm() }); mp.deviceId = j.device.id; localStorage.setItem('marsa.push', JSON.stringify(mp)); client.refresh(); } catch (e) { /* ignore */ }
+  }
+  A.enablePush = (d, el) => { const sel = $('#pvessel'); enablePush(d.v || (sel ? sel.value : '') || null); };
+  A.disablePush = async () => { const mp = myPush(); try { if (mp && mp.deviceId) await client.raw('/api/push/unsubscribe', { id: mp.deviceId }); if (PS.sub) await PS.sub.unsubscribe(); } catch (e) { /* ignore */ } PS.sub = null; localStorage.removeItem('marsa.push'); toast(T('أُلغي تسجيل هذا الجهاز', 'This device was unregistered'), 'ok'); client.refresh(); update(); };
+  A.devTest = async d => { try { const r = await client.raw('/api/push/test', { id: d.id, critical: d.c === '1' }); toast(r.result === 'accepted' ? T('قبلت خدمة الإشعارات الطلب (', 'Push service accepted the request (') + r.status + T(') — تحقق من ظهوره على الجهاز', ') — check it appears on the device') : T('لم يُقبل الطلب: ', 'Not accepted: ') + (r.result || '') + ' ' + (r.status || '') + ' ' + (r.error || ''), r.result === 'accepted' ? 'ok' : 'bad'); } catch (e) { toast(T('خطأ: ', 'Error: ') + e.message, 'bad'); } client.refresh(); };
+  A.devRemove = async d => { if (!confirm(T('إزالة هذا الجهاز من أجهزة الاستقبال؟', 'Remove this receiving device?'))) return; try { await client.raw('/api/push/unsubscribe', { id: d.id }); const mp = myPush(); if (mp && mp.deviceId === d.id) { localStorage.removeItem('marsa.push'); if (PS.sub) PS.sub.unsubscribe().catch(() => {}); PS.sub = null; } toast(T('أُزيل الجهاز', 'Device removed'), 'ok'); } catch (e) { toast(e.message, 'bad'); } client.refresh(); };
+  const DSTAT = { active: ['ok', 'مسجل', 'Registered'], expired: ['crit', 'اشتراك منتهٍ', 'Subscription expired'], removed: ['muted', 'أُزيل', 'Removed'] };
+  const PSTAT = { sending: ['warn', 'قيد الإرسال', 'Sending'], accepted: ['ok', 'قبلته خدمة الإشعارات', 'Accepted by push service'], failed: ['crit', 'فشل', 'Failed'], expired: ['crit', 'اشتراك منتهٍ', 'Expired'], no_device: ['muted', 'لا يوجد جهاز مسجل', 'No registered device'] };
+  const pB = st => { const x = PSTAT[st] || ['muted', st, st]; return B(x[0], T(x[1], x[2])); };
+  function thisDevicePanel(vesselFixed) {
+    const sp = pushSupport(), di = devInfo(), mp = myPush(), s = S(), dev = mp && (s.devices || []).find(d => d.id === mp.deviceId), pm = perm();
+    const ok = dev && dev.status === 'active' && PS.sub && pm === 'granted';
+    const vsel = vesselFixed ? '' : '<label>' + T('ربط الجهاز بـ', 'Associate with') + '<select id="pvessel">' + opts([['', T('ضابط الميناء (ردود السفن)', 'Port officer (vessel responses)')]].concat(s.vessels.filter(v => v.channel === 'bridge').map(v => [v.id, v.name + (v.inTerritorialSea ? T(' · داخل المياه الإقليمية', ' · inside territorial waters') : '')])), mp ? mp.vesselId || '' : '') + '</select></label>';
+    return '<div class="panel thisdev"><div class="row between"><h2>' + T('هذا الجهاز', 'This device') + '</h2>' + (ok ? B('ok', T('يستقبل الإنذارات', 'Receiving alerts')) : B('muted', T('غير مسجل', 'Not registered'))) + '</div>' +
+      '<div class="kv"><span>' + T('الجهاز', 'Device') + '</span><b>' + esc(di.type + ' · ' + di.browser) + (di.standalone ? ' · ' + T('تطبيق مثبت', 'installed app') : '') + '</b><span>' + T('إذن الإشعارات', 'Notification permission') + '</span><b>' + (pm === 'granted' ? B('ok', T('مسموح', 'Granted')) : pm === 'denied' ? B('crit', T('مرفوض', 'Denied')) : pm === 'unsupported' ? B('muted', T('غير مدعوم', 'Unsupported')) : B('warn', T('لم يُطلب', 'Not requested'))) + '</b>' +
+      '<span>' + T('اشتراك الإشعارات', 'Push subscription') + '</span><b>' + (PS.sub ? B('ok', T('موجود في المتصفح', 'Present in browser')) : B('muted', T('لا يوجد', 'None'))) + '</b>' + (dev ? '<span>' + T('مرتبط بـ', 'Associated with') + '</span><b>' + (dev.vesselId ? esc(vname(dev.vesselId)) : T('ضابط الميناء', 'Port officer')) + '</b>' : '') + '</div>' +
+      (!sp.server ? '<p class="warnline">' + T('إشعارات الجوال تعمل من الرابط المنشور (الخادم) فقط.', 'Mobile notifications work from the deployed (server) URL only.') + '</p>' : '') + vsel +
+      '<div class="row">' + (ok ? '<button class="btn" data-a="devTest" data-id="' + esc(dev.id) + '">' + T('إرسال إشعار تجريبي', 'Send test notification') + '</button><button class="btn ghost" data-a="enablePush"' + (vesselFixed ? ' data-v="' + esc(vesselFixed) + '"' : '') + '>' + T('تحديث التسجيل', 'Refresh registration') + '</button><button class="btn ghost danger" data-a="disablePush">' + T('إلغاء التسجيل', 'Unregister') + '</button>'
+        : '<button class="btn big" data-a="enablePush"' + (vesselFixed ? ' data-v="' + esc(vesselFixed) + '"' : '') + (PS.busy ? ' disabled' : '') + '>' + ic(I_BELL) + T('تفعيل إشعارات الجوال', 'Enable mobile notifications') + '</button>') + '</div>' + (PS.err ? '<p class="warnline">' + esc(pushErr(PS.err)) + '</p>' : '') +
+      '<details' + (di.mobile && !ok ? ' open' : '') + '><summary>' + T('متطلبات الجهاز والمتصفح', 'Device and browser requirements') + '</summary>' + pushHelp() + '</details></div>';
+  }
+  function deviceTable(devs) {
+    const s = S(), mp = myPush();
+    return devs.length ? tbl([T('الجهاز', 'Device'), T('النوع / المتصفح', 'Type / browser'), T('مرتبط بـ', 'Associated with'), T('التسجيل', 'Registration'), T('الإذن', 'Permission'), T('الاشتراك', 'Subscription'), T('آخر تسجيل', 'Last registered'), T('آخر نشاط', 'Last activity'), T('آخر نتيجة', 'Last result'), ''],
+      devs.map(d => { const st = DSTAT[d.status] || ['muted', d.status, d.status]; return tr(['<b>' + esc(d.name) + '</b>' + (mp && mp.deviceId === d.id ? ' ' + B('rec', T('هذا الجهاز', 'This device')) : '') + '<div class="sm muted"><code>' + esc(d.id) + '</code></div>', esc(d.deviceType) + ' · ' + esc(d.browser) + (d.standalone ? '<div class="sm">' + T('تطبيق مثبت (PWA)', 'Installed (PWA)') + '</div>' : ''), d.vesselId ? esc(vname(d.vesselId)) : T('ضابط الميناء', 'Port officer'), B(st[0], T(st[1], st[2])), d.permission === 'granted' ? B('ok', T('مسموح', 'Granted')) : B('warn', esc(d.permission)), d.status === 'active' ? B('ok', T('فعّال', 'Active')) + '<div class="sm muted">' + esc(d.endpointHost) + '</div>' : B('crit', T('غير صالح', 'Invalid')), fT(d.lastRegisteredAt), d.lastActiveAt ? rel(d.lastActiveAt) : '—', esc(d.lastResult || '—'),
+        '<div class="row nw">' + (d.status === 'active' ? '<button class="btn sm ghost" data-a="devTest" data-id="' + esc(d.id) + '">' + T('اختبار', 'Test') + '</button>' : '') + '<button class="btn sm ghost danger" data-a="devRemove" data-id="' + esc(d.id) + '">' + T('إزالة', 'Remove') + '</button></div>']); })) : empty(T('لا توجد أجهزة مسجلة. افتح الرابط من الجوال واضغط «تفعيل إشعارات الجوال».', 'No registered devices. Open the link on the phone and tap “Enable mobile notifications”.'));
+  }
+  OFF.devices = {
+    mount: () => sechead(T('إدارة أجهزة استقبال الإنذارات', 'Alert receiving devices'), '', '<select data-f="dvv" class="tsearch">' + opts([['', T('كل الأجهزة', 'All devices')], ['officer', T('ضابط الميناء', 'Port officer')]].concat(S().vessels.map(v => [v.id, v.name])), state.f.dvv || '') + '</select>') + '<div id="thisdev"></div><div class="panel"><div class="row between"><h2>' + T('الأجهزة المسجلة', 'Registered devices') + '</h2><span class="sm muted" id="devcount"></span></div><div id="devtbl"></div></div>',
+    upd: () => { const s = S(), f = state.f.dvv || '', devs = (s.devices || []).filter(d => !f || (f === 'officer' ? d.role === 'officer' : d.vesselId === f)).sort((a, b) => b.lastRegisteredAt - a.lastRegisteredAt);
+      fill('#thisdev', thisDevicePanel()); fill('#devcount', N(devs.filter(d => d.status === 'active').length) + T(' فعّال من ', ' active of ') + N(devs.length)); fill('#devtbl', deviceTable(devs)); }
+  };
+  // Notification test centre: distinguishes push-service acceptance, observed display on the device, and the crew's acknowledgement.
+  OFF.pushtest = {
+    mount: () => sechead(T('مركز اختبار الإشعارات', 'Notification test centre'), '', '<button class="btn sm ghost" data-a="ptCheck">' + T('إعادة الفحص', 'Re-check') + '</button>') + '<div class="grid2b"><div class="panel"><h2>' + T('الفحوصات', 'Checks') + '</h2><div id="ptchecks"></div></div><div class="panel"><h2>' + T('الاختبارات', 'Tests') + '</h2><div id="pttests"></div></div></div><div class="panel"><div class="row between"><h2>' + T('سجل الإشعارات واستجابات خدمة الإشعارات', 'Notification history & push service responses') + '</h2><input class="tsearch" data-t="#pthist" placeholder="' + T('بحث', 'Search') + '"></div><p class="sm muted">' + T('«قبلته خدمة الإشعارات» يعني أن Google/Apple/Mozilla قبلت الطلب فقط. «عُرض على الجهاز» يُسجل عندما يبلغ الجهاز نفسه بعرض الإشعار. «أكدت السفينة» هو ضغط الطاقم على زر التأكيد.', '“Accepted by push service” only means Google/Apple/Mozilla accepted the request. “Displayed on device” is recorded when the device itself reports showing it. “Vessel acknowledged” is the crew pressing the confirmation button.') + '</p><div id="pthist"></div></div>',
+    bind: () => { swReg().then(update); },
+    upd: () => {
+      const s = S(), sp = pushSupport(), mp = myPush(), dev = mp && (s.devices || []).find(d => d.id === mp.deviceId), st = (s.push || {}).selfTest || {}, pm = perm();
+      const ck = (ok, label, detail) => '<li class="ck ck-' + (ok === true ? 'ok' : ok === null ? 'warn' : 'bad') + '"><span class="dot"></span><div><b>' + label + '</b><span class="sm muted">' + detail + '</span></div></li>';
+      fill('#ptchecks', '<ul class="checks">' +
+        ck(sp.server && sp.secure ? true : false, T('اتصال آمن بالخادم (HTTPS)', 'Secure server connection (HTTPS)'), sp.server ? (sp.secure ? location.origin : T('غير آمن', 'Not secure')) : T('نسخة محلية بلا خادم', 'Local copy without server')) +
+        ck(PS.swState === 'activated' ? true : sp.sw ? null : false, T('Service Worker', 'Service worker'), sp.sw ? T('الحالة: ', 'State: ') + PS.swState : T('غير مدعوم في هذا المتصفح', 'Not supported in this browser')) +
+        ck(pm === 'granted' ? true : pm === 'denied' || pm === 'unsupported' ? false : null, T('إذن الإشعارات', 'Notification permission'), pm) +
+        ck(PS.sub ? true : sp.push ? null : false, T('اشتراك Push في المتصفح', 'Browser push subscription'), PS.sub ? new URL(PS.sub.endpoint).hostname : sp.push ? T('لم يُنشأ بعد', 'Not created yet') : T('Push API غير مدعوم', 'Push API unsupported')) +
+        ck(dev && dev.status === 'active' ? true : dev ? false : null, T('تسجيل الجهاز في الخادم', 'Device record on the server'), dev ? (dev.vesselId ? vname(dev.vesselId) : T('ضابط الميناء', 'Port officer')) + ' · ' + T((DSTAT[dev.status] || [0, dev.status])[1], (DSTAT[dev.status] || [0, 0, dev.status])[2]) : T('غير مسجل', 'Not registered')) +
+        ck(st.vapidSignature === true, T('إعداد مفاتيح VAPID', 'VAPID configuration'), T('المصدر: ', 'Source: ') + esc((s.push || {}).keySource || '—') + ' · ' + T('توقيع ES256 ', 'ES256 signature ') + (st.vapidSignature ? '✓' : '✗') + ((s.push || {}).keySource === 'database' ? ' · ' + T('يُنصح بضبط MARSA_VAPID_SEED لثبات المفاتيح', 'set MARSA_VAPID_SEED for stable keys') : '')) +
+        ck(st.rfc8291 === true && st.roundTrip === true, T('خدمة الإرسال في الخادم', 'Backend push service'), T('تشفير aes128gcm (متجه RFC 8291) ', 'aes128gcm encryption (RFC 8291 vector) ') + (st.rfc8291 ? '✓' : '✗')) +
+        ck(state.live === 'live' ? true : null, T('المزامنة الفورية', 'Real-time sync'), state.live) + '</ul>');
+      const canDev = dev && dev.status === 'active';
+      fill('#pttests', '<div class="tests">' +
+        '<button class="btn" data-a="devTest" data-id="' + esc(canDev ? dev.id : '') + '"' + (canDev ? '' : ' disabled') + '>' + T('١ · إشعار تجريبي لهذا الجهاز', '1 · Test notification to this device') + '</button>' +
+        '<button class="btn danger" data-a="devTest" data-c="1" data-id="' + esc(canDev ? dev.id : '') + '"' + (canDev ? '' : ' disabled') + '>' + T('٢ · إشعار حرج تجريبي', '2 · Critical test notification') + '</button>' +
+        '<button class="btn ghost" data-a="testAlarm">' + T('٣ · اختبار صوت الإنذار', '3 · Test alarm sound') + '</button>' +
+        '<button class="btn ghost" data-a="testVibe">' + T('٤ · اختبار الاهتزاز', '4 · Test vibration') + '</button>' +
+        (canDev ? '' : '<p class="sm muted">' + T('سجّل هذا الجهاز أولًا من «إدارة أجهزة استقبال الإنذارات».', 'Register this device first in “Alert receiving devices”.') + ' <button class="link" data-a="sec" data-id="devices">' + T('فتح', 'Open') + '</button></p>') + '</div>');
+      const logs = (s.pushLog || []).slice().sort((a, b) => b.at - a.at);
+      const KIND = { alert: ['إنذار', 'Alert'], test: ['اختبار', 'Test'], test_critical: ['اختبار حرج', 'Critical test'], officer: ['تنبيه الضابط', 'Officer notice'] };
+      fill('#pthist', logs.length ? tbl([T('الوقت', 'Time'), T('النوع', 'Type'), T('الجهاز', 'Device'), T('الإنذار', 'Alert'), T('استجابة خدمة الإشعارات', 'Push service response'), T('عُرض على الجهاز', 'Displayed on device'), T('فُتح', 'Opened'), T('أكدت السفينة', 'Vessel acknowledged')],
+        logs.map(l => tr([fT(l.at), T(...(KIND[l.kind] || [l.kind, l.kind])) + (l.critical ? ' ' + B('crit', T('حرج', 'Critical')) : ''), esc(l.deviceName || '') + (l.vesselId ? '<div class="sm muted">' + esc(vname(l.vesselId)) + '</div>' : ''), esc(l.alertNumber || '—'), pB(l.status) + (l.httpStatus ? ' <code>' + l.httpStatus + '</code>' : '') + (l.error ? '<div class="sm muted">' + esc(String(l.error).slice(0, 80)) + '</div>' : ''), l.shownAt ? B('ok', fH(l.shownAt)) : '<span class="muted sm">' + T('غير مؤكد', 'Not confirmed') + '</span>', l.clickedAt ? B('ok', fH(l.clickedAt)) : '—', l.kind === 'alert' ? (l.ackAt ? B(l.action === 'rejected' ? 'crit' : 'ok', fH(l.ackAt)) : '<span class="muted sm">' + T('لم يؤكد', 'Not yet') + '</span>') : '—']))) : empty(T('لا يوجد سجل إشعارات بعد.', 'No notification history yet.')));
+    }
+  };
+  A.ptCheck = () => swReg().then(update);
+  A.testVibe = () => { const ok = navigator.vibrate && navigator.vibrate([400, 150, 400, 150, 800]); toast(ok ? T('أُرسل أمر الاهتزاز', 'Vibration requested') : T('الاهتزاز غير مدعوم في هذا المتصفح/الجهاز', 'Vibration not supported on this browser/device'), ok ? 'ok' : 'bad'); };
+  A.testAlarmRepeat = () => { Sound.unlock(); showAlarm(null, true, true); };
+
+  // Notification & receipt log: one row per vessel per alert.
+  OFF.notiflog = {
+    mount: () => sechead(T('سجل الإشعارات والاستلام', 'Notifications & receipts'), '', '<select data-f="nst" class="tsearch">' + opts([['', T('كل الحالات', 'All statuses')]].concat(Object.keys(DST).map(k => [k, T(...DST[k])])), state.f.nst || '') + '</select><input class="tsearch" data-t="#nlog" placeholder="' + T('بحث', 'Search') + '"><button class="btn sm ghost" data-a="nlogCsv">' + T('تصدير CSV', 'Export CSV') + '</button>') + '<div class="panel"><div id="nlog"></div></div>',
+    upd: () => { const s = S(); state.seenRej = new Set(s.deliveryRecords.filter(d => d.action === 'rejected').map(d => d.id)); fill('#nlog', nlogRows().length ? tbl([T('الإنذار', 'Alert'), T('السفينة', 'Vessel'), T('الضابط', 'Officer'), T('وقت الإرسال', 'Sent'), T('إشعار الجوال', 'Mobile push'), T('استجابة الجهاز', 'Device response'), T('الاستلام', 'Received'), T('التأكيد', 'Acknowledged'), T('الإجراء المختار', 'Selected action'), T('سبب الرفض', 'Rejection reason'), T('الحالة', 'Status')], nlogRows().map(r => tr(r.cells))) : empty(T('لا توجد سجلات تسليم بعد.', 'No delivery records yet.'))); }
+  };
+  function nlogRows() {
+    const s = S(), f = state.f.nst || '';
+    return s.deliveryRecords.filter(d => !f || d.status === f).slice().sort((a, b) => (b.dispatchedAt || b.queuedAt || 0) - (a.dispatchedAt || a.queuedAt || 0)).map(d => {
+      const a = alertById(d.alertId) || {}, logs = (s.pushLog || []).filter(l => l.deliveryId === d.id), pu = d.push || {}, shown = logs.find(l => l.shownAt), click = logs.find(l => l.clickedAt);
+      const officer = a.approvedBy || ((a.history || []).find(h => h.s === 'dispatched_test') || {}).by || '—';
+      const pushTxt = !d.push ? (d.status === 'held_outside_ts' ? T('بانتظار دخول المياه الإقليمية', 'Waiting for territorial waters') : '—') : pu.devices === 0 ? T('لا يوجد جهاز مسجل', 'No registered device') : N(pu.accepted || 0) + ' / ' + N(pu.attempts || 0) + T(' قُبلت', ' accepted');
+      const raw = [a.number, vname(d.vesselId), officer, d.dispatchedAt ? new Date(d.dispatchedAt).toISOString() : '', pushTxt, shown ? 'shown ' + new Date(shown.shownAt).toISOString() : '', d.receivedAt ? new Date(d.receivedAt).toISOString() : '', d.ackAt ? new Date(d.ackAt).toISOString() : '', d.action || '', d.rejectReason || '', d.status];
+      return { raw, cells: ['<b>' + esc(a.number || '') + '</b><div class="sm muted">' + esc(L(a.title || { ar: '', en: '' })) + '</div>', esc(vname(d.vesselId)), esc(officer), d.dispatchedAt ? fT(d.dispatchedAt) : '—', d.push ? (pu.devices === 0 ? B('muted', pushTxt) : pB(pu.lastStatus) + '<div class="sm">' + pushTxt + '</div>') : '<span class="sm muted">' + pushTxt + '</span>', shown ? B('ok', T('عُرض ', 'Shown ') + fH(shown.shownAt)) + (click ? '<div class="sm">' + T('فُتح ', 'Opened ') + fH(click.clickedAt) + '</div>' : '') : '—', d.receivedAt ? fT(d.receivedAt) : '—', d.ackAt ? fT(d.ackAt) + '<div class="sm muted">' + esc(d.ackBy || '') + '</div>' : '—', d.action ? B(d.action === 'rejected' ? 'crit' : 'ok', d.action === 'accepted' ? T('قبول التوصية', 'Accepted') : d.action === 'rejected' ? T('رفض التوصية', 'Rejected') : T('تأكيد الاستلام', 'Acknowledged')) : '—', esc(d.rejectReason || '—'), dstB(d)] };
+    });
+  }
+  A.nlogCsv = () => { const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; download('marsa-notifications.csv', '﻿' + ['alert,vessel,officer,sent,push,device_response,received,acknowledged,action,reject_reason,status'].concat(nlogRows().map(r => r.raw.map(q).join(','))).join('\n'), 'text/csv;charset=utf-8'); };
+
+  // Vessel tracking
+  OFF.vessels = {
+    mount: () => sechead(T('متابعة السفن', 'Vessel tracking'), srcLine('ais'), '<select data-f="vst2" class="tsearch">' + opts([['', T('كل السفن', 'All vessels')], ['exposed', T('المعرضة لمخاطر', 'Exposed to risk')], ['outside', T('خارج المياه الإقليمية', 'Outside territorial waters')], ['underway', T('في رحلة', 'Underway')]], state.f.vst2 || '') + '</select><input class="tsearch" data-t="#vtbl" placeholder="' + T('بحث بالاسم أو MMSI', 'Search name or MMSI') + '">') + '<div class="panel"><div id="vtbl"></div></div>',
+    upd: () => { const s = S(), f = state.f.vst2 || '', expo = id => { const l = s.affectedVessels.filter(a => a.vesselId === id && a.relation !== 'crossing').map(a => risk(a.riskId)).filter(Boolean); return l.sort((a, b) => RANK(b.level) - RANK(a.level))[0]; };
+      const list = s.vessels.filter(v => !f || (f === 'exposed' ? expo(v.id) : f === 'outside' ? !v.inTerritorialSea : v.status === 'underway')).map(v => ({ v, r: expo(v.id) })).sort((a, b) => RANK(b.r && b.r.level) - RANK(a.r && a.r.level));
+      fill('#vtbl', tbl([T('السفينة', 'Vessel'), T('النوع', 'Type'), T('الحالة', 'Status'), T('الموقع', 'Position'), T('السرعة / الاتجاه', 'Speed / course'), T('الوجهة', 'Destination'), T('الوصول المتوقع', 'ETA'), T('المياه الإقليمية', 'Territorial waters'), T('التعرض للخطر', 'Risk exposure'), T('أجهزة الاستقبال', 'Receiving devices'), ''],
+        list.map(({ v, r }) => tr(['<b>' + esc(v.name) + '</b><div class="sm muted">MMSI ' + esc(v.mmsi) + '</div>', vtype(v.type), T(...VST[v.status]), '<span class="sm">' + ll(v.pos) + '</span>', v.status === 'underway' ? N(v.sog, 1) + ' kn · ' + N(v.cog) + '°' : '—', esc(pname(v.destId)), v.etaAt ? fT(v.etaAt) : '—', v.inTerritorialSea ? B('ok', T('داخل', 'Inside')) : B('muted', T('خارج · ', 'Outside · ') + N(v.distCoastNm, 0) + ' nm'), r ? lvB(r.level) + '<div class="sm">' + esc(L(r.title)) + '</div>' : B('ok', T('لا يوجد', 'None')), N((s.devices || []).filter(d => d.vesselId === v.id && d.status === 'active').length), '<button class="btn sm ghost" data-a="vOnMap" data-id="' + v.id + '">' + T('على الخريطة', 'On map') + '</button>']))));
+    }
+  };
+  A.vOnMap = d => { state.sel.vessel = d.id; state.pop = { type: 'vessel', id: d.id }; state.sec = 'map'; renderView(); setTimeout(() => A.selVessel({ id: d.id }), 50); };
+
+  // Operations centre
+  const tsLine = (() => { let cache = null; return () => cache || (cache = C.SA_COAST.map(line => { const sea = line[0][0] < 45 ? [38.6, 21.5] : [51.2, 27.2]; return line.map((p, i) => { const a = line[Math.max(0, i - 1)], b = line[Math.min(line.length - 1, i + 1)], dx = (b[0] - a[0]) * Math.cos(p[1] * Math.PI / 180), dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1; let nx = -dy / len, ny = dx / len; if (nx * (sea[0] - p[0]) + ny * (sea[1] - p[1]) < 0) { nx = -nx; ny = -ny; } const d = 12 / 60; return [p[0] + nx * d / Math.cos(p[1] * Math.PI / 180), p[1] + ny * d]; }); })); })();
+  const tsRoutes = () => tsLine().map(c => ({ kind: 'alt', coords: c, color: '#f2b84b', dim: true, label: T('حد المياه الإقليمية ١٢ ميل (تقريبي)', '12 nm territorial-water limit (approx.)') }));
+  const waitZones = () => Object.keys(C.WAITING_AREAS || {}).filter(k => C.NODES[k]).map(k => ({ poly: C.circlePoly(C.NODES[k], 6, 12), cls: 'hold', label: C.WAITING_AREAS[k], tag: { ar: 'انتظار', en: 'Wait' } }));
+  const incStatus = r => { const al = S().alerts.filter(a => a.riskId === r.id && !['cancelled', 'expired'].includes(a.status)).sort((a, b) => b.createdAt - a.createdAt)[0]; return al ? B(al.status === 'acknowledged' ? 'ok' : 'n-sent', T('إنذار ', 'Alert ') + esc(al.number) + ' · ' + T(...(AST[al.status] || [al.status, al.status]))) : RANK(r.level) >= 3 ? B('warn', T('بانتظار إجراء', 'Awaiting action')) : B('muted', T('متابعة', 'Monitoring')); };
+  OFF.ops = {
+    mount: () => '<div id="kpis" class="kpis5"></div><div class="opsgrid"><div class="panel mapp"><div class="layers" id="opslay"></div><div class="mapwrap"><div class="mapbox tall" id="opsmap"></div><div id="mpop"></div></div></div><aside class="panel incl"><div class="row between"><h2>' + T('الحوادث البحرية النشطة', 'Active maritime incidents') + '</h2><button class="btn sm ghost" data-a="sec" data-id="risks">' + T('الكل', 'All') + '</button></div><div id="incl"></div></aside></div><div class="grid4 recent"><div class="panel"><h2>' + T('أحدث الإنذارات', 'Recent alerts') + '</h2><div id="rc1"></div></div><div class="panel"><h2>' + T('أحدث النشرات', 'Recent bulletins') + '</h2><div id="rc2"></div></div><div class="panel"><h2>' + T('ردود السفن', 'Vessel responses') + '</h2><div id="rc3"></div></div><div class="panel"><h2>' + T('أحدث الإجراءات', 'Recent actions') + '</h2><div id="rc4"></div></div></div>',
+    bind: m => ensureMap('opsmap', $('#opsmap', m), { fit: [33.5, 15, 52, 29.5] }),
+    upd: () => {
+      const s = S(), aff = affectedSet(), act2 = s.maritimeRisks.filter(r => r.end > s.now).sort((a, b) => RANK(b.level) - RANK(a.level) || a.start - b.start);
+      const waitAck = s.deliveryRecords.filter(d => ['dispatched', 'received'].includes(d.status) && !d.ackAt).length, pendB = (s.bulletins || []).filter(b => ['draft', 'under_review', 'approved', 'sent', 'recipient_ack'].includes(b.status)).length;
+      const k = (cls, n, ar, en, go) => '<button class="kpi5 ' + cls + '" data-a="sec" data-id="' + go + '"><b>' + N(n) + '</b><span>' + T(ar, en) + '</span></button>';
+      fill('#kpis', k('', s.vessels.filter(v => v.status === 'underway').length, 'السفن النشطة', 'Active vessels', 'vessels') + k('warn', aff.size, 'سفن معرضة لمخاطر', 'Vessels exposed to risk', 'vessels') + k('crit', act2.filter(r => r.level === 'critical').length, 'حالات خطر حرجة', 'Critical risk cases', 'risks') + k(waitAck ? 'warn' : '', waitAck, 'إنذارات بانتظار التأكيد', 'Alerts awaiting acknowledgement', 'notiflog') + k('', pendB, 'إجراءات نشرات معلقة', 'Pending bulletin actions', 'bulletins'));
+      const L2 = state.lay;
+      fill('#opslay', [['risks', 'مناطق الخطر', 'Risk zones'], ['vessels', 'السفن', 'Vessels'], ['ports', 'الموانئ', 'Ports'], ['routes', 'المسارات', 'Routes'], ['ts', 'حد المياه الإقليمية', 'Territorial limit'], ['waiting', 'مواقع الانتظار الآمنة', 'Safe waiting'], ['warn', 'مناطق التحذير', 'Warning areas']].map(([kk, ar, en]) => '<label class="chk sm"><input type="checkbox" data-layer="' + kk + '"' + (L2[kk] !== false ? ' checked' : '') + '>' + T(ar, en) + '</label>').join(''));
+      const routes = (L2.routes === false ? [] : s.alternativeRoutes.filter(x => ['approved', 'modified', 'proposed'].includes(x.status) && x.alternative && x.alternative.nodes.length && x.kind === 'reroute').map(ar => ({ kind: 'rec', start: ar.alternative.coords[0], nodes: ar.alternative.nodes, color: ALT_C, label: vname(ar.vesselId) }))).concat(L2.ts === false ? [] : tsRoutes());
+      const warnZ = L2.warn === false ? [] : (s.bulletins || []).filter(b => b.poly && ['approved', 'sent', 'recipient_ack', 'issued_official'].includes(b.status)).map(b => ({ poly: b.poly, cls: 'nc-restricted', label: b.number }));
+      if (state.maps.opsmap) state.maps.opsmap.setData(baseMap({ vessels: L2.vessels === false ? [] : s.vessels.map(v => mapV(v, { affected: aff.has(v.id) })), ports: L2.ports === false ? [] : baseMap().ports, zones: (L2.risks === false ? [] : riskZones(act2)).concat(L2.waiting === false ? [] : waitZones()).concat(warnZ), routes }));
+      popup();
+      fill('#incl', act2.length ? '<ul class="incs">' + act2.slice(0, 12).map(r => '<li class="inc sv-' + r.level + '"><div class="row between">' + lvB(r.level) + '<span class="sm muted">' + esc(r.number || r.id) + '</span></div><b>' + esc(RTYPE[r.type] ? T(...RTYPE[r.type]) : r.type) + ' · ' + esc(L(r.areaName || r.title)) + '</b><div class="sm">' + T('يبدأ ', 'Starts ') + fT(r.start) + ' · ' + N(r.affectedCount || 0) + T(' سفن', ' vessels') + ((r.affectedPorts || []).length ? ' · ' + r.affectedPorts.map(pname).join(T('، ', ', ')) : '') + '</div><div class="row between">' + incStatus(r) + '<button class="btn sm ghost" data-a="popRisk" data-id="' + esc(r.id) + '">' + T('التفاصيل', 'Details') + '</button></div></li>').join('') + '</ul>' : '<p class="okline">' + T('لا توجد حوادث بحرية نشطة.', 'No active maritime incidents.') + '</p>');
+      const li = (arr, f) => arr.length ? '<ul class="mini plain">' + arr.map(f).join('') + '</ul>' : empty(T('لا يوجد', 'None'));
+      fill('#rc1', li(s.alerts.slice().sort((a, b) => b.createdAt - a.createdAt).slice(0, 5), a => '<li><button class="link" data-a="openAlert" data-id="' + esc(a.id) + '"><b>' + esc(a.number) + '</b></button> ' + lvB(a.severity) + '<div class="sm">' + esc(L(a.title)) + '</div><div class="sm muted">' + T(...(AST[a.status] || [a.status, a.status])) + ' · ' + rel(a.createdAt) + '</div></li>'));
+      fill('#rc2', li((s.bulletins || []).slice().sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0)).slice(0, 5), b => '<li><b>' + esc(b.number) + '</b> ' + B('scope', esc(b.scope || '')) + '<div class="sm">' + esc(L(b.title)) + '</div><div class="sm muted">' + T(...(BST[b.status] || [b.status, b.status])) + '</div></li>'));
+      fill('#rc3', li(s.deliveryRecords.filter(d => d.ackAt).sort((a, b) => b.ackAt - a.ackAt).slice(0, 6), d => '<li><b>' + esc(vname(d.vesselId)) + '</b> ' + B(d.action === 'rejected' ? 'crit' : 'ok', d.action === 'accepted' ? T('قبلت التوصية', 'Accepted') : d.action === 'rejected' ? T('رفضت التوصية', 'Rejected') : T('أكدت الاستلام', 'Acknowledged')) + '<div class="sm muted">' + esc((alertById(d.alertId) || {}).number || '') + ' · ' + rel(d.ackAt) + '</div>' + (d.rejectReason ? '<div class="sm">' + esc(d.rejectReason) + '</div>' : '') + '</li>'));
+      fill('#rc4', li(s.auditLogs.slice(-6).reverse(), a => '<li><div class="sm"><b>' + esc(L(a.summary)) + '</b></div><div class="sm muted">' + esc(a.actor) + ' · ' + rel(a.ts) + '</div></li>'));
+    }
+  };
+  A.openAlert = d => { state.sel.alert = d.id; state.sec = 'alerts'; renderView(); };
+  function popup() {
+    const s = S(), pp = state.pop; let pop = '';
+    if (pp && pp.type === 'risk') { const r = risk(pp.id); if (r) pop = '<b>' + esc(L(r.title)) + '</b> ' + lvB(r.level) + '<div class="sm">' + fT(r.start) + ' – ' + fT(r.end) + ' · ' + N(r.affectedCount || 0) + T(' سفن', ' vessels') + '</div><p class="sm">' + esc(L(r.explanation)).slice(0, 220) + '</p><div class="row"><button class="btn sm" data-a="popRisk" data-id="' + esc(r.id) + '">' + T('التفاصيل', 'Details') + '</button><button class="btn sm ghost" data-a="alertForm" data-r="' + esc(r.id) + '">' + T('إنذار', 'Alert') + '</button></div>'; }
+    if (pp && pp.type === 'port') { const p = port(pp.id); if (p) pop = '<b>' + esc(L(p.name)) + '</b> ' + pstB(p.status) + '<div class="kv sm"><span>' + T('الإشغال', 'Occupancy') + '</span><b>' + ((s.portOccupancy || {})[p.id] != null ? s.portOccupancy[p.id] : p.congestionPct) + '%</b><span>' + T('الأرصفة المتاحة', 'Free berths') + '</span><b>' + p.availableBerths + ' / ' + p.capacityBerths + '</b><span>' + T('سفن قادمة', 'Incoming') + '</span><b>' + s.vessels.filter(v => v.destId === p.id && v.status !== 'moored').length + '</b></div><div class="row"><button class="btn sm ghost" data-a="sec" data-id="distribute">' + T('إدارة الموانئ', 'Port management') + '</button></div>'; }
+    if (pp && pp.type === 'vessel') { const v = vessel(pp.id); if (v) pop = '<b>' + esc(v.name) + '</b><div class="sm">' + vtype(v.type) + ' · ' + T(...VST[v.status]) + (v.status === 'underway' ? ' · ' + N(v.sog, 1) + ' kn → ' + esc(pname(v.destId)) : '') + '</div><div class="sm muted">' + ll(v.pos) + ' · ' + (v.inTerritorialSea ? T('داخل المياه الإقليمية', 'Inside territorial waters') : T('خارج المياه الإقليمية', 'Outside territorial waters')) + '</div><div class="row"><button class="btn sm ghost" data-a="vOnMap" data-id="' + v.id + '">' + T('المسار والتفاصيل', 'Route & details') + '</button></div>'; }
+    fill('#mpop', pop ? '<div class="mpop"><button class="x" data-a="popClose">×</button>' + pop + '</div>' : '');
+  }
+
+  // Settings
+  OFF.settings = { mount: () => sechead(T('الإعدادات', 'Settings'), '') + '<div id="setp"></div>', upd: () => fill('#setp', settingsHtml()) };
+  function settingsHtml() {
+    const s = S(), me = s.me || {};
+    return '<div class="grid2b"><div class="panel"><h2>' + T('الإنذار الصوتي', 'Audible alarm') + '</h2>' +
+      '<label class="chk"><input type="checkbox" data-set="on"' + (Sound.on ? ' checked' : '') + '>' + T('تفعيل صوت الإنذار', 'Enable alarm sound') + '</label>' +
+      '<label>' + T('نغمة الإنذار', 'Alarm tone') + '<select data-set="tone">' + opts([['horn', T('بوق بحري ثنائي النغمة', 'Two-tone marine horn')], ['pulse', T('نبضات حادة', 'Sharp pulses')], ['bell', T('جرس السفينة', 'Ship bell')]], Sound.tone) + '</select></label>' +
+      '<label>' + T('مستوى الصوت', 'Volume') + ' (' + Math.round(Sound.vol * 100) + '%)<input type="range" min="10" max="100" step="10" value="' + Math.round(Sound.vol * 100) + '" data-set="vol"></label>' +
+      '<div class="row">' + (Sound.unlocked ? B('ok', T('الصوت مهيأ على هذا الجهاز', 'Sound initialised on this device')) : '<button class="btn" data-a="enableSound">' + ic(I_SOUND) + T('تفعيل الصوت', 'Enable sound') + '</button>') + '<button class="btn ghost" data-a="testAlarm">' + T('اختبار الإنذار', 'Test alarm') + '</button><button class="btn ghost" data-a="testAlarmRepeat">' + T('اختبار الإنذار المتكرر', 'Test repeating alarm') + '</button></div>' +
+      '<p class="sm muted">' + T('المتصفحات تمنع التشغيل التلقائي للصوت؛ اضغط «تفعيل الصوت» مرة على كل جهاز. الإنذار الحرج يتكرر حتى التأكيد.', 'Browsers block autoplay; press “Enable sound” once on each device. A critical alarm repeats until acknowledged.') + '</p></div>' +
+      '<div class="panel"><h2>' + T('العرض', 'Display') + '</h2><label>' + T('اللغة', 'Language') + '<select data-set="lang">' + opts([['ar', 'العربية'], ['en', 'English']], I.lang) + '</select></label><label>' + T('المظهر', 'Theme') + '<select data-set="theme">' + opts([['dark', T('داكن (مركز العمليات)', 'Dark (operations room)')], ['light', T('فاتح', 'Light')]], theme()) + '</select></label></div>' +
+      '<div class="panel"><h2>' + T('إشعارات الجوال', 'Mobile notifications') + '</h2><p class="sm">' + N((s.devices || []).filter(d => d.status === 'active').length) + T(' أجهزة فعّالة', ' active devices') + '</p><div class="row"><button class="btn ghost" data-a="sec" data-id="devices">' + T('إدارة الأجهزة', 'Manage devices') + '</button><button class="btn ghost" data-a="sec" data-id="pushtest">' + T('مركز الاختبار', 'Test centre') + '</button></div></div>' +
+      '<div class="panel"><h2>' + T('الحساب والبيئة', 'Account & environment') + '</h2><div class="kv"><span>' + T('المستخدم', 'User') + '</span><b>' + esc(L(me.name || { ar: '', en: '' })) + ' · <code>' + esc(me.username || '') + '</code></b><span>' + T('المصادقة', 'Authentication') + '</span><b>' + T('دخول عرض بدون كلمة مرور (للعرض فقط؛ الإنتاج يتطلب مصادقة حقيقية وإدارة صلاحيات)', 'Demo sign-in without password (demonstration only; production requires real authentication and role management)') + '</b><span>' + T('مصادر البيانات', 'Data sources') + '</span><b>' + T('محاكاة؛ لا يوجد اتصال فعلي بالمركز الوطني للأرصاد أو AIS أو أنظمة الموانئ أو NAVTEX/NAVAREA', 'Simulated; no actual connection to NCM, AIS, port systems or NAVTEX/NAVAREA') + '</b><span>' + T('بيان المسؤولية', 'Responsibility statement') + '</span><b class="sm">' + esc(L(s.disclaimer)) + '</b></div></div></div>';
+  }
+  const theme = () => { try { return localStorage.getItem('marsa.theme') || 'dark'; } catch (e) { return 'dark'; } };
+  const applyTheme = () => { document.documentElement.dataset.theme = theme(); };
+  applyTheme();
+  document.addEventListener('change', e => { const el = e.target.closest('[data-set]'); if (!el) return; const k = el.dataset.set, v = el.type === 'checkbox' ? el.checked : el.value;
+    if (k === 'on' || k === 'tone' || k === 'vol') { Sound.set({ [k]: k === 'vol' ? v / 100 : v }); if (k !== 'on' || v) { Sound.unlock(); Sound.ring(true); setTimeout(() => { if (!Sound.repeating) Sound.stopRepeat(); }, 1600); } }
+    if (k === 'lang') { if (I.lang !== v) A.lang(); return; } if (k === 'theme') { try { localStorage.setItem('marsa.theme', v); } catch (x) { /* ignore */ } applyTheme(); }
+    update(); });
+  A.goBset = () => { const el = $('#bset'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+  // Deep links from notifications: /?v=<vesselId>&alert=<alertId>[&do=ack] and /?officer=1&alert=…
+  async function handleLink(href) {
+    let u; try { u = new URL(href, location.href); } catch (e) { return false; } const q = u.searchParams;
+    if (!q.get('v') && !q.get('officer')) return false;
+    try {
+      if (q.get('v')) { const id = 'B-' + q.get('v'); if (!(state.view === 'bridge' && S() && S().me.id === id)) await A.pickBridge({ id }); state.focusAlert = q.get('alert'); state.focusAck = q.get('do') === 'ack'; if (q.get('page') === 'settings') setTimeout(A.goBset, 300); update(); }
+      else { if (state.view !== 'officer') await A.enterOfficer(); state.sec = q.get('page') === 'pushtest' ? 'pushtest' : 'alerts'; if (q.get('alert')) state.sel.alert = q.get('alert'); renderView(); }
+    } catch (e) { return false; }
+    try { history.replaceState(null, '', '/'); } catch (e) { /* ignore */ } return true;
+  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const m = e.data || {}; if (m.type === 'marsa-push') client.refresh(); if (m.type === 'marsa-open') handleLink(m.url); });
+
   // ---------- Boot ----------
   client.subscribe(s => { if (state.view === 'home' || !state.snap) return; state.snap = s; update(); });
-  (async () => { if (window.claude && window.claude.use) window.claude.use('downloads').catch(() => null); renderHome(); })();
+  (async () => {
+    if (window.claude && window.claude.use) window.claude.use('downloads').catch(() => null);
+    if (await handleLink(location.href)) return;
+    let acct = null; try { acct = localStorage.getItem('marsa.acct'); } catch (e) { /* ignore */ }
+    if (acct && client.mode === 'server') { try { if (acct === 'OFFICER') await A.enterOfficer(); else await A.pickBridge({ id: acct }); return; } catch (e) { /* fall back */ } }
+    renderHome(); swReg();
+  })();
 })();
 
 </script>
