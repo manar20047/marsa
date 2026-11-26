@@ -426,6 +426,15 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 .notice.read{opacity:.75;border-inline-start-color:var(--line)}.notice b{display:block}.notice p{margin:6px 0 0;font-size:14px;line-height:1.6;white-space:pre-line}
 .flow.small .fstep{min-height:0;padding:6px 10px}.flow.small .fstep b{font-size:12.5px}
 .notice>button,.notice>.b{flex:none}@media (max-width:600px){.notice{flex-direction:column}}
+/* ---------- v4.7 sidebar by MARSA stages ---------- */
+.ogrp{font-size:11px;letter-spacing:.04em;color:#7f9bb8;padding:12px 12px 4px;font-weight:700}
+.oside button span small{display:block;font-size:11.5px;color:#93acc6;font-weight:400;margin-top:1px}
+.oside button.on span small{color:var(--muted)}
+.occ{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.occ .bar{position:relative;height:12px;border-radius:999px;background:var(--line);margin:8px 0;overflow:visible;display:flex}
+.occ .bar span{background:var(--teal);border-radius:999px 0 0 999px;height:100%}.occ .bar em{background:var(--warn);height:100%}
+.occ .bar i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--crit)}
+@media (max-width:900px){.ogrp{display:none}.oside button span small{display:none}}
 
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;const h=c.closest('table').rows[0].cells[i];c.dataset.l=h?h.textContent:''}}).observe(document,{childList:true,subtree:true})</script>
@@ -2283,7 +2292,17 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
   A.pickBridge = async d => { closeModal(); try { const s = await client.enter(d.id); state.view = 'bridge'; state.snap = s; state.seenDeliv = null; state.seenNotices = null; renderView(); } catch (e) { toast(String(e.message || e), 'bad'); } };
 
   // ---------- Shell ----------
-  const SECS = () => [['map', 'الخريطة وحركة السفن', 'Map & vessel traffic'], ['risks', 'تحليل المخاطر ٤٨ ساعة', '48 h risk analysis'], ['alerts', 'الإنذارات', 'Alerts'], ['bulletins', 'النشرات والإشعارات', 'Bulletins & notices'], ['routes', 'المسارات البديلة', 'Alternative routes'], ['data', 'بيانات الاختبار', 'Test data'], ['integrations', 'التكاملات المقترحة', 'Proposed integrations'], ['audit', 'سجل العمليات', 'Operations log']];
+  const SECS = () => [
+    ['g', 'مراحل مَرسى', 'MARSA stages'],
+    ['map', '١ · يرصد', '1 · Monitor', 'السفن والطقس والموانئ', 'Vessels, weather, ports'],
+    ['risks', '٢ · يتوقع', '2 · Predict', 'المخاطر خلال ٤٨ ساعة', 'Risks over 48 h'],
+    ['routes', '٣ · يقرر', '3 · Decide', 'قرار لكل سفينة', 'A decision per vessel'],
+    ['distribute', '٤ · يوزّع', '4 · Distribute', 'السفن على الموانئ البديلة', 'Vessels across alternative ports'],
+    ['g', 'الإرسال', 'Dissemination'],
+    ['alerts', 'الإنذار المباشر', 'Direct alerts', 'للسفن داخل المياه الإقليمية', 'Ships in territorial waters'],
+    ['bulletins', 'النشرات والإشعارات', 'Bulletins & notices', 'للجهات المختصة', 'To competent parties'],
+    ['g', 'الإدارة', 'Administration'],
+    ['data', 'بيانات الاختبار', 'Test data'], ['integrations', 'التكاملات المقترحة', 'Proposed integrations'], ['audit', 'سجل العمليات', 'Operations log']];
   function header(title, sub, extra) {
     return '<header class="top v3"><button class="btn ghost light sm homebtn" data-a="home">' + ic(I_HOME) + '<span>' + T('الرئيسية', 'Home') + '</span></button>' + LOGO + '<div class="ttl"><b>' + esc(title) + '</b><span>' + sub + '</span></div><div class="grow"></div>' + envBadge() + '<div class="clock" id="clock"></div>' + (extra || '') + '<button class="btn ghost light sm" data-a="lang">' + T('English', 'العربية') + '</button></header>';
   }
@@ -2291,7 +2310,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
     applyLang(); for (const k in state.maps) state.maps[k].destroy(); state.maps = {};
     if (state.view === 'officer') {
       document.getElementById('app').innerHTML = header(T('ضابط الميناء', 'Port Officer'), T('بيئة بيانات اختبار مشتركة', 'Shared test-data environment')) +
-        '<div class="olay"><nav class="oside">' + SECS().map(([k, ar, en]) => '<button class="' + (state.sec === k ? 'on' : '') + '" data-a="sec" data-id="' + k + '">' + ic(NAVI[k]) + '<span>' + T(ar, en) + '</span><i data-c="' + k + '"></i></button>').join('') + '</nav><main id="main" class="omain"></main></div><div id="toasts"></div>';
+        '<div class="olay"><nav class="oside">' + SECS().map(([k, ar, en, sar, sen]) => k === 'g' ? '<div class="ogrp">' + T(ar, en) + '</div>' : '<button class="' + (state.sec === k ? 'on' : '') + '" data-a="sec" data-id="' + k + '">' + ic(NAVI[k] || NAVI.routes) + '<span>' + T(ar, en) + (sar ? '<small>' + T(sar, sen) + '</small>' : '') + '</span><i data-c="' + k + '"></i></button>').join('') + '</nav><main id="main" class="omain"></main></div><div id="toasts"></div>';
       $('#main').innerHTML = OFF[state.sec].mount(); if (OFF[state.sec].bind) OFF[state.sec].bind($('#main'));
     } else {
       const v = S().vessels[0] || {};
@@ -2347,7 +2366,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 
   // 1) Map
   OFF.map = {
-    mount: () => sechead(T('الخريطة وحركة السفن', 'Map & vessel traffic'), srcLine('ais') + ' ' + srcLine('ncm')) + '<div id="ovr"></div>' +
+    mount: () => sechead(T('يرصد: السفن والطقس والموانئ', 'Monitor: vessels, weather and ports'), srcLine('ais') + ' ' + srcLine('ncm')) + '<div id="ovr"></div>' +
       '<div class="panel filters row"><label class="sm">' + T('المنطقة', 'Region') + '<select data-f="region">' + opts([['', T('الكل', 'All')], ['RS', T('البحر الأحمر', 'Red Sea')], ['AG', T('الخليج العربي', 'Arabian Gulf')]], state.f.region) + '</select></label><label class="sm">' + T('نوع السفينة', 'Vessel type') + '<select data-f="vtype">' + opts([['', T('الكل', 'All')]].concat(Object.keys(VTYPE).map(k => [k, vtype(k)])), state.f.vtype) + '</select></label><label class="sm">' + T('مستوى الخطر', 'Risk level') + '<select data-f="risk">' + opts([['', T('الكل', 'All')], ['medium', T('متوسط فأعلى', 'Medium+')], ['high', T('مرتفع فأعلى', 'High+')], ['critical', T('حرج', 'Critical')]], state.f.risk) + '</select></label></div>' +
       '<div class="split"><div class="panel mapp"><div class="mapbox tall" id="omap"></div><div class="maplegend"><span class="lg ves"></span>' + T('سفينة (Test AIS Data)', 'Vessel (Test AIS Data)') + ' <span class="lg ves risk"></span>' + T('متأثرة بخطر مرتفع/حرج', 'Affected by high/critical risk') + ' <span class="lg z rk-high"></span>' + T('منطقة خطر', 'Risk area') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Navigational constraints (test)') + ' <span class="lg ln alt"></span>' + T('مسار بديل', 'Alternative route') + '</div></div><aside class="panel side-list" id="vside"></aside></div>',
     bind: m => ensureMap('omap', $('#omap', m), { fit: [33.5, 15, 52, 29.5] }),
@@ -2384,7 +2403,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 
   // 2) Risk analysis
   OFF.risks = {
-    mount: () => sechead(T('تحليل المخاطر خلال ٤٨ ساعة', 'Risk analysis – next 48 h'), T('محرك قواعد واضحة وقابلة للتعديل يحلل بيانات الأرصاد التجريبية وحالة الموانئ وسجلات المخاطر. ليس نموذج ذكاء اصطناعي مدرّبًا ولا تُدّعى له دقة مثبتة.', 'Explicit, editable rules analyse the sample weather data, port status and risk records. Not a trained AI model; no proven accuracy is claimed.') + '<br>' + srcLine('ncm'), '<button class="btn sm ghost" data-a="secData" data-t="rules">' + T('تعديل القواعد', 'Edit rules') + '</button><button class="btn sm" data-a="riskForm">' + T('إضافة خطر', 'Add risk') + '</button>') +
+    mount: () => sechead(T('يتوقع: المخاطر خلال ٤٨ ساعة', 'Predict: risks over the next 48 h'), T('محرك قواعد واضحة وقابلة للتعديل يحلل بيانات الأرصاد التجريبية وحالة الموانئ وسجلات المخاطر. ليس نموذج ذكاء اصطناعي مدرّبًا ولا تُدّعى له دقة مثبتة.', 'Explicit, editable rules analyse the sample weather data, port status and risk records. Not a trained AI model; no proven accuracy is claimed.') + '<br>' + srcLine('ncm'), '<button class="btn sm ghost" data-a="secData" data-t="rules">' + T('تعديل القواعد', 'Edit rules') + '</button><button class="btn sm" data-a="riskForm">' + T('إضافة خطر', 'Add risk') + '</button>') +
       '<div class="split"><aside class="panel side-list" id="rlist"></aside><div><div class="panel" id="rdet"></div><div class="panel mapp"><div class="mapbox mid" id="rmap"></div></div></div></div>',
     bind: m => ensureMap('rmap', $('#rmap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
@@ -2416,7 +2435,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 
   // 3) Alerts
   OFF.alerts = {
-    mount: () => sechead(T('إدارة الإنذارات', 'Alert management'), T('إنذارات اختبار (Test Maritime Alerts): تُنشأ وتُراجع وتُعتمد وتُرسل داخل بيئة الاختبار إلى شاشات جسر السفن المستهدفة فقط.', 'Test Maritime Alerts: created, reviewed, approved and dispatched inside the test environment to the targeted vessels\' bridge screens only.'), '<button class="btn sm" data-a="alertForm">' + T('إنذار جديد', 'New alert') + '</button>') + '<div class="split"><aside class="panel side-list" id="alist"></aside><div class="panel" id="adet"></div></div>',
+    mount: () => sechead(T('الإنذار المباشر للسفن', 'Direct alerts to vessels'), T('إنذارات اختبار (Test Maritime Alerts): تُنشأ وتُراجع وتُعتمد وتُرسل داخل بيئة الاختبار إلى شاشات جسر السفن المستهدفة فقط.', 'Test Maritime Alerts: created, reviewed, approved and dispatched inside the test environment to the targeted vessels\' bridge screens only.'), '<button class="btn sm" data-a="alertForm">' + T('إنذار جديد', 'New alert') + '</button>') + '<div class="split"><aside class="panel side-list" id="alist"></aside><div class="panel" id="adet"></div></div>',
     upd: () => {
       const s = S(), list = s.alerts.slice().reverse();
       if (!state.sel.alert || !alertById(state.sel.alert)) state.sel.alert = list[0] && list[0].id;
@@ -2546,7 +2565,7 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
 
   // 5) Alternative routes
   OFF.routes = {
-    mount: () => sechead(T('المسارات البديلة', 'Alternative routes'), T('محرك تجريبي يراعي موقع السفينة ووجهتها وغاطسها ونوعها ومناطق الخطر والأحوال البحرية والقيود الملاحية في بيانات الاختبار. صلاحية المسارات غير متحققة.', 'Prototype engine considering vessel position, destination, draft, type, risk areas, sea conditions and the navigational constraints in the test data. Route validity is not verified.')) + '<div class="split"><aside class="panel side-list" id="alist2"></aside><div><div class="panel mapp"><div class="mapbox mid" id="amap"></div><div class="maplegend"><span class="lg z rk-critical"></span>' + T('منطقة الخطر', 'Risk area') + ' <span class="lg ln cur"></span>' + T('المسار الحالي', 'Current route') + ' <span class="lg ln alt"></span>' + T('المسار البديل', 'Alternative route') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Constraints (test)') + '</div></div><div class="panel" id="adet2"></div></div></div>',
+    mount: () => sechead(T('يقرر: قرار لكل سفينة متأثرة', 'Decide: a decision for each affected vessel'), T('محرك تجريبي يراعي موقع السفينة ووجهتها وغاطسها ونوعها ومناطق الخطر والأحوال البحرية والقيود الملاحية في بيانات الاختبار. صلاحية المسارات غير متحققة.', 'Prototype engine considering vessel position, destination, draft, type, risk areas, sea conditions and the navigational constraints in the test data. Route validity is not verified.')) + '<div class="split"><aside class="panel side-list" id="alist2"></aside><div><div class="panel mapp"><div class="mapbox mid" id="amap"></div><div class="maplegend"><span class="lg z rk-critical"></span>' + T('منطقة الخطر', 'Risk area') + ' <span class="lg ln cur"></span>' + T('المسار الحالي', 'Current route') + ' <span class="lg ln alt"></span>' + T('المسار البديل', 'Alternative route') + ' <span class="lg z nc"></span>' + T('قيود ملاحية (اختبار)', 'Constraints (test)') + '</div></div><div class="panel" id="adet2"></div></div></div>',
     bind: m => ensureMap('amap', $('#amap', m), { fit: [33.5, 15, 52, 29.5] }),
     upd: () => {
       const s = S(), list = s.alternativeRoutes.slice().reverse();
@@ -2569,6 +2588,22 @@ main.omain{margin:0!important;max-width:none!important;width:auto}
       '<p class="note bad sm">' + esc(L(x.validationNote)) + '</p>';
   }
   A.selRoute = d => { state.sel.route = d.id; update(); };
+
+  // 4) Distribute: diversions across alternative ports, capped at 88 % occupancy
+  NAVI.distribute = 'M4 20V10m8 10V4m8 16v-7M2 20h20';
+  OFF.distribute = {
+    mount: () => sechead(T('يوزّع: السفن على الموانئ البديلة', 'Distribute: vessels across alternative ports'), srcLine('ports')) + '<div class="split"><div class="panel" id="dist"></div><div class="panel mapp"><div class="mapbox mid" id="dmap"></div></div></div>',
+    bind: m => ensureMap('dmap', $('#dmap', m), { fit: [33.5, 15, 52, 29.5] }),
+    upd: () => {
+      const s = S(), div = s.alternativeRoutes.filter(x => x.kind === 'divert' && x.alternative && x.alternative.portId), by = {};
+      for (const x of div) (by[x.alternative.portId] = by[x.alternative.portId] || []).push(x);
+      const high = s.maritimeRisks.filter(r => RANK(r.level) >= 3 && r.end > s.now);
+      const rows = s.ports.map(p => { const n = (by[p.id] || []).length, after = Math.round(p.congestionPct + n * 100 / p.capacityBerths), risky = high.some(r => C.pointInPoly(p.p, r.poly)), w = Math.min(100, after);
+        return '<div class="occ"><div class="row between"><b>' + esc(L(p.name)) + '</b><span>' + pstB(p.status) + (risky ? ' ' + B('crit', T('داخل منطقة خطر', 'In a risk area')) : '') + '</span></div><div class="bar"><span style="width:' + Math.min(100, p.congestionPct) + '%"></span>' + (n ? '<em style="width:' + Math.max(0, w - p.congestionPct) + '%"></em>' : '') + '<i style="inset-inline-start:88%"></i></div><div class="sm">' + T('الإشغال الحالي ', 'Current ') + N(p.congestionPct) + '% · ' + (n ? T('بعد التحويل ', 'After diversions ') + '<b class="' + (after > 88 ? 'bad' : 'okline') + '">' + after + '%</b> · ' + T('سفن محوّلة: ', 'Diverted: ') + by[p.id].map(x => esc(vname(x.vesselId))).join(T('، ', ', ')) : T('لا توجد سفن محوّلة', 'No diverted vessels')) + '</div></div>'; });
+      fill('#dist', '<p class="lead">' + N(div.length) + T(' سفن محوّلة على ', ' vessels diverted to ') + N(Object.keys(by).length) + T(' موانئ · الحد الأعلى للإشغال ٨٨٪', ' ports · occupancy limit 88%') + '</p>' + rows.join('') + (div.length ? '' : '<p class="sm muted">' + T('تظهر التحويلات بعد اعتماد إنذار تكون فيه التوصية «التحويل لميناء بديل».', 'Diversions appear after an alert is approved with a “divert” recommendation.') + '</p>'));
+      if (state.maps.dmap) state.maps.dmap.setData(baseMap({ zones: riskZones(high), routes: div.map(x => ({ kind: 'rec', start: x.alternative.coords[0], nodes: x.alternative.nodes, color: ALT_C, label: vname(x.vesselId) + ' → ' + pname(x.alternative.portId) })), vessels: s.vessels.filter(v => div.some(x => x.vesselId === v.id)).map(v => Object.assign({ status: 'underway' }, v, { affected: true, speedKn: v.sog })) }));
+    }
+  };
 
   // 6) Test data management
   OFF.data = {
